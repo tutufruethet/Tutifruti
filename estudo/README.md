@@ -31,6 +31,7 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Instrument](referencias/instrument.md): sistema de design, escala fixa, conteúdo primeiro.
 - [Resn](referencias/resn.md): conceito antes do código, duas direções, tipografia própria.
 - [Active Theory](referencias/active-theory.md): mundos 3D, navegação por público, motor próprio.
+- [Personagens, prédios e cidades](referencias/personagens-e-predios.md): personagem com esqueleto, prédios procedurais.
 
 ## Prática
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
