@@ -1,4 +1,4 @@
-import { reduce, fine, setLoad, finishLoad, onKick } from './ui.js';
+import { reduce, fine, setLoad, finishLoad } from './ui.js';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -30,11 +30,10 @@ async function start() {
   const { OutputPass } = await import('three/addons/postprocessing/OutputPass.js');
   const { ShaderPass } = await import('three/addons/postprocessing/ShaderPass.js');
   const { World } = await import('./world.js');
-  const { Player, CONTACT, RELEASE, RUN_AT } = await import('./player.js');
-  const { createBall, BallPath, BALL_R } = await import('./ball.js');
-  const { GOAL, PITCH } = await import('./turf.js');
+  const { Logo, DISSOLVE, BALL_SIZE } = await import('./logo.js');
+  const { BALL_R } = await import('./ball.js');
   setLoad(0.45);
-  await fonts; // the neon sign and the wall sign are drawn with the page fonts
+  await fonts; // the signs in the world are drawn with the page fonts
 
   const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
   const ss = (a, b, x) => { const t = Math.min(Math.max((x - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
@@ -53,106 +52,42 @@ async function start() {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.05, 900);
   const world = new World({ scene, renderer, high });
-  setLoad(0.7);
+  setLoad(0.65);
 
-  /* ---------- the kick ---------- */
-  const SPOT = V(9, BALL_R, 1.2);
-  const TARGET = V(PITCH.w / 2 + GOAL.d - 0.12, 1.5, -1.55);
-  const FLIGHT = 0.9;
-  const path = new BallPath(SPOT, TARGET, FLIGHT);
-  const PLANT = V(SPOT.x - 0.45, 0, SPOT.z - 0.1);
-  const FROM = V(SPOT.x - 3.7, 0, SPOT.z - 1.5);
-  const player = new Player();
-  const heading = Math.atan2(-(TARGET.z - SPOT.z), TARGET.x - SPOT.x) * 0.6;
-  player.root.rotation.y = heading;
-  const PLACE = SPOT.clone().add(V(-Math.cos(heading), 0, Math.sin(heading)).multiplyScalar(0.5)).setY(0);
-  const route = { place: PLACE, from: FROM, plant: PLANT };
-  scene.add(player.root);
-  const ball = createBall();
+  /* ---------- the badge and its ball ---------- */
+  const logo = new Logo(renderer);
+  scene.add(logo.group);
+  const ball = logo.ball;
   scene.add(ball);
-  const ballPos = SPOT.clone(), lastBall = SPOT.clone(), dropFrom = V();
-  const spinAxis = V(0, 0, -1);
+  const CENTER = V(0, BALL_R, 0);   // the centre spot, where the ball comes to rest
+  const DROP = DISSOLVE + 0.35, FLY = 2.0;
+  const CRANE0 = DISSOLVE + 0.15, CRANE = 3.0, END = CRANE0 + CRANE + 0.2;
+  const ballPos = V(), ballFrom = V(), lastBall = V(), spin = V(0.3, 0, -1).normalize();
+  let L = V(), C0 = V(), dir = V();
 
-  // rubber crumbs kicked up from the turf at the strike
-  const CRUMBS = 70;
-  const crumbVel = Array.from({ length: CRUMBS }, () => V(Math.random() * 1.2 + 0.4, Math.random() * 2.2 + 0.6, (Math.random() - 0.5) * 1.4));
-  const crumbGeo = new THREE.BufferGeometry();
-  crumbGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(CRUMBS * 3), 3));
-  const crumbs = new THREE.Points(crumbGeo, new THREE.PointsMaterial({ color: '#141414', size: 0.022 }));
-  crumbs.frustumCulled = false;
-  scene.add(crumbs);
-
-  // s: seconds since the sequence started (null = after the goal, ball resting in the net)
-  function updateKick(s, t) {
-    player.update(s, t, route);
-    const dt = s === null ? 99 : s - CONTACT;
-    if (s !== null && s < RELEASE) {
-      player.handsCenter(ballPos);                       // in his gloves
-      dropFrom.copy(ballPos);
-    } else if (s !== null && s < CONTACT) {
-      // dropped onto the spot: falls, one small bounce, settles
-      const k = s - RELEASE;
-      ballPos.lerpVectors(dropFrom, SPOT, Math.min(k / 0.3, 1));
-      const fall = Math.max(dropFrom.y - BALL_R, 0);
-      const t1 = Math.sqrt(2 * fall / 9.8);
-      ballPos.y = k < t1 ? dropFrom.y - 4.9 * k * k : BALL_R + Math.max(0, Math.sin(Math.min((k - t1) / 0.22, 1) * Math.PI)) * 0.04;
-    } else path.at(dt, ballPos);
-    ball.position.copy(ballPos);
-    const moved = ballPos.distanceTo(lastBall);
-    if (moved > 1e-4 && moved < 2 && dt > 0) ball.rotateOnWorldAxis(spinAxis, moved / BALL_R);
-    lastBall.copy(ballPos);
-    // the net bulges and swings back
-    const after = dt - FLIGHT;
-    world.netHit(1, TARGET, after > 0 && after < 4 ? 0.6 * Math.exp(-after * 3.2) * Math.cos(after * 11) : 0);
-    const a = crumbGeo.attributes.position;
-    crumbs.visible = dt > 0 && dt < 1.4;
-    if (crumbs.visible) {
-      for (let i = 0; i < CRUMBS; i++) {
-        const v = crumbVel[i];
-        a.setXYZ(i, SPOT.x - 0.15 + v.x * dt * 0.6, Math.max(0.01, 0.02 + v.y * dt - 4.9 * dt * dt), SPOT.z + v.z * dt * 0.6);
-      }
-      a.needsUpdate = true;
-    }
-  }
-
-  /* ---------- camera: the opening shot ---------- */
-  const LIGHTS0 = 0.3, SEQ0 = 0.2, KICK = SEQ0 + CONTACT, HIT = KICK + FLIGHT, CRANE0 = HIT + 0.35, END = CRANE0 + 3.6;
-  const flightDir = path.at(FLIGHT * 0.6, V()).sub(path.at(FLIGHT * 0.4, V())).normalize();
-  const tmp = V(), tmp2 = V(), lift = V(0, 0.32, 0.55);
-
-  // follow the ball, then stop short of the goal and watch it hit the net
-  function chase(dt, out) {
-    path.at(Math.min(dt, FLIGHT * 0.62), out);
-    return out.addScaledVector(flightDir, -3.2).add(lift);
-  }
-  // shot 1: low and close from the side while he sets the ball down (first reference photo);
-  // shot 2: front-side as he steps back and runs in (second reference photo); then the chase
-  const A0 = V(SPOT.x + 0.4, 0.75, SPOT.z + 3.1), A1 = V(SPOT.x + 1.6, 0.6, SPOT.z + 3.4), A2 = V(SPOT.x + 0.9, 0.42, SPOT.z + 2.5);
-  const L0 = V(SPOT.x - 0.45, 0.72, SPOT.z), L1 = V(SPOT.x - 1.8, 0.9, SPOT.z - 0.8), L2 = V(SPOT.x - 1.2, 0.65, SPOT.z - 0.4);
-  function introPose(it, pos, look) {
-    if (it < KICK) {
-      const a = sst((it - 1.6) / 1.8), b = sst((it - (SEQ0 + RUN_AT + 0.25)) / 0.6);
-      pos.lerpVectors(A0, A1, a).lerp(A2, b);
-      look.lerpVectors(L0, L1, a).lerp(L2, b);
-      return;
-    }
-    const dt = it - KICK;
-    if (it < HIT) {
-      chase(dt, pos).lerp(A2, 1 - ss(0, 0.3, dt));
-      path.at(dt, look).lerp(TARGET, ss(FLIGHT * 0.5, FLIGHT, dt) * 0.5);
-      return;
-    }
-    const coast = Math.min(it, CRANE0) - HIT;
-    const p1 = chase(FLIGHT, tmp).addScaledVector(flightDir, (1 - Math.exp(-coast * 5)) * 0.4);
-    if (it < CRANE0) { pos.copy(p1); look.copy(TARGET); return; }
-    const k = (it - CRANE0) / (END - CRANE0);
+  // the badge floats ahead of the hero camera, so the crane back lands exactly on the hero frame
+  function placeLogo() {
     const K = keys().hero;
-    pos.lerpVectors(p1, K.p, sst(k));
-    pos.y += Math.sin(Math.PI * sst(k)) * 10;
-    look.lerpVectors(TARGET, K.t, sst(k * 1.15));
+    dir.subVectors(K.t, K.p).normalize();
+    L.copy(K.p).addScaledVector(dir, narrow() ? 30 : 22);
+    C0.copy(L).addScaledVector(dir, narrow() ? -15.5 : -10);
+    logo.place(L, C0);
   }
 
-  /* ---------- camera: scroll through the complex ---------- */
+  // after the badge dissolves the ball arcs down to the centre spot and bounces to rest
+  function ballFlight(t, out) {
+    const k = t - DROP;
+    if (k < FLY) {
+      const u = k / FLY;
+      out.lerpVectors(ballFrom, CENTER, u);
+      out.y = ballFrom.y + (CENTER.y - ballFrom.y) * u * u + Math.sin(Math.PI * u) * 1.5 * (1 - u);
+      return out;
+    }
+    const b = k - FLY;
+    return out.copy(CENTER).setY(BALL_R + Math.abs(Math.sin(b * 7)) * 0.9 * Math.exp(-b * 3.2));
+  }
+
+  /* ---------- camera ---------- */
   const narrow = () => innerWidth / innerHeight < 0.9;
   let K = null;
   function keys() {
@@ -171,6 +106,21 @@ async function start() {
     };
     return K;
   }
+
+  // the opening: close on the badge, then crane back to the hero frame following the ball down
+  const tmpA = V(), tmpB = V();
+  function introPose(t, pos, look) {
+    pos.copy(C0).addScaledVector(dir, 0.8 * ss(0, DISSOLVE, t));
+    look.copy(L);
+    if (t < CRANE0) return;
+    const e = sst((t - CRANE0) / CRANE);
+    const H = keys().hero;
+    pos.lerp(H.p, e);
+    pos.y += Math.sin(Math.PI * e) * 4;
+    tmpA.lerpVectors(L, ballPos, ss(0, 0.3, e));
+    look.lerpVectors(tmpA, H.t, ss(0.45, 1, e));
+  }
+
   const camSecs = $$('[data-cam]');
   const names = camSecs.map(s => s.dataset.cam);
   let anchors = [];
@@ -194,7 +144,7 @@ async function start() {
   /* ---------- post: bloom only on what emits light, then grade ---------- */
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  if (high) composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.85, 0.55, 1));
+  if (high) composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.4, 1));
   composer.addPass(new OutputPass());
   const grade = new ShaderPass({
     uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uRes: { value: new THREE.Vector2() }, uFade: { value: 0 } },
@@ -221,13 +171,15 @@ async function start() {
     composer.setPixelRatio(renderer.getPixelRatio());
     composer.setSize(innerWidth, innerHeight);
     grade.uniforms.uRes.value.set(innerWidth, innerHeight).multiplyScalar(renderer.getPixelRatio());
+    logo.setPixelRatio(renderer.getPixelRatio());
     measure();
+    placeLogo();
     dirty = true;
   }
 
   /* ---------- state ---------- */
   const pointer = new THREE.Vector2(), sway = new THREE.Vector2();
-  let intro = reduce ? END : 0, introDone = reduce, fade = reduce ? 1 : 0, seq = null, kickAt = -99, clock = 0;
+  let intro = reduce ? END : 0, introDone = reduce, fade = reduce ? 1 : 0, clock = 0;
   addEventListener('pointermove', e => {
     if (e.pointerType !== 'mouse') return;
     pointer.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
@@ -241,18 +193,12 @@ async function start() {
     if (introDone) return;
     introDone = true;
     intro = END;
-    seq = 99;
     document.body.classList.remove('intro');
     document.body.classList.add('live');
     measure();
   }
   $('[data-skip]').addEventListener('click', finishIntro);
   addEventListener('keydown', e => { if (e.key === 'Escape') finishIntro(); });
-
-  // replay the kick when the arena comes into view, or from the button
-  const replay = () => { if (introDone && clock - kickAt > 6) { kickAt = clock; seq = 0; dirty = true; } };
-  onKick(replay);
-  new IntersectionObserver(es => es.forEach(e => e.isIntersecting && replay()), { threshold: 0.45 }).observe($('#arena'));
 
   /* ---------- frame ---------- */
   const pos = V(), look = V();
@@ -268,28 +214,40 @@ async function start() {
 
     if (!introDone) {
       intro += dt;
-      fade = Math.min(fade + dt * 0.8, 1);
+      fade = Math.min(fade + dt * 0.7, 1);
       if (intro >= END) finishIntro();
-    } else {
-      fade = 1;
-      if (seq !== null && seq < 99) seq += dt;
-    }
+    } else fade = 1;
+    const it = introDone ? END : intro;
 
-    world.setLights(introDone ? 99 : intro - LIGHTS0);
-    updateKick(introDone ? (seq >= 99 ? null : seq) : Math.max(intro - SEQ0, 0), t);
+    // the floodlights come on as the badge lets the ball go
+    world.setLights(introDone ? 99 : it - DISSOLVE + 0.1);
 
-    if (!introDone) introPose(intro, pos, look);
+    // badge and ball
+    logo.group.visible = !introDone;
+    if (it < DROP) { logo.update(it, introDone ? sway.set(0, 0) : pointer, ballPos); ballFrom.copy(ballPos); }
+    else { if (!introDone) logo.update(it, pointer, tmpB); ballFlight(it, ballPos); }
+    if (introDone) ballPos.copy(CENTER);
+    ball.position.copy(ballPos);
+    // the badge's big ball shrinks to a real one on the way down
+    const size = BALL_SIZE + (BALL_R - BALL_SIZE) * ss(DROP, DROP + FLY * 0.9, it);
+    ball.scale.setScalar(size / BALL_R);
+    const moved = ballPos.distanceTo(lastBall);
+    if (moved > 1e-4 && moved < 3) ball.rotateOnWorldAxis(spin, moved / size);
+    else if (!introDone && it < DROP) ball.rotation.y += dt * 0.6;
+    lastBall.copy(ballPos);
+
+    if (!introDone) introPose(it, pos, look);
     else {
       scrollPose(scrollY, t, pos, look);
       sway.lerp(pointer, 1 - Math.exp(-3 * dt));
-      tmp.subVectors(look, pos).normalize();
-      tmp2.crossVectors(tmp, camera.up).normalize();
-      pos.addScaledVector(tmp2, sway.x * 0.6).addScaledVector(camera.up, sway.y * 0.35);
+      tmpA.subVectors(look, pos).normalize();
+      tmpB.crossVectors(tmpA, camera.up).normalize();
+      pos.addScaledVector(tmpB, sway.x * 0.6).addScaledVector(camera.up, sway.y * 0.35);
     }
     camera.position.copy(pos);
     camera.lookAt(look);
 
-    world.update(t, { camera, ball: ballPos, focus: introDone && seq >= 99 ? look : SPOT });
+    world.update(t, { camera, ball: ballPos, focus: introDone ? look : CENTER });
     grade.uniforms.uTime.value = t;
     grade.uniforms.uFade.value = fade;
     composer.render(dt);

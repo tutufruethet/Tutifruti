@@ -81,11 +81,6 @@ addEventListener('scroll', () => {
   lastY = y;
 }, { passive: true });
 
-/* ---------- kick again ---------- */
-const kickers = [];
-export const onKick = fn => kickers.push(fn);
-$$('[data-kick]').forEach(b => b.addEventListener('click', () => kickers.forEach(fn => fn())));
-
 $('[data-top]').addEventListener('click', () => scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }));
 
 /* ---------- cursor + magnetic buttons (mouse only) ---------- */

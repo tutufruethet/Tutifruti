@@ -25,24 +25,27 @@ function cellCenters() {
   return { verts, faces };
 }
 
-export function createBall() {
+// default: a white match ball; the logo's ball is gold with black pentagons
+export function createBall({ hex = [0.92, 0.92, 0.9], pent = [0.025, 0.025, 0.025], metalness = 0, roughness = 0.42, envMap = null } = {}) {
   const { verts, faces } = cellCenters();
-  const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.42 });
+  const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness, metalness, envMap });
   mat.onBeforeCompile = sh => {
     sh.uniforms.uPent = { value: verts };
     sh.uniforms.uHex = { value: faces };
+    sh.uniforms.uHexCol = { value: new THREE.Vector3(...hex) };
+    sh.uniforms.uPentCol = { value: new THREE.Vector3(...pent) };
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vObj;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObj = position;');
     sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vObj;\nuniform vec3 uPent[12];\nuniform vec3 uHex[20];')
+      .replace('#include <common>', '#include <common>\nvarying vec3 vObj;\nuniform vec3 uPent[12];\nuniform vec3 uHex[20];\nuniform vec3 uHexCol, uPentCol;')
       .replace('#include <color_fragment>', `#include <color_fragment>
         vec3 n = normalize(vObj);
         float b1 = -2., b2 = -2.; bool pent = false;
         for (int i = 0; i < 12; i++) { float d = dot(n, uPent[i]); if (d > b1) { b2 = b1; b1 = d; pent = true; } else if (d > b2) b2 = d; }
         for (int i = 0; i < 20; i++) { float d = dot(n, uHex[i]); if (d > b1) { b2 = b1; b1 = d; pent = false; } else if (d > b2) b2 = d; }
         float seam = smoothstep(.004, .016, b1 - b2);
-        vec3 panel = pent ? vec3(.025) : vec3(.92, .92, .9);
+        vec3 panel = pent ? uPentCol : uHexCol;
         diffuseColor.rgb = panel * mix(.25, 1., seam);`);
   };
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 48, 24), mat);
