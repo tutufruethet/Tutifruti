@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Star Restauret — Alta gastronomia</title>
+<title>Star Restauret</title>
 <meta name="description" content="Star Restauret: um único menu degustação em seis tempos, dezoito lugares e a noite inteira à mesa.">
 <meta name="theme-color" content="#0d0b0a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +26,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
 body{font:400 var(--t-m)/1.55 var(--sans);overflow-x:clip;background:var(--ink)}
-body.lock{overflow:hidden}
+html.lock{overflow:hidden}
 a,button,input,textarea{color:inherit;font:inherit;text-decoration:none;background:none;border:0}
 a,button{cursor:pointer}
 :focus-visible{outline:1px solid var(--gold);outline-offset:4px}
@@ -78,7 +78,7 @@ a:hover .arrow,button:hover .arrow{transform:translate(2px,-2px)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* nav */
-.nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:1.4rem var(--pad);transition:transform .9s var(--ease)}
+.nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:calc(1.4rem + env(safe-area-inset-top, 0px)) var(--pad) 1.4rem;transition:transform .9s var(--ease)}
 .nav.hide{transform:translateY(-110%)}
 .nav::before{content:"";position:absolute;inset:0 0 -2.5rem;z-index:-1;pointer-events:none;background:linear-gradient(var(--ink) 35%,transparent);opacity:0;transition:opacity .6s var(--ease)}
 .nav.solid::before{opacity:.94}
@@ -120,7 +120,7 @@ section{position:relative}
 
 /* menu: pinned stage, 6 steps */
 .menu{height:600vh}
-.menu__stage{position:sticky;top:0;height:100svh;display:grid;grid-template-rows:auto 1fr auto;padding-block:6.5rem 2rem}
+.menu__stage{position:sticky;top:env(safe-area-inset-top, 0px);height:calc(100svh - env(safe-area-inset-top, 0px));display:grid;grid-template-rows:auto 1fr auto;padding-block:6.5rem 2rem}
 .menu__courses{list-style:none;position:relative;grid-column:1/6;align-self:center}
 .course{position:absolute;inset:auto 0 auto 0;top:50%;transform:translateY(-50%);pointer-events:none}
 .course.on{pointer-events:auto}
@@ -246,7 +246,8 @@ section{position:relative}
 { "imports": { "three": "./vendor/three/build/three.module.min.js", "three/addons/": "./vendor/three/examples/jsm/" } }
 </script>
 </head>
-<body class="lock">
+<body>
+<noscript><style>.loader{display:none}</style></noscript>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="star" viewBox="-50 -50 100 100"><path fill="currentColor" d="M0 -50 L2.9 -6.9 L16.3 -16.3 L6.9 -2.9 L50 0 L6.9 2.9 L16.3 16.3 L2.9 6.9 L0 50 L-2.9 6.9 L-16.3 16.3 L-6.9 2.9 L-50 0 L-6.9 -2.9 L-16.3 -16.3 L-2.9 -6.9Z"/></symbol>
 </svg>
@@ -391,7 +392,7 @@ section{position:relative}
         </div>
       </div>
       <form class="form" data-fade novalidate>
-        <label class="field"><span class="label">Data</span><input type="date" name="data" required></label>
+        <label class="field"><span class="label">Data</span><input type="date" id="r-data" name="data" required></label>
         <div class="field"><span class="label" id="ses">Sessão</span>
           <div class="pills" role="group" aria-labelledby="ses">
             <button type="button" class="pill" aria-pressed="true" data-session>19h30</button>
@@ -405,9 +406,9 @@ section{position:relative}
             <button type="button" data-step="1" aria-label="Mais uma pessoa">+</button>
           </div>
         </div>
-        <label class="field"><span class="label">Nome</span><input name="nome" autocomplete="name" placeholder="Seu nome" required></label>
-        <label class="field field--full"><span class="label">E-mail</span><input type="email" name="email" autocomplete="email" placeholder="voce@email.com" required></label>
-        <label class="field field--full"><span class="label">Observações</span><textarea name="obs" rows="2" placeholder="Restrições, alergias, aniversário…"></textarea></label>
+        <label class="field"><span class="label">Nome</span><input id="r-nome" name="nome" autocomplete="name" placeholder="Seu nome" required></label>
+        <label class="field field--full"><span class="label">E-mail</span><input type="email" id="r-email" name="email" autocomplete="email" placeholder="voce@email.com" required></label>
+        <label class="field field--full"><span class="label">Observações</span><textarea id="r-obs" name="obs" rows="2" placeholder="Restrições, alergias, aniversário…"></textarea></label>
         <div class="form__end">
           <p class="form__msg" aria-live="polite">Até 8 pessoas por reserva. Para grupos maiores, fale conosco.</p>
           <button class="btn" type="submit" data-magnetic><span>Solicitar reserva</span><span class="arrow">↗</span></button>
@@ -421,7 +422,7 @@ section{position:relative}
   <div class="grid">
     <div class="col"><span class="label">Endereço</span><span>Rua das Constelações, 18</span><span>Jardins, São Paulo</span></div>
     <div class="col"><span class="label">Horário</span><span>Terça a sábado</span><span>19h30 e 21h30</span></div>
-    <div class="col"><span class="label">Contato</span><a class="u" href="mailto:reservas@starrestauret.com.br">reservas@starrestauret.com.br</a><a class="u" href="tel:+551130000018">+55 11 3000-0018</a></div>
+    <div class="col"><span class="label">Contato</span><a class="u" href="mailto:reservas@starrestauret.com.br">reservas@starrestauret.com.br</a><a class="u" href="tel:+551100000000">+55 11 0000-0000</a></div>
     <div class="col"><span class="label">Agora em São Paulo</span><span class="serif" style="font-size:2rem;line-height:1" data-clock>—</span></div>
   </div>
   <div class="footer__mark" aria-hidden="true"><span>Star <em>Restauret</em></span></div>

@@ -27,6 +27,7 @@ Site de restaurante de alta gastronomia em [restaurante/index.html](../restauran
 - **Morph com pausa para leitura:** a fração do scroll passa por `smoothstep(.2, .8)`, então cada forma fica parada enquanto o texto é lido. Um atraso aleatório por ponto (`aRand`) e uma explosão `sin(πt)` no meio da troca dão o efeito de dissolver.
 - **Forma em partícula precisa de densidade uniforme.** Fios em hélice cruzados viram uma rede; a chama só ficou boa sorteando pontos na superfície, com mais pontos onde ela é mais larga.
 - **Texto atrás de 3D:** depois do herói, a nuvem cai para cerca de 12% de opacidade e cresce além da tela. Assim ela vira textura, não compete com o texto.
+- **Versão publicada no app (Artifact):** o host já põe `doctype`, `head` e `body`, então a página vai sem eles. O three.js vem do jsDelivr por import map, na mesma versão do vendorizado (0.170.0). O formulário ganha `data-preview` e avisa que nada foi enviado.
 - **Print em renderizador por software:** o `dt` limitado deixa as transições amortecidas lentas (3–4 FPS); espere bem mais antes do screenshot ou o print mostra o meio do caminho.
 
 Related: [Checklist de entrega](checklist-de-entrega.md) · [Ilha 3D](mundo-3d.md) · [Fundo vivo e 3D](regras/fundo-vivo-e-3d.md) · [Lusion](referencias/lusion.md)

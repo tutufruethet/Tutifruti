@@ -6,6 +6,7 @@ const mouse = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const high = mouse && !/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) && !location.hash.includes('low');
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const wait = ms => new Promise(r => setTimeout(r, ms));
+document.documentElement.classList.add('lock');   // no scrolling behind the loader
 
 /* ---------- scene state (read every frame by scene.js) ---------- */
 const state = { hero: 0, toMenu: 0, shape: 0, after: 0, mx: 0, my: 0, scroll: 0 };
@@ -109,6 +110,7 @@ addEventListener('pointermove', e => {
 
 /* ---------- reservation ---------- */
 const form = $('.form');
+const preview = form.hasAttribute('data-preview');   // published preview: the request goes nowhere
 $$('[data-session]').forEach(p => p.addEventListener('click', () => $$('[data-session]').forEach(q => q.setAttribute('aria-pressed', q === p))));
 const out = $('output', form);
 $$('[data-step]').forEach(b => b.addEventListener('click', () => { out.value = clamp(+out.value + +b.dataset.step, 1, 8); }));
@@ -136,6 +138,10 @@ form.addEventListener('submit', e => {
   const session = $('[data-session][aria-pressed="true"]').textContent;
   const day = date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
   msg.classList.add('ok');
+  if (preview) {
+    msg.textContent = `Prévia: nada foi enviado. No site no ar, o pedido para ${day}, às ${session}, chega à equipe de reservas.`;
+    return;
+  }
   msg.textContent = `Pedido recebido: ${out.value} ${out.value > 1 ? 'pessoas' : 'pessoa'}, ${day}, às ${session}. Confirmamos por e-mail.`;
   scramble($('button[type=submit] span', form), 'Pedido enviado');
 });
@@ -201,7 +207,7 @@ target = 1;
 await wait(reduce ? 0 : 500);
 num.textContent = 100;
 loader.classList.add('done');
-document.body.classList.remove('lock');
+document.documentElement.classList.remove('lock');
 await wait(reduce ? 0 : 300);
 const hero = $('.hero');
 $$('[data-reveal],[data-fade]').forEach(el => (hero.contains(el) ? reveal(el) : io.observe(el)));
