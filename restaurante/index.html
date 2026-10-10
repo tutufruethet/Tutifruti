@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Star Restauret — Alta gastronomia</title>
+<meta name="description" content="Star Restauret: um único menu degustação em seis tempos, dezoito lugares e a noite inteira à mesa.">
+<meta name="theme-color" content="#0d0b0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: 12-col editorial grid over one fixed WebGL canvas. Dark, warm neutrals; gold is the only accent. */
+:root{
+  --ink:#0d0b0a; --paper:#ece5d8; --mute:#8a8276; --gold:#c9a266;
+  --line:rgba(236,229,216,.14);
+  --serif:"Cormorant Garamond",ui-serif,Georgia,serif;
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --pad:clamp(1rem,3vw,2.5rem); --gap:1.25rem;
+  --ease:cubic-bezier(.16,1,.3,1);
+  /* ×1.2 scale from 14px; display sits outside it on purpose */
+  --t-xs:.75rem; --t-s:.875rem; --t-m:1.05rem; --t-l:1.26rem; --t-xl:clamp(2rem,4.4vw,4.2rem);
+  --t-display:clamp(4.6rem,17vw,17rem);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{font:400 var(--t-m)/1.55 var(--sans);overflow-x:clip;background:var(--ink)}
+body.lock{overflow:hidden}
+a,button,input,textarea{color:inherit;font:inherit;text-decoration:none;background:none;border:0}
+a,button{cursor:pointer}
+:focus-visible{outline:1px solid var(--gold);outline-offset:4px}
+[hidden]{display:none!important}
+::selection{background:var(--gold);color:var(--ink)}
+
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;mix-blend-mode:screen}
+.veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 70% 45%,transparent 30%,rgba(13,11,10,.75) 100%),linear-gradient(90deg,rgba(13,11,10,.55),transparent 55%)}
+.grain{position:fixed;inset:-50%;z-index:2;pointer-events:none;opacity:.055;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 1.2s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-4%)}60%{transform:translate(-4%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
+main,.footer{position:relative;z-index:3}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);padding-inline:var(--pad)}
+.label{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:500}
+.serif{font-family:var(--serif);font-weight:300}
+em,.it{font-family:var(--serif);font-style:italic;font-weight:300}
+.gold{color:var(--gold)}
+.ico{display:inline-block;aspect-ratio:1;height:auto;flex:none}
+.u{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .7s var(--ease)}
+.u:hover{background-size:100% 1px}
+
+/* buttons */
+.btn{position:relative;display:inline-flex;align-items:center;gap:.7rem;padding:1.05rem 1.7rem;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:500;font-size:var(--t-s);letter-spacing:.02em;overflow:hidden;transition:color .6s var(--ease)}
+.btn::before{content:"";position:absolute;inset:0;background:var(--paper);border-radius:inherit;transform:translateY(101%);transition:transform .7s var(--ease)}
+.btn:hover::before{transform:none}
+.btn>*{position:relative}
+.btn--ghost{background:transparent;color:var(--paper);box-shadow:inset 0 0 0 1px var(--line)}
+.btn--ghost::before{background:var(--paper)}
+.btn--ghost:hover{color:var(--ink)}
+.arrow{display:inline-block;transition:transform .7s var(--ease)}
+a:hover .arrow,button:hover .arrow{transform:translate(2px,-2px)}
+
+/* reveal by line */
+.line{display:block;overflow:hidden;padding-bottom:.16em;margin-bottom:-.16em}
+.line>span{display:inline-block;transform:translateY(140%);transition:transform 1.2s var(--ease)}
+.in .line>span,.line.in>span{transform:none}
+[data-fade]{opacity:0;transform:translateY(1.2rem);transition:opacity 1.1s var(--ease),transform 1.1s var(--ease)}
+[data-fade].in{opacity:1;transform:none}
+
+/* loader */
+.loader{position:fixed;inset:0;z-index:100;background:var(--ink);display:grid;grid-template-rows:1fr auto;padding:var(--pad);transition:transform 1.2s var(--ease)}
+.loader.done{transform:translateY(-100%)}
+.loader__mark{align-self:center;justify-self:center;width:clamp(3rem,6vw,4.5rem);height:clamp(3rem,6vw,4.5rem);color:var(--gold);animation:spin 6s linear infinite}
+.loader__row{display:flex;justify-content:space-between;align-items:flex-end}
+.loader__num{font-family:var(--serif);font-weight:300;font-size:clamp(4rem,12vw,10rem);line-height:.8;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* nav */
+.nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:1.4rem var(--pad);transition:transform .9s var(--ease)}
+.nav.hide{transform:translateY(-110%)}
+.nav::before{content:"";position:absolute;inset:0 0 -2.5rem;z-index:-1;pointer-events:none;background:linear-gradient(var(--ink) 35%,transparent);opacity:0;transition:opacity .6s var(--ease)}
+.nav.solid::before{opacity:.94}
+.nav__logo{display:flex;align-items:center;gap:.7rem;font-family:var(--serif);font-size:1.5rem;letter-spacing:-.01em;line-height:1}
+.nav__logo svg{width:1.15rem;height:1.15rem;color:var(--gold);transition:transform 1.2s var(--ease)}
+.nav__logo:hover svg{transform:rotate(90deg)}
+.nav__links{display:flex;gap:2rem;padding:.75rem 1.5rem;border-radius:999px;background:rgba(13,11,10,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px var(--line)}
+.nav__links a{font-size:var(--t-s);color:var(--mute);transition:color .5s var(--ease)}
+.nav__links a:hover,.nav__links a.on{color:var(--paper)}
+.nav .btn{padding:.8rem 1.3rem}
+
+/* hero */
+.hero{min-height:100svh;display:grid;grid-template-rows:auto 1fr auto;padding-block:6.5rem 2rem}
+.hero__meta{align-items:start}
+.hero__meta>:nth-child(1){grid-column:1/4}
+.hero__meta>:nth-child(2){grid-column:6/9}
+.hero__meta>:nth-child(3){grid-column:10/13;text-align:right}
+.hero__title{align-self:end;padding-inline:var(--pad);font-family:var(--serif);font-weight:300;font-size:var(--t-display);line-height:.84;letter-spacing:-.035em;margin-left:-.04em}
+.hero__title .line:nth-child(2){padding-left:12vw}
+.hero__foot{margin-top:3rem;align-items:end}
+.hero__lede{grid-column:1/5;color:rgba(236,229,216,.78);max-width:30ch}
+.hero__cta{grid-column:6/10;display:flex;gap:.8rem;flex-wrap:wrap}
+.hero__scroll{grid-column:11/13;text-align:right}
+.hero__scroll span{display:inline-block;animation:bob 2.4s var(--ease) infinite}
+@keyframes bob{0%,100%{transform:none}50%{transform:translateY(4px)}}
+
+section{position:relative}
+.sec{padding-block:clamp(6rem,14vw,12rem)}
+.sec__head{margin-bottom:clamp(3rem,6vw,5rem)}
+.sec__head .label:first-child{grid-column:1/4}
+.sec__head .label:last-child{grid-column:10/13;text-align:right}
+
+/* manifesto */
+.manifesto__text{grid-column:1/11;font-family:var(--serif);font-weight:300;font-size:var(--t-xl);line-height:1.08;letter-spacing:-.02em}
+.manifesto__text .w{color:rgba(236,229,216,.16);transition:color .6s var(--ease)}
+.manifesto__text .w.on{color:var(--paper)}
+.manifesto__text .w.gold.on{color:var(--gold)}
+.manifesto__sig{grid-column:8/12;margin-top:3rem;color:rgba(236,229,216,.7);max-width:36ch}
+
+/* menu: pinned stage, 6 steps */
+.menu{height:600vh}
+.menu__stage{position:sticky;top:0;height:100svh;display:grid;grid-template-rows:auto 1fr auto;padding-block:6.5rem 2rem}
+.menu__courses{list-style:none;position:relative;grid-column:1/6;align-self:center}
+.course{position:absolute;inset:auto 0 auto 0;top:50%;transform:translateY(-50%);pointer-events:none}
+.course.on{pointer-events:auto}
+.course__num{display:block;font-family:var(--serif);font-style:italic;font-size:var(--t-l);color:var(--gold);margin-bottom:1rem}
+.course__name{font-family:var(--serif);font-weight:300;font-size:clamp(3.6rem,9vw,9rem);line-height:.9;letter-spacing:-.035em}
+.course__desc{margin-top:1.6rem;max-width:34ch;color:rgba(236,229,216,.78)}
+.course__pair{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);display:flex;gap:1rem;max-width:34ch}
+.course__pair b{font-weight:400;color:var(--paper);text-transform:none;letter-spacing:0;font-size:var(--t-s)}
+.course [data-part]{opacity:0;transform:translateY(1rem);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.course.on [data-part]{opacity:1;transform:none;transition-duration:1.1s}
+.course.on [data-part="1"]{transition-delay:.08s}.course.on [data-part="2"]{transition-delay:.16s}.course.on [data-part="3"]{transition-delay:.24s}
+.course .line>span{transition-duration:.7s}
+.course.on .line>span{transform:none;transition-duration:1.2s}
+.course__name{transition:opacity .45s var(--ease)}
+.course:not(.on) .course__name{opacity:0}
+.menu__index{display:flex;gap:var(--gap);align-items:end}
+.menu__index button{flex:1;text-align:left;padding-top:.8rem;position:relative;color:var(--mute);font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;transition:color .5s var(--ease)}
+.menu__index button::before,.menu__index button::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:var(--line)}
+.menu__index button::after{background:var(--gold);transform-origin:left;transform:scaleX(var(--p,0))}
+.menu__index button.on{color:var(--paper)}
+.menu__index i{font-family:var(--serif);font-size:1rem;letter-spacing:0;margin-right:.5rem;text-transform:none}
+
+/* numbers */
+.facts{border-top:1px solid var(--line)}
+.fact{grid-column:span 3;padding-top:1.5rem;border-right:1px solid var(--line)}
+.fact:last-child{border-right:0}
+.fact b{display:block;font-family:var(--serif);font-weight:300;font-size:clamp(3.4rem,8vw,7.5rem);line-height:.9;letter-spacing:-.04em}
+
+/* experience rows */
+.rows{list-style:none;border-top:1px solid var(--line);margin-inline:var(--pad)}
+.row{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);align-items:baseline;padding-block:1.8rem;border-bottom:1px solid var(--line);transition:opacity .6s var(--ease)}
+.rows:hover .row{opacity:.35}
+.rows .row:hover{opacity:1}
+.row__n{grid-column:1/2}
+.row__t{grid-column:2/7;font-family:var(--serif);font-weight:300;font-size:clamp(2.2rem,4.6vw,4.4rem);line-height:1;letter-spacing:-.03em;transition:transform .9s var(--ease)}
+.row:hover .row__t{transform:translateX(1rem)}
+.row__d{grid-column:7/11;color:rgba(236,229,216,.75)}
+.row__h{grid-column:11/13;text-align:right}
+
+/* marquee */
+.marquee{overflow:hidden;padding-block:clamp(3rem,7vw,6rem);border-block:1px solid var(--line);white-space:nowrap}
+.marquee__track{display:inline-flex;animation:marquee 32s linear infinite}
+.marquee span{font-family:var(--serif);font-weight:300;font-size:clamp(4rem,11vw,11rem);line-height:1;letter-spacing:-.03em;padding-right:.4em}
+.marquee svg{width:.5em;height:.5em;color:var(--gold);vertical-align:middle;margin-right:.4em;margin-top:-.15em}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* reservation */
+.reserve__intro{grid-column:1/6}
+.reserve__intro h2{font-family:var(--serif);font-weight:300;font-size:clamp(3.4rem,8vw,8rem);line-height:.88;letter-spacing:-.035em}
+.reserve__intro p{margin-top:2rem;max-width:34ch;color:rgba(236,229,216,.75)}
+.price{margin-top:2.5rem;border-top:1px solid var(--line)}
+.price div{display:flex;justify-content:space-between;padding-block:1rem;border-bottom:1px solid var(--line);font-size:var(--t-s)}
+.price span:last-child{font-family:var(--serif);font-size:var(--t-l)}
+.form{grid-column:7/13;display:grid;grid-template-columns:1fr 1fr;gap:0 var(--gap);align-content:start}
+.field{display:flex;flex-direction:column;gap:.6rem;padding-block:1.2rem;border-bottom:1px solid var(--line)}
+.field--full{grid-column:1/-1}
+.field input,.field textarea{font-family:var(--serif);font-size:1.6rem;font-weight:300;padding:0;outline:0;width:100%;resize:none;color:var(--paper)}
+.field input::placeholder,.field textarea::placeholder{color:rgba(236,229,216,.25)}
+.field:focus-within{border-color:var(--gold)}
+.field input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.8) sepia(.4)}
+.pills{display:flex;gap:.5rem}
+.pill{padding:.55rem 1.1rem;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line);font-size:var(--t-s);color:var(--mute);transition:all .5s var(--ease)}
+.pill[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:none}
+.stepper{display:flex;align-items:center;gap:1.2rem}
+.stepper button{width:2.4rem;height:2.4rem;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line);font-size:1.1rem;transition:box-shadow .5s var(--ease)}
+.stepper button:hover{box-shadow:inset 0 0 0 1px var(--paper)}
+.stepper output{font-family:var(--serif);font-size:1.9rem;min-width:1.4ch;text-align:center}
+.form__end{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:2.2rem;flex-wrap:wrap}
+.form__msg{font-size:var(--t-s);color:var(--mute);max-width:32ch}
+.form__msg.ok{color:var(--gold)}
+
+/* footer */
+.footer{padding-top:clamp(5rem,10vw,9rem);border-top:1px solid var(--line);overflow:hidden}
+.footer .col{grid-column:span 3;display:flex;flex-direction:column;gap:.5rem;font-size:var(--t-s)}
+.footer .col .label{margin-bottom:.5rem}
+.footer .col a{color:rgba(236,229,216,.8)}
+.footer__mark{font-family:var(--serif);font-weight:300;font-size:16vw;line-height:.8;letter-spacing:-.05em;white-space:nowrap;margin-top:clamp(4rem,8vw,7rem);padding-inline:var(--pad);transform:translateY(.1em)}
+.footer__mark span{display:inline-block;margin-left:-.04em}
+.footer__bar{display:flex;justify-content:space-between;padding:1.2rem var(--pad) 1.5rem;border-top:1px solid var(--line)}
+
+/* cursor (mouse only) */
+.cursor{position:fixed;left:0;top:0;z-index:90;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--paper);pointer-events:none;mix-blend-mode:difference;transition:width .6s var(--ease),height .6s var(--ease),margin .6s var(--ease),opacity .4s;opacity:0}
+.cursor.big{width:56px;height:56px;margin:-28px 0 0 -28px}
+@media (hover:none),(pointer:coarse){.cursor{display:none}}
+
+/* no WebGL: a still star made in CSS */
+.fallback{display:none}
+.no-gl .fallback{display:block;position:fixed;right:8vw;top:50%;width:min(38vw,26rem);height:min(38vw,26rem);transform:translateY(-50%);color:var(--gold);opacity:.9;z-index:0;filter:drop-shadow(0 0 60px rgba(201,162,102,.35))}
+
+@media (max-width:760px){
+  .nav__links{display:none}
+  .hero__meta>:nth-child(1){grid-column:1/7}
+  .hero__meta>:nth-child(2){display:none}
+  .hero__meta>:nth-child(3){grid-column:7/13}
+  .hero__title .line:nth-child(2){padding-left:0}
+  .hero__lede,.hero__cta,.hero__scroll{grid-column:1/-1}
+  .hero__scroll{display:none}
+  .hero__foot{gap:1.6rem;margin-top:1.8rem}
+  .veil{background:linear-gradient(180deg,rgba(13,11,10,.2),rgba(13,11,10,.5) 55%,rgba(13,11,10,.85))}
+  .sec__head .label:first-child{grid-column:1/8}
+  .sec__head .label:last-child{grid-column:8/13}
+  .manifesto__text,.manifesto__sig{grid-column:1/-1}
+  .menu__stage{padding-top:5rem}
+  .menu__courses{grid-column:1/-1;align-self:end;height:23rem;margin-bottom:2.2rem}
+  .course{top:auto;bottom:0;transform:none}
+  .menu__index{gap:.4rem}
+  .menu__index span{display:none}
+  .fact{grid-column:span 6;border-right:0;padding-bottom:1.6rem}
+  .row{padding-block:1.4rem}
+  .row__n{grid-column:1/3}.row__t{grid-column:3/13}.row__d{grid-column:3/13}.row__h{grid-column:3/13;text-align:left}
+  .reserve__intro,.form{grid-column:1/-1}
+  .form{margin-top:3rem;grid-template-columns:1fr}
+  .footer .col{grid-column:span 6;margin-bottom:2rem}
+  .footer .col:nth-child(3){grid-column:1/-1}
+  .no-gl .fallback{right:50%;top:28%;width:60vw;height:60vw;transform:translate(50%,-50%);opacity:.5}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01s!important;transition-delay:0s!important}
+  html{scroll-behavior:auto}
+}
+</style>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/build/three.module.min.js", "three/addons/": "./vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body class="lock">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="star" viewBox="-50 -50 100 100"><path fill="currentColor" d="M0 -50 L2.9 -6.9 L16.3 -16.3 L6.9 -2.9 L50 0 L6.9 2.9 L16.3 16.3 L2.9 6.9 L0 50 L-2.9 6.9 L-16.3 16.3 L-6.9 2.9 L-50 0 L-6.9 -2.9 L-16.3 -16.3 L-2.9 -6.9Z"/></symbol>
+</svg>
+
+<div class="loader" aria-hidden="true">
+  <svg class="ico loader__mark"><use href="#star"/></svg>
+  <div class="loader__row">
+    <span class="label">Star Restauret — preparando a mesa</span>
+    <span class="loader__num">0</span>
+  </div>
+</div>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<svg class="ico fallback" aria-hidden="true"><use href="#star"/></svg>
+<div class="veil"></div>
+<div class="grain"></div>
+<div class="cursor" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="nav__logo" href="#top" aria-label="Star Restauret, início"><svg class="ico" aria-hidden="true"><use href="#star"/></svg>Star Restauret</a>
+  <nav class="nav__links" aria-label="Seções">
+    <a href="#casa">A casa</a><a href="#menu">Menu</a><a href="#experiencia">Experiência</a><a href="#reservas">Reservas</a>
+  </nav>
+  <a class="btn" href="#reservas" data-magnetic><span>Reservar</span><span class="arrow">↗</span></a>
+</header>
+
+<main>
+  <section class="hero" id="top">
+    <div class="grid hero__meta">
+      <span class="label" data-fade>(01) — Alta gastronomia</span>
+      <span class="label" data-fade>Jardins, São Paulo</span>
+      <span class="label" data-fade>Terça a sábado · desde 2014</span>
+    </div>
+    <h1 class="hero__title" aria-label="Star Restauret" data-reveal>
+      <span class="line"><span>Star</span></span>
+      <span class="line"><span><em>Restauret</em></span></span>
+    </h1>
+    <div class="grid hero__foot">
+      <p class="hero__lede" data-fade>Um único menu degustação, dezoito lugares e uma cozinha aberta para o céu de São Paulo.</p>
+      <div class="hero__cta" data-fade>
+        <a class="btn" href="#reservas" data-magnetic><span>Reservar uma mesa</span><span class="arrow">↗</span></a>
+        <a class="btn btn--ghost" href="#menu" data-magnetic><span>Ver o menu</span><span class="arrow">↓</span></a>
+      </div>
+      <span class="label hero__scroll" data-fade>Role <span>↓</span></span>
+    </div>
+  </section>
+
+  <section class="sec manifesto" id="casa">
+    <div class="grid sec__head"><span class="label">(02) — A casa</span><span class="label">Manifesto</span></div>
+    <div class="grid">
+      <p class="manifesto__text" data-words>A noite começa antes do primeiro prato. Cozinhamos devagar, com o que a estação oferece, para dezoito pessoas por vez. Cada prato é um tempo; o menu inteiro, uma <span class="gold">constelação.</span></p>
+      <p class="manifesto__sig" data-fade>Ingredientes de pequenos produtores do Brasil, técnica francesa e uma única regra: nada chega à mesa sem motivo.</p>
+    </div>
+  </section>
+
+  <section class="menu" id="menu" aria-label="Menu Constelação">
+    <div class="menu__stage">
+      <div class="grid sec__head" style="margin:0"><span class="label">(03) — Menu Constelação</span><span class="label">Seis tempos</span></div>
+      <div class="grid">
+        <ol class="menu__courses">
+          <li class="course" data-i="0">
+            <span class="course__num" data-part="0">I — Entrada</span>
+            <h3 class="course__name"><span class="line"><span>Pérola</span></span></h3>
+            <p class="course__desc" data-part="1">Ostra de Santa Catarina, pérola de tapioca, caviar e beurre blanc de limão-cravo.</p>
+            <p class="course__pair label" data-part="2">Harmonização <b>Champagne Blanc de Blancs</b></p>
+          </li>
+          <li class="course" data-i="1">
+            <span class="course__num" data-part="0">II — Mar</span>
+            <h3 class="course__name"><span class="line"><span>Concha</span></span></h3>
+            <p class="course__desc" data-part="1">Vieira selada, dashi de cogumelos, couve-flor tostada e flor de sal.</p>
+            <p class="course__pair label" data-part="2">Harmonização <b>Chablis Premier Cru</b></p>
+          </li>
+          <li class="course" data-i="2">
+            <span class="course__num" data-part="0">III — Costa</span>
+            <h3 class="course__name"><span class="line"><span>Maré</span></span></h3>
+            <p class="course__desc" data-part="1">Robalo curado, água de tomate, algas da costa e azeite de ervas.</p>
+            <p class="course__pair label" data-part="2">Harmonização <b>Albariño, Rías Baixas</b></p>
+          </li>
+          <li class="course" data-i="3">
+            <span class="course__num" data-part="0">IV — Terra</span>
+            <h3 class="course__name"><span class="line"><span>Bosque</span></span></h3>
+            <p class="course__desc" data-part="1">Cogumelos da Mata Atlântica, gema curada, trufa e pão de fermentação natural.</p>
+            <p class="course__pair label" data-part="2">Harmonização <b>Pinot Noir, Borgonha</b></p>
+          </li>
+          <li class="course" data-i="4">
+            <span class="course__num" data-part="0">V — Fogo</span>
+            <h3 class="course__name"><span class="line"><span>Brasa</span></span></h3>
+            <p class="course__desc" data-part="1">Wagyu na brasa de lenha, tutano, cebola tostada e jus de vinho tinto.</p>
+            <p class="course__pair label" data-part="2">Harmonização <b>Barolo</b></p>
+          </li>
+          <li class="course" data-i="5">
+            <span class="course__num" data-part="0">VI — Sobremesa</span>
+            <h3 class="course__name"><span class="line"><span><em>Estrela</em></span></span></h3>
+            <p class="course__desc" data-part="1">Chocolate amazônico 70%, cupuaçu, flor de sal e folha de ouro.</p>
+            <p class="course__pair label" data-part="2">Harmonização <b>Porto Tawny 20 anos</b></p>
+          </li>
+        </ol>
+      </div>
+      <div class="grid"><div class="menu__index" style="grid-column:1/-1">
+        <button data-go="0"><i>I</i><span>Pérola</span></button>
+        <button data-go="1"><i>II</i><span>Concha</span></button>
+        <button data-go="2"><i>III</i><span>Maré</span></button>
+        <button data-go="3"><i>IV</i><span>Bosque</span></button>
+        <button data-go="4"><i>V</i><span>Brasa</span></button>
+        <button data-go="5"><i>VI</i><span>Estrela</span></button>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="experiencia">
+    <div class="grid sec__head"><span class="label">(04) — A experiência</span><span class="label">Uma noite, quatro atos</span></div>
+    <div class="grid facts" data-fade>
+      <div class="fact"><b>18</b><span class="label">Lugares por noite</span></div>
+      <div class="fact"><b>6</b><span class="label">Tempos no menu</span></div>
+      <div class="fact"><b>3h</b><span class="label">À mesa, sem pressa</span></div>
+      <div class="fact"><b>2</b><span class="label">Sessões · 19h30 e 21h30</span></div>
+    </div>
+    <ul class="rows" style="margin-top:clamp(4rem,8vw,7rem)">
+      <li class="row" data-fade><span class="label row__n">01</span><span class="row__t">Chegada</span><span class="row__d">Aperitivo no balcão de mármore, com a cozinha à vista.</span><span class="label row__h">19h30</span></li>
+      <li class="row" data-fade><span class="label row__n">02</span><span class="row__t"><em>Mesa</em></span><span class="row__d">O Menu Constelação, servido em seis tempos.</span><span class="label row__h">20h00</span></li>
+      <li class="row" data-fade><span class="label row__n">03</span><span class="row__t">Adega</span><span class="row__d">Harmonização com seis rótulos escolhidos pelo nosso sommelier.</span><span class="label row__h">Opcional</span></li>
+      <li class="row" data-fade><span class="label row__n">04</span><span class="row__t">Terraço</span><span class="row__d">Café, petit fours e o céu da cidade para fechar a noite.</span><span class="label row__h">22h30</span></li>
+    </ul>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div class="marquee__track">
+    <span><svg class="ico"><use href="#star"/></svg>Reserve sua noite <em class="gold">à mesa</em></span>
+    <span><svg class="ico"><use href="#star"/></svg>Reserve sua noite <em class="gold">à mesa</em></span>
+    <span><svg class="ico"><use href="#star"/></svg>Reserve sua noite <em class="gold">à mesa</em></span>
+    <span><svg class="ico"><use href="#star"/></svg>Reserve sua noite <em class="gold">à mesa</em></span>
+  </div></div>
+
+  <section class="sec" id="reservas">
+    <div class="grid sec__head"><span class="label">(05) — Reservas</span><span class="label">Abertas com 30 dias</span></div>
+    <div class="grid">
+      <div class="reserve__intro">
+        <h2 data-reveal><span class="line"><span>Sua mesa,</span></span><span class="line"><span><em>sua noite.</em></span></span></h2>
+        <p data-fade>Confirmamos cada reserva pessoalmente, por e-mail, em até 24 horas. Conte-nos sobre restrições e ocasiões especiais.</p>
+        <div class="price" data-fade>
+          <div><span>Menu Constelação</span><span>R$ 980</span></div>
+          <div><span>Harmonização</span><span>R$ 590</span></div>
+        </div>
+      </div>
+      <form class="form" data-fade novalidate>
+        <label class="field"><span class="label">Data</span><input type="date" name="data" required></label>
+        <div class="field"><span class="label" id="ses">Sessão</span>
+          <div class="pills" role="group" aria-labelledby="ses">
+            <button type="button" class="pill" aria-pressed="true" data-session>19h30</button>
+            <button type="button" class="pill" aria-pressed="false" data-session>21h30</button>
+          </div>
+        </div>
+        <div class="field"><span class="label" id="pes">Pessoas</span>
+          <div class="stepper" role="group" aria-labelledby="pes">
+            <button type="button" data-step="-1" aria-label="Menos uma pessoa">−</button>
+            <output name="pessoas" aria-live="polite">2</output>
+            <button type="button" data-step="1" aria-label="Mais uma pessoa">+</button>
+          </div>
+        </div>
+        <label class="field"><span class="label">Nome</span><input name="nome" autocomplete="name" placeholder="Seu nome" required></label>
+        <label class="field field--full"><span class="label">E-mail</span><input type="email" name="email" autocomplete="email" placeholder="voce@email.com" required></label>
+        <label class="field field--full"><span class="label">Observações</span><textarea name="obs" rows="2" placeholder="Restrições, alergias, aniversário…"></textarea></label>
+        <div class="form__end">
+          <p class="form__msg" aria-live="polite">Até 8 pessoas por reserva. Para grupos maiores, fale conosco.</p>
+          <button class="btn" type="submit" data-magnetic><span>Solicitar reserva</span><span class="arrow">↗</span></button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="grid">
+    <div class="col"><span class="label">Endereço</span><span>Rua das Constelações, 18</span><span>Jardins, São Paulo</span></div>
+    <div class="col"><span class="label">Horário</span><span>Terça a sábado</span><span>19h30 e 21h30</span></div>
+    <div class="col"><span class="label">Contato</span><a class="u" href="mailto:reservas@starrestauret.com.br">reservas@starrestauret.com.br</a><a class="u" href="tel:+551130000018">+55 11 3000-0018</a></div>
+    <div class="col"><span class="label">Agora em São Paulo</span><span class="serif" style="font-size:2rem;line-height:1" data-clock>—</span></div>
+  </div>
+  <div class="footer__mark" aria-hidden="true"><span>Star <em>Restauret</em></span></div>
+  <div class="footer__bar label"><span>© 2026 Star Restauret</span><a class="u" href="#top">Voltar ao topo ↑</a></div>
+</footer>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

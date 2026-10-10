@@ -8,13 +8,14 @@ tags: [regra, motion]
 
 1. **Um easing só, com assinatura:** expo-out `cubic-bezier(.16,1,.3,1)`.
 2. **Durações:** entradas de 0,9–1,2s; stagger de 60–90ms entre itens.
-3. **Texto revelado por linha, com máscara:** `.line{overflow:hidden}` + `span{transform:translateY(110%)}` → `none`. Padding inferior ~0,16em para não cortar descendentes (g, p).
+3. **Texto revelado por linha, com máscara:** `.line{overflow:hidden}` + `span{transform:translateY(140%)}` → `none`. Padding inferior ~0,16em para não cortar descendentes (g, p). Com entrelinha < 1, 110% deixa a ponta das letras e os acentos aparecendo; use 140%.
 4. **Cursor e hover com lerp** de 0,08–0,2, nunca colados ao mouse.
 5. **Scroll conta história:** palavras que acendem conforme o scroll, parallax leve, elementos sticky (Locomotive Scroll / GSAP).
 6. **Linear só no marquee.**
 7. **Parallax por atributo:** um número de velocidade por elemento (`progresso × janela × velocidade`), como o `data-scroll-speed` da Locomotive. Para scroll suave, Lenis.
 8. Gravar a **direção do scroll** numa variável CSS para o layout reagir (menu some ao descer, aparece ao subir).
 9. **Texto que embaralha:** letras aleatórias que se resolvem na palavra certa, para UI em fonte mono (Active Theory).
-10. Sempre respeitar `prefers-reduced-motion`.
+10. **Morph no scroll com pausa:** a fração entre duas formas passa por `smoothstep(.2, .8)`, para cada forma ficar parada enquanto o texto é lido.
+11. Sempre respeitar `prefers-reduced-motion`.
 
-Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Star Restauret](../star-restauret.md) · [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)

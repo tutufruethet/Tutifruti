@@ -19,5 +19,7 @@ tags: [regra, 3d, webgl]
 7. **Campos infinitos:** muitas instâncias simples que se repetem com `mod` em volta da câmera.
 8. **Stack:** Three.js (WebGPU + TSL com fallback WebGL), Rapier para física, Blender para modelar, KTX2/Draco para comprimir.
 9. **Prontos para usar:** React Bits (MIT) para backgrounds animados.
+10. **Metal precisa de ambiente:** ouro com `metalness: 1` só brilha se tiver o que refletir. Gere o environment com PMREM a partir de uma cena simples (gradiente quente e softboxes com cor > 1).
+11. **Cor de fundo vem do CSS:** limpe o canvas em preto e use `mix-blend-mode: screen`. O tone mapping esmaga os escuros, e o `RenderPass` limpa com a cor errada.
 
-Related: [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Star Restauret](../star-restauret.md) · [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
