@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tutifruti — Ilha 3D</title>
+<meta name="description" content="Portfólio em dois níveis: design editorial e uma ilha 3D para dirigir até as fotos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* Layout: 12-col editorial grid over a fixed WebGL island; level 2 hides the page and keeps a thin HUD. */
+:root{
+  --ink:#15112b; --paper:#f3f0fa; --mute:#7d7896; --line:#d9d4e8; --accent:#2433ff;
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --serif:"Instrument Serif",ui-serif,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --pad:clamp(1rem,3vw,2.5rem); --gap:1.25rem;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --t-xs:.75rem; --t-s:.875rem; --t-m:1.05rem; --t-l:clamp(1.6rem,3.6vw,3.2rem);
+  --t-xl:clamp(3rem,10vw,10.5rem);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+body{font:400 var(--t-m)/1.5 var(--sans);overflow-x:clip;background:var(--paper)}
+body.lock,body[data-level="2"]{overflow:hidden}
+a,button{color:inherit;font:inherit;text-decoration:none;background:none;border:0;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+img{display:block;max-width:100%}
+[hidden]{display:none!important}
+::selection{background:var(--accent);color:var(--paper)}
+
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:none}
+body[data-level="1"] #gl{pointer-events:none}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);padding-inline:var(--pad)}
+.label{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.serif{font-family:var(--serif);font-weight:400;font-style:italic;letter-spacing:-.02em}
+.acc{color:var(--accent)}
+.u{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s var(--ease)}
+.u:hover{background-size:100% 1px}
+.btn{display:inline-flex;align-items:center;gap:.6rem;padding:1rem 1.6rem;border-radius:999px;background:var(--accent);color:#fff;font-weight:500;transition:transform .6s var(--ease),background .4s var(--ease)}
+.btn:hover{background:var(--ink)}
+.btn--ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.btn--ghost:hover{background:var(--ink);color:var(--paper)}
+
+/* loader */
+.loader{position:fixed;inset:0;z-index:100;background:var(--ink);color:var(--paper);display:flex;align-items:flex-end;justify-content:space-between;padding:var(--pad);transition:transform 1.1s var(--ease)}
+.loader.done{transform:translateY(-100%)}
+.loader__num{font:400 var(--t-xl)/.8 var(--sans);letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+
+/* level wipe (diagonal cut, from the Active Theory transition) */
+.wipe{position:fixed;inset:-10% -40%;z-index:90;background:var(--accent);color:#fff;display:grid;place-items:center;pointer-events:none;transform:translateX(-120%) skewX(-14deg)}
+.wipe span{transform:skewX(14deg);font:400 clamp(4rem,14vw,14rem)/1 var(--sans);letter-spacing:-.05em}
+.wipe em{font-family:var(--serif)}
+.wipe.in{transform:translateX(0) skewX(-14deg);transition:transform .65s cubic-bezier(.7,0,.3,1)}
+.wipe.out{transform:translateX(120%) skewX(-14deg);transition:transform .7s cubic-bezier(.7,0,.3,1)}
+
+/* reveal */
+.line{display:block;overflow:hidden;padding-bottom:.16em;margin-bottom:-.16em}
+.line>span{display:inline-block;transform:translateY(110%);transition:transform 1.2s var(--ease) calc(var(--i,0)*80ms)}
+.in .line>span,.line.in>span{transform:none}
+[data-fade]{opacity:0;transform:translateY(1.2rem);transition:opacity 1s var(--ease) calc(var(--i,0)*80ms),transform 1s var(--ease) calc(var(--i,0)*80ms)}
+.in [data-fade],[data-fade].in{opacity:1;transform:none}
+
+/* ---------- level 1 ---------- */
+#l1{position:relative;z-index:1}
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;padding-block:calc(var(--pad) + env(safe-area-inset-top,0px)) var(--pad);align-items:center;mix-blend-mode:difference;color:#fff}
+.nav__logo{grid-column:1/4;font-weight:600;letter-spacing:-.01em}
+.nav__links{grid-column:5/10;display:flex;gap:1.5rem;font-size:var(--t-s)}
+.nav__cta{grid-column:10/13;justify-self:end;font-size:var(--t-s)}
+
+.hero{position:relative;min-height:100svh;padding-top:6rem;padding-bottom:var(--pad);align-content:space-between}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--paper) 18%,rgba(243,240,250,.75) 34%,rgba(243,240,250,0) 62%);pointer-events:none}
+.hero>*{position:relative}
+.hero__meta{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;color:var(--ink)}
+.hero__meta .label{color:var(--ink);opacity:.7}
+.hero__time{display:flex;align-items:center;gap:.8rem;font-size:var(--t-s);background:rgba(243,240,250,.72);backdrop-filter:blur(8px);padding:.45rem .5rem .45rem 1rem;border-radius:999px}
+.hero__time button{padding:.35rem .8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-size:var(--t-xs)}
+.hero__body{grid-column:1/-1;display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);align-items:end;align-self:end}
+.hero__title{grid-column:1/10;font:400 var(--t-xl)/.88 var(--sans);letter-spacing:-.05em;text-wrap:balance}
+.hero__side{grid-column:10/13;display:flex;flex-direction:column;gap:1.2rem;padding-bottom:.6rem}
+.hero__side p{font-size:var(--t-s);max-width:30ch}
+.hero__btns{display:flex;flex-wrap:wrap;gap:.6rem}
+
+section.s{position:relative;background:var(--paper);padding-block:clamp(6rem,12vw,10rem)}
+.s__head{margin-bottom:clamp(2.5rem,5vw,4.5rem);align-items:baseline}
+.h2{font:400 var(--t-l)/1.08 var(--sans);letter-spacing:-.03em;text-wrap:balance}
+
+.manifesto p{grid-column:3/12;font-size:var(--t-l);line-height:1.12;letter-spacing:-.025em}
+.manifesto .w{opacity:.15;transition:opacity .3s linear}
+.manifesto .w.on{opacity:1}
+
+.levels{list-style:none;padding-inline:var(--pad)}
+.levels li{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);align-items:baseline;padding-block:2rem;border-top:1px solid var(--line)}
+.levels li:last-child{border-bottom:1px solid var(--line)}
+.levels .n{grid-column:1/2;font-size:var(--t-xs);color:var(--mute)}
+.levels h3{grid-column:2/8;font:400 clamp(2.4rem,6.5vw,6.5rem)/.95 var(--sans);letter-spacing:-.045em}
+.levels p{grid-column:8/12;font-size:var(--t-s);color:var(--mute);max-width:36ch}
+.levels .tag{grid-column:12/13;justify-self:end;font-size:var(--t-xs)}
+
+.idx{list-style:none;padding-inline:var(--pad)}
+.idx button{width:100%;text-align:left;display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);align-items:baseline;padding-block:1.3rem;border-top:1px solid var(--line);transition:color .5s var(--ease)}
+.idx li:last-child button{border-bottom:1px solid var(--line)}
+.idx__n{grid-column:1/2;font-size:var(--t-xs);color:var(--mute)}
+.idx__name{grid-column:2/9;font-size:clamp(2.2rem,6vw,5.4rem);line-height:1;letter-spacing:-.045em;transition:transform .7s var(--ease)}
+.idx__c{grid-column:9/12;font-size:var(--t-s);color:var(--mute)}
+.idx__arr{grid-column:12/13;justify-self:end;font-size:var(--t-s)}
+.idx:hover button{color:#b7b2cc}
+.idx button:hover,.idx button:focus-visible{color:var(--ink)}
+.idx button:hover .idx__name{transform:translateX(1.5rem)}
+.preview{position:fixed;left:0;top:0;z-index:40;pointer-events:none}
+.preview__in{width:clamp(180px,16vw,260px);aspect-ratio:3/4;overflow:hidden;transform:translate(-50%,-50%) scale(0) rotate(-4deg);transition:transform .6s var(--ease)}
+.preview.on .preview__in{transform:translate(-50%,-50%) scale(1)}
+.preview img{width:100%;height:100%;object-fit:cover}
+
+.code{list-style:none;padding-inline:var(--pad);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(2rem,4vw,3.5rem) var(--gap)}
+.code li{border-top:1px solid var(--line);padding-top:1.2rem;display:flex;flex-direction:column;gap:.9rem;min-width:0}
+.code h3{font:400 clamp(1.5rem,2.6vw,2.2rem)/1.05 var(--sans);letter-spacing:-.03em}
+.code p{font-size:var(--t-s);color:var(--mute);max-width:46ch}
+pre{background:var(--ink);color:#d9d4ff;font:400 .78rem/1.6 var(--mono);padding:1.1rem 1.2rem;overflow-x:auto;border-radius:4px}
+pre b{color:#ffd23f;font-weight:400}
+pre i{color:#8b85b8;font-style:normal}
+
+.keys{padding-inline:var(--pad);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap)}
+.keys div{border-top:1px solid var(--line);padding-top:1rem;display:flex;flex-direction:column;gap:.5rem;font-size:var(--t-s)}
+kbd{font:500 .78rem/1 var(--mono);display:inline-block;padding:.35rem .5rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;margin-right:.25rem;background:#fff}
+
+.cta{text-align:left}
+.cta h2{grid-column:1/-1;font:400 clamp(3rem,11vw,11rem)/.88 var(--sans);letter-spacing:-.05em}
+.cta .btn{grid-column:1/-1;justify-self:start;margin-top:2rem;font-size:1.1rem;padding:1.2rem 2rem}
+
+.foot{position:relative;background:var(--ink);color:var(--paper);padding-top:clamp(4rem,8vw,6rem);overflow:hidden}
+.foot__col{grid-column:span 3;font-size:var(--t-s);display:flex;flex-direction:column;gap:.35rem}
+.foot__col .label{margin-bottom:.5rem}
+.foot__mark{font:400 30.5vw/.78 var(--sans);letter-spacing:-.065em;white-space:nowrap;padding-inline:calc(var(--pad) - .02em);margin-top:clamp(3rem,8vw,6rem);transform:translateY(8%)}
+
+/* ---------- level 2 HUD ---------- */
+#hud{position:fixed;inset:0;z-index:20;pointer-events:none;color:var(--ink);outline:none}
+#hud>*{pointer-events:auto}
+.hud__top{position:absolute;top:calc(var(--pad) + env(safe-area-inset-top,0px));left:var(--pad);right:var(--pad);display:flex;justify-content:space-between;align-items:center;gap:.6rem;pointer-events:none}
+.hud__top>*{pointer-events:auto}
+.pill{display:inline-flex;align-items:center;gap:.6rem;padding:.7rem 1.1rem;border-radius:999px;background:rgba(243,240,250,.82);backdrop-filter:blur(10px);font-size:var(--t-s);box-shadow:0 0 0 1px rgba(21,17,43,.08)}
+.pill--dark{background:var(--ink);color:var(--paper)}
+.hud__brand{font-weight:600}
+.hud__right{display:flex;gap:.5rem}
+.hud__keys{position:absolute;left:var(--pad);bottom:calc(var(--pad) + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:.4rem;max-width:min(560px,60vw);font-size:var(--t-xs)}
+.hud__keys span{background:rgba(243,240,250,.82);backdrop-filter:blur(10px);padding:.45rem .7rem;border-radius:999px}
+.hud__keys kbd{padding:.2rem .35rem;margin-right:.3rem}
+#prompt{position:absolute;left:50%;bottom:calc(var(--pad) + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:1.2rem;padding:.6rem .6rem .6rem 1.4rem;border-radius:999px;background:var(--ink);color:var(--paper);animation:pop .6s var(--ease)}
+#prompt .label{color:#9c97b8;display:block}
+#pTitle{font:400 1.5rem/1.1 var(--sans);letter-spacing:-.02em}
+#pOpen{padding:.8rem 1.2rem;border-radius:999px;background:var(--accent);color:#fff;font-size:var(--t-s);white-space:nowrap}
+@keyframes pop{from{opacity:0;transform:translate(-50%,1rem)}}
+
+.touchpad{display:none}
+body.touch .hud__keys{display:none}
+body.touch .touchpad{display:block}
+#joy{position:absolute;left:calc(var(--pad) + 8px);bottom:calc(var(--pad) + 8px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(243,240,250,.35);box-shadow:inset 0 0 0 1px rgba(243,240,250,.8);backdrop-filter:blur(6px);touch-action:none;display:grid;place-items:center}
+#knob{width:54px;height:54px;border-radius:50%;background:var(--paper);box-shadow:0 4px 14px rgba(21,17,43,.25);pointer-events:none}
+.tbtns{position:absolute;right:var(--pad);bottom:calc(var(--pad) + 8px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:.7rem}
+.tbtns button{width:64px;height:64px;border-radius:50%;background:rgba(243,240,250,.85);font-size:var(--t-xs);font-weight:600;touch-action:none;user-select:none}
+.tbtns button:active{background:var(--accent);color:#fff}
+body.touch #prompt{bottom:calc(var(--pad) + 150px + env(safe-area-inset-bottom,0px))}
+
+/* modal */
+#modal{position:fixed;inset:0;z-index:60;background:rgba(21,17,43,.55);backdrop-filter:blur(6px);display:grid;place-items:center;padding:var(--pad)}
+.modal__card{position:relative;width:min(1100px,100%);max-height:calc(100svh - 2*var(--pad));overflow:auto;background:var(--paper);border-radius:6px;padding:clamp(1.5rem,4vw,3rem);animation:pop2 .6s var(--ease)}
+@keyframes pop2{from{opacity:0;transform:translateY(1.5rem) scale(.98)}}
+#modalClose{position:absolute;top:1rem;right:1rem;padding:.6rem 1rem;border-radius:999px;background:var(--ink);color:var(--paper);font-size:var(--t-s)}
+.modal__title{font:400 clamp(2.6rem,7vw,6rem)/.9 var(--sans);letter-spacing:-.045em;margin:.6rem 0 2rem}
+.strip{display:flex;gap:1rem;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:.5rem}
+.strip figure{flex:0 0 auto;scroll-snap-align:start}
+.strip img{height:min(56svh,520px);width:auto;max-width:none}
+.strip figcaption{display:flex;justify-content:space-between;margin-top:.6rem;font-size:var(--t-s)}
+.strip figcaption span:last-child{color:var(--mute)}
+.modal__text{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2rem;font-size:var(--t-s)}
+.modal__text p{max-width:52ch}
+.modal__text ul{list-style:none;display:flex;flex-direction:column;gap:.7rem}
+.modal__text li{border-top:1px solid var(--line);padding-top:.7rem}
+.modal__links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem}
+
+@media (max-width:820px){
+  .nav__links{display:none}.nav__logo{grid-column:1/7}.nav__cta{grid-column:7/13}
+  .hero__title{grid-column:1/-1}
+  .hero__side{grid-column:1/-1}
+  .hero__meta{flex-direction:column}
+  .manifesto p{grid-column:1/-1}
+  .s__head>*{grid-column:1/-1!important}
+  .levels h3,.levels p{grid-column:1/-1}.levels .n{grid-column:1/-1}.levels .tag{grid-column:1/-1;justify-self:start}
+  .idx__n{display:none}.idx__name{grid-column:1/11}.idx__c{grid-column:1/11}.idx__arr{grid-column:11/13;grid-row:1}
+  .code{grid-template-columns:minmax(0,1fr)}
+  .keys{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .foot__col{grid-column:span 6;margin-bottom:1.5rem}
+  .modal__text{grid-template-columns:minmax(0,1fr)}
+  .hud__brand{display:none}
+  #prompt{width:calc(100% - 2*var(--pad));justify-content:space-between}
+}
+@media (hover:none){.preview{display:none}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation:none!important}
+}
+</style>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/build/three.module.min.js", "three/addons/": "./vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body class="lock" data-level="1">
+
+<canvas id="gl" aria-label="Ilha 3D do portfólio Tutifruti"></canvas>
+<div class="loader" aria-hidden="true"><span class="label" style="color:var(--paper)">Tutifruti — montando a ilha</span><span class="loader__num">0</span></div>
+<div class="wipe" aria-hidden="true"><span>Nível <em>2</em></span></div>
+<div class="preview" aria-hidden="true"><div class="preview__in"><img alt=""></div></div>
+
+<div id="l1">
+  <header class="nav grid">
+    <a class="nav__logo" href="#top">Tutifruti®</a>
+    <nav class="nav__links"><a class="u" href="#niveis">Os níveis</a><a class="u" href="#series">Séries</a><a class="u" href="#codigo">Código</a></nav>
+    <button class="nav__cta u" data-go="2">Nível 2 — Ilha 3D →</button>
+  </header>
+
+  <main id="top">
+    <section class="hero grid" data-reveal>
+      <div class="hero__meta">
+        <span class="label">(Nível 1) — Design</span>
+        <div class="hero__time" data-fade><span>Agora na ilha: <b data-phase>Dia</b></span><button data-time>Mudar a hora</button></div>
+      </div>
+      <div class="hero__body">
+        <h1 class="hero__title">
+          <span class="line" style="--i:0"><span>Um portfólio</span></span>
+          <span class="line" style="--i:1"><span>que você <span class="serif acc">dirige.</span></span></span>
+        </h1>
+        <div class="hero__side">
+          <p data-fade style="--i:2">Dois níveis. Este é o design. O próximo é a ilha lá atrás: entre no carro e dirija até as fotos.</p>
+          <div class="hero__btns" data-fade style="--i:3">
+            <button class="btn" data-go="2">Entrar no nível 2 <span aria-hidden="true">→</span></button>
+            <a class="btn btn--ghost" href="#niveis">Ler o nível 1 ↓</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="s manifesto grid">
+      <span class="label" style="grid-column:1/3">(01) — A ideia</span>
+      <p data-words>Um portfólio de fotos que também é um lugar. No primeiro nível, o design: tipografia, grid e movimento. No segundo, uma ilha em 3D onde você dirige até os outdoors, derruba letras gigantes e vê o dia virar noite.</p>
+    </section>
+
+    <section class="s" id="niveis" style="padding-top:0">
+      <div class="s__head grid">
+        <span class="label" style="grid-column:1/3">(02) — Os níveis</span>
+        <h2 class="h2 line" style="grid-column:3/13" data-reveal><span>Primeiro o design, <span class="serif">depois o mundo</span></span></h2>
+      </div>
+      <ol class="levels">
+        <li><span class="n">01</span><h3>Design</h3><p>Você está aqui. Página editorial com grid de 12 colunas, duas fontes e um único jeito de animar.</p><span class="tag label">Agora</span></li>
+        <li><span class="n">02</span><h3>Ilha <span class="serif acc">3D</span></h3><p>Um carro, quatro outdoors com as fotos, letras que caem, boliche, caixas e um ciclo de dia e noite de 4 minutos.</p><button class="tag u" data-go="2">Entrar →</button></li>
+      </ol>
+    </section>
+
+    <section class="s" id="series" style="padding-top:0">
+      <div class="s__head grid">
+        <span class="label" style="grid-column:1/3">(03) — Séries</span>
+        <h2 class="h2 line" style="grid-column:3/13" data-reveal><span>Cada série é um <span class="serif">outdoor</span> na ilha</span></h2>
+      </div>
+      <ul class="idx">
+        <li><button data-go="2" data-zone="neon" data-img="neon.webp"><span class="idx__n">01</span><span class="idx__name">Neon</span><span class="idx__c">1 foto · ir de carro</span><span class="idx__arr">↗</span></button></li>
+        <li><button data-go="2" data-zone="veneza" data-img="veneza.webp"><span class="idx__n">02</span><span class="idx__name">Veneza</span><span class="idx__c">1 foto · ir de carro</span><span class="idx__arr">↗</span></button></li>
+        <li><button data-go="2" data-zone="bumblebee" data-img="bumblebee-1.webp"><span class="idx__n">03</span><span class="idx__name">Bumblebee</span><span class="idx__c">2 fotos · ir de carro</span><span class="idx__arr">↗</span></button></li>
+        <li><button data-go="2" data-zone="jurassico" data-img="jurassico-1.webp"><span class="idx__n">04</span><span class="idx__name">Jurássico</span><span class="idx__c">3 fotos · ir de carro</span><span class="idx__arr">↗</span></button></li>
+      </ul>
+    </section>
+
+    <section class="s" id="codigo" style="padding-top:0">
+      <div class="s__head grid">
+        <span class="label" style="grid-column:1/3">(04) — Código</span>
+        <h2 class="h2 line" style="grid-column:3/13" data-reveal><span>Como a ilha <span class="serif">funciona</span></span></h2>
+      </div>
+      <ul class="code">
+        <li data-reveal><span data-fade><h3>Grama: um triângulo por lâmina</h3></span>
+          <p data-fade>72.900 lâminas no computador, 22.500 no celular. O campo se repete em volta do carro com <code>mod()</code>, então a grama nunca acaba. Técnica lida no código do Bruno Simon.</p>
+<pre data-fade><i>// grass.js — vertex shader</i>
+vec2 p = <b>mod</b>(aCenter - uCenter + half_, uSize) - half_ + uCenter;
+float w = noise(p * .12 + uTime * .55) - .5;
+pos.xz += uWind * w * height * tip;   <i>// só a ponta balança</i></pre></li>
+        <li data-reveal><span data-fade><h3>Dia e noite em presets</h3></span>
+          <p data-fade>Quatro atmosferas misturadas por keyframes. A sombra nunca é preta: é a cor do chão do céu, roxa de dia e azul à noite.</p>
+<pre data-fade><i>// cycle.js</i>
+day:   { sun: <b>'#fff0d6'</b>, ground: <b>'#6a4fd6'</b>, fogA: <b>'#8fdcff'</b> },
+night: { sun: <b>'#7f8cff'</b>, ground: <b>'#1e1356'</b>, lamp: 3.4 },</pre></li>
+        <li data-reveal><span data-fade><h3>Física de círculos</h3></span>
+          <p data-fade>Carro, letras, pinos e caixas são círculos no chão. Quando se tocam, trocam impulso. Pancada forte derruba a letra; depois de 9 segundos ela levanta sozinha.</p>
+<pre data-fade><i>// physics.js</i>
+const j = -(1 + 0.35) * vn / (ia + ib);
+a.vx -= j * ia * nx;  b.vx += j * ib * nx;
+b.onHit?.(-vn, nx, nz);   <i>// letra cai na direção do golpe</i></pre></li>
+        <li data-reveal><span data-fade><h3>Só a luz brilha</h3></span>
+          <p data-fade>Bloom com limite 1: só lanternas, faróis, anéis e outdoors passam do limite. De noite as fotos acendem como telas.</p>
+<pre data-fade><i>// main.js</i>
+new UnrealBloomPass(size, 0.55, 0.45, <b>1</b>);   <i>// threshold 1</i>
+screen.emissiveIntensity = 0.12 + night * 0.75;</pre></li>
+      </ul>
+    </section>
+
+    <section class="s" style="padding-top:0">
+      <div class="s__head grid">
+        <span class="label" style="grid-column:1/3">(05) — Controles</span>
+        <h2 class="h2 line" style="grid-column:3/13" data-reveal><span>Teclado ou <span class="serif">toque</span></span></h2>
+      </div>
+      <div class="keys">
+        <div><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>ou setas para dirigir</span></div>
+        <div><span><kbd>Espaço</kbd><kbd>Shift</kbd></span><span>pular e turbo</span></div>
+        <div><span><kbd>Enter</kbd><kbd>N</kbd></span><span>abrir o outdoor e mudar a hora</span></div>
+        <div><span><kbd>R</kbd><kbd>Esc</kbd></span><span>voltar ao início e ao nível 1</span></div>
+      </div>
+    </section>
+
+    <section class="s cta grid">
+      <h2 class="line" data-reveal><span>Pronto para o <span class="serif acc">nível 2?</span></span></h2>
+      <button class="btn" data-go="2">Entrar na ilha <span aria-hidden="true">→</span></button>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="grid">
+      <div class="foot__col"><span class="label">Tutifruti</span><span>Fotografia e 3D</span><span>© 2026</span></div>
+      <div class="foot__col"><span class="label">Ver também</span><a class="u" href="../portfolio/">Portfólio de fotos</a><a class="u" href="https://github.com/tutufruethet/Tutifruti">Código no GitHub</a></div>
+      <div class="foot__col"><span class="label">Na ilha</span><span data-phase>Dia</span><span>Ciclo de 4 min</span></div>
+      <div class="foot__col"><span class="label">Brasil</span><span class="clock">--:--</span></div>
+    </div>
+    <div class="foot__mark" aria-hidden="true">Tutifruti</div>
+  </footer>
+</div>
+
+<div id="hud" hidden tabindex="-1">
+  <div class="hud__top">
+    <span class="pill hud__brand">Tutifruti® — Nível 2</span>
+    <div class="hud__right">
+      <button class="pill" data-time>Hora: <b data-phase>Dia</b> ↻</button>
+      <button class="pill pill--dark" data-go="1">← Nível 1</button>
+    </div>
+  </div>
+  <div class="hud__keys" aria-label="Controles">
+    <span><kbd>WASD</kbd>dirigir</span><span><kbd>Espaço</kbd>pular</span><span><kbd>Shift</kbd>turbo</span><span><kbd>N</kbd>hora</span><span><kbd>R</kbd>início</span>
+  </div>
+  <div id="prompt" hidden role="status">
+    <div><span class="label" id="pLabel"></span><strong id="pTitle"></strong></div>
+    <button id="pOpen">Abrir ↵</button>
+  </div>
+  <div class="touchpad">
+    <div id="joy" aria-label="Direção"><div id="knob"></div></div>
+    <div class="tbtns"><button id="bBoost">Turbo</button><button id="bJump">Pular</button></div>
+  </div>
+</div>
+
+<div id="modal" hidden role="dialog" aria-modal="true" aria-label="Conteúdo da estação">
+  <div class="modal__card"><button id="modalClose">Fechar ✕</button><div id="modalBody"></div></div>
+</div>
+
+<template id="tpl-sobre">
+  <p class="label">(Sobre) — a ilha</p>
+  <h2 class="modal__title">Tutifruti</h2>
+  <div class="modal__text">
+    <p>Tutifruti é um portfólio de fotos com séries curtas: neon, Veneza, um Bumblebee gigante e um espinossauro. Esta ilha é a prova de um estudo de design e 3D na web: cada regra aplicada aqui veio de Bruno Simon, Active Theory, Lusion, Locomotive, Instrument e Resn.</p>
+    <ul><li>Nível 1: design editorial, grid de 12 colunas, Instrument Sans e Serif.</li><li>Nível 2: Three.js, shaders próprios, física feita à mão.</li><li>As mesmas 7 fotos aparecem nos outdoors e no menu de cada estação.</li></ul>
+  </div>
+  <div class="modal__links"><a class="btn" href="../portfolio/">Portfólio de fotos ↗</a><a class="btn btn--ghost" href="https://github.com/tutufruethet/Tutifruti">Código no GitHub ↗</a></div>
+</template>
+
+<template id="tpl-codigo">
+  <p class="label">(Código) — como foi feito</p>
+  <h2 class="modal__title">Como foi <span class="serif">feito</span></h2>
+  <div class="modal__text">
+    <ul>
+      <li><b>Grama</b>: um triângulo por lâmina, montado no shader, girando para a câmera. O campo se repete em volta do carro.</li>
+      <li><b>Vento</b>: ruído deslizando numa direção; só a ponta mexe. O carro empurra a grama por onde passa.</li>
+      <li><b>Atmosfera</b>: presets de dia, entardecer, noite e amanhecer, com sombra e névoa coloridas.</li>
+    </ul>
+    <ul>
+      <li><b>Física</b>: círculos com impulso. Letras e pinos caem na direção da batida e levantam sozinhos.</li>
+      <li><b>Luz</b>: bloom só no que emite luz; postes com halo no chão à noite.</li>
+      <li><b>Celular</b>: menos grama, sombra menor e sem bloom, com joystick na tela.</li>
+    </ul>
+  </div>
+</template>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
