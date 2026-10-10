@@ -15,5 +15,7 @@ tags: [regra, design, antipadrao]
 | Muitas cores e muitos estilos de texto | 2 famílias, 4 estilos |
 | Emojis como ícones, glassmorphism sem motivo | Setas tipográficas (↗ ↓), nada decorativo |
 | `fade-in` genérico de 0,3s com `ease` | Expo-out de 1s, reveal por linha com máscara |
+| `window.open(..., 'noopener')` + fallback `location.href` (abre duas vezes) | Abrir sem a flag e zerar `w.opener` ([Tia Gláucia](../tia-glaucia.md)) |
+| Link ou botão falso para contato que ainda não existe | Etiqueta "Pendente" e aviso ao clicar ([Tia Gláucia](../tia-glaucia.md)) |
 
-Related: [Cor e paleta](cor-e-paleta.md) · [Tipografia](tipografia.md) · [Checklist de entrega](../checklist-de-entrega.md)
+Related: [Tia Gláucia](../tia-glaucia.md) · [Cor e paleta](cor-e-paleta.md) · [Tipografia](tipografia.md) · [Checklist de entrega](../checklist-de-entrega.md)

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Gerar imagens do site</title>
+<!--
+  Gera as imagens em img/ a partir das mesmas peças 3D do site:
+  cena.webp (reserva da abertura), lapis.webp e ajuda-1..4.webp (ícones das formas de apoio).
+  Sirva a pasta por HTTP (ex.: npx serve tia-glaucia), abra /ferramentas/imagens.html
+  e clique em cada imagem para baixar.
+-->
+<style>
+  @font-face { font-family: 'Fraunces'; src: url(../fonts/fraunces.woff2) format('woff2'); font-weight: 400 600; }
+  body { margin: 2rem; font: 16px system-ui; background: #fbf6ec; }
+  .grade { display: flex; flex-wrap: wrap; gap: 1rem; }
+  a { display: grid; gap: .4rem; color: #2a2338; }
+  img { width: 240px; height: auto; background: repeating-conic-gradient(#eee 0 25%, #fff 0 50%) 0 0 / 20px 20px; }
+  #palco { position: absolute; left: -9999px; top: 0; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "../vendor/three/build/three.module.min.js", "three/addons/": "../vendor/three/addons/" } }
+</script>
+</head>
+<body>
+<h1>Imagens do site</h1>
+<div class="grade" id="saida"></div>
+<div id="palco"></div>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/RoundedBoxGeometry.js';
+import { COR, plastico, fosco, lapis, letra } from '../js/models.js';
+import { iniciarCena } from '../js/hero3d.js';
+
+await document.fonts.load('600 40px Fraunces');
+const saida = document.getElementById('saida');
+window.__imagens = {};
+
+function guardar(nome, url) {
+  window.__imagens[nome] = url;
+  const a = Object.assign(document.createElement('a'), { href: url, download: nome });
+  a.innerHTML = `<img src="${url}" alt=""><span>${nome}</span>`;
+  saida.append(a);
+}
+
+// ---------- Estúdio para os ícones ----------
+const T = 560;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(T, T);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0, 0);
+const pm = new THREE.PMREMGenerator(renderer);
+const amb = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+
+function estudio() {
+  const cena = new THREE.Scene();
+  cena.environment = amb;
+  cena.environmentIntensity = 0.55;
+  cena.add(new THREE.HemisphereLight('#fff6e6', '#c7b5f2', 1.1));
+  const sol = new THREE.DirectionalLight('#fff0d8', 2.1);
+  sol.position.set(-2.6, 7, 3.4);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(1024, 1024);
+  Object.assign(sol.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 16 });
+  sol.shadow.bias = -0.0006; sol.shadow.normalBias = 0.02;
+  cena.add(sol);
+  const contra = new THREE.DirectionalLight('#d9cbff', 0.7);
+  contra.position.set(4, 2, -3);
+  cena.add(contra);
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ color: '#5b40a8', opacity: 0.14 }));
+  chao.rotation.x = -Math.PI / 2;
+  chao.receiveShadow = true;
+  cena.add(chao);
+  return { cena, chao };
+}
+
+function fotografar(nome, objeto, { dist = 6.2, altura = 0.5, alvoY = 0.9, chaoY = 0 } = {}) {
+  const { cena, chao } = estudio();
+  chao.position.y = chaoY;
+  cena.add(objeto);
+  objeto.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  const cam = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
+  cam.position.copy(new THREE.Vector3(0, altura, 1).normalize().multiplyScalar(dist)).add(new THREE.Vector3(0, alvoY, 0));
+  cam.lookAt(0, alvoY, 0);
+  renderer.render(cena, cam);
+  guardar(nome, renderer.domElement.toDataURL('image/webp', 0.88));
+}
+
+const rb = (w, h, d, r = 0.06) => new RoundedBoxGeometry(w, h, d, 4, r);
+function folhas(w, h, d) { return new THREE.Mesh(rb(w, h, d, 0.03), fosco('#fbf3e2')); }
+
+// 1. Tarefas: caderno de espiral com um "certo" e um lápis.
+{
+  const g = new THREE.Group();
+  const caderno = new THREE.Group();
+  const capa = new THREE.Mesh(rb(1.7, 0.1, 2.1, 0.05), plastico(COR.lilas, { clearcoat: 0.3, roughness: 0.55 }));
+  const miolo = folhas(1.6, 0.12, 2.0); miolo.position.set(0.03, 0.1, 0);
+  const tampa = new THREE.Mesh(new THREE.BoxGeometry(1.56, 0.01, 1.96), new THREE.MeshStandardMaterial({ color: '#fffdf8', roughness: 0.9 }));
+  tampa.position.set(0.04, 0.165, 0);
+  caderno.add(capa, miolo, tampa);
+  // pautas
+  for (let i = 0; i < 6; i++) {
+    const l = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.004, 0.02), new THREE.MeshStandardMaterial({ color: '#cdbdf3' }));
+    l.position.set(0.12, 0.172, -0.7 + i * 0.28);
+    caderno.add(l);
+  }
+  for (let i = 0; i < 8; i++) {
+    const anel = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.022, 10, 24), new THREE.MeshStandardMaterial({ color: COR.metal, metalness: 0.7, roughness: 0.3 }));
+    anel.rotation.y = Math.PI / 2;
+    anel.position.set(-0.8, 0.12, -0.85 + i * 0.243);
+    caderno.add(anel);
+  }
+  caderno.rotation.set(0.0, 0.35, 0);
+  caderno.position.y = 0.06;
+  g.add(caderno);
+  const certo = new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(-0.42, 0.05, 0), new THREE.Vector3(-0.12, -0.25, 0), new THREE.Vector3(0.5, 0.45, 0)], false, 'catmullrom', 0.05), 40, 0.1, 14),
+    plastico(COR.lilasForte),
+  );
+  const pontas = [new THREE.Vector3(-0.42, 0.05, 0), new THREE.Vector3(0.5, 0.45, 0)];
+  pontas.forEach((p) => { const s = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 14), certo.material); s.position.copy(p); certo.add(s); });
+  certo.position.set(0.1, 0.95, 0.2);
+  certo.rotation.set(-0.15, 0.3, 0);
+  g.add(certo);
+  const l = lapis(); l.scale.setScalar(0.62);
+  l.position.set(0.25, 0.3, 0.95);
+  l.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0.95, 0.12, -0.35).normalize());
+  g.add(l);
+  fotografar('ajuda-1.webp', g, { dist: 7.3, altura: 0.75, alvoY: 0.35 });
+}
+
+// 2. Leitura e escrita: cubos de letras.
+{
+  const g = new THREE.Group();
+  const cubo = (cor, ch, corLetra, x, y, z, ry) => {
+    const c = new THREE.Group();
+    c.add(new THREE.Mesh(rb(1, 1, 1, 0.12), plastico(cor, { roughness: 0.5, clearcoat: 0.3 })));
+    const L = letra(ch, corLetra, { tamanho: 0.82, profundidade: 0.12 });
+    L.position.z = 0.53;
+    c.add(L);
+    c.position.set(x, y, z);
+    c.rotation.y = ry;
+    g.add(c);
+  };
+  cubo(COR.lilasClaro, 'A', COR.lilasForte, -0.56, 0.5, 0, 0.18);
+  cubo(COR.amarelo, 'b', COR.tinta, 0.56, 0.5, 0.05, -0.2);
+  cubo(COR.lilas, 'c', '#fffaf0', 0.02, 1.5, 0.02, 0.08);
+  fotografar('ajuda-2.webp', g, { dist: 7.4, altura: 0.38, alvoY: 0.95 });
+}
+
+// 3. Revisão: pilha de livros com marcador.
+{
+  const g = new THREE.Group();
+  const livroFechado = (cor, w, h, d, y, ry) => {
+    const b = new THREE.Group();
+    b.add(new THREE.Mesh(rb(w, h, d, 0.05), plastico(cor, { roughness: 0.55, clearcoat: 0.25 })));
+    const p = folhas(w - 0.1, h - 0.1, d - 0.06); p.position.x = 0.06; b.add(p);
+    b.position.y = y; b.rotation.y = ry;
+    g.add(b);
+    return b;
+  };
+  livroFechado(COR.lilasForte, 2.0, 0.34, 1.45, 0.17, 0.12);
+  livroFechado(COR.amarelo, 1.8, 0.3, 1.35, 0.5, -0.14);
+  const topo = livroFechado(COR.lilas, 1.65, 0.28, 1.25, 0.8, 0.22);
+  const fita = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.75), plastico(COR.lilasForte));
+  fita.position.set(0.35, -0.02, 0.85);
+  fita.rotation.x = 0.9;
+  topo.add(fita);
+  const marca = letra('A', COR.amarelo, { tamanho: 0.7, profundidade: 0.14 });
+  marca.rotation.x = -Math.PI / 2;
+  marca.position.set(-0.2, 0.16, 0);
+  topo.add(marca);
+  fotografar('ajuda-3.webp', g, { dist: 6.6, altura: 0.7, alvoY: 0.5 });
+}
+
+// 4. Rotina: despertador.
+{
+  const g = new THREE.Group();
+  const corpo = new THREE.Group();
+  const caixa = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.5, 48).rotateX(Math.PI / 2), plastico(COR.amarelo));
+  const aro = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.07, 16, 48), plastico(COR.amarelo));
+  aro.position.z = 0.25;
+  const mostrador = new THREE.Mesh(new THREE.CircleGeometry(0.78, 48), fosco('#fffaf0', { roughness: 0.7 }));
+  mostrador.position.z = 0.252;
+  corpo.add(caixa, aro, mostrador);
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
+    const t = new THREE.Mesh(new RoundedBoxGeometry(i % 3 ? 0.04 : 0.06, i % 3 ? 0.1 : 0.16, 0.02, 2, 0.01), fosco(COR.lilasForte));
+    t.position.set(Math.sin(a) * 0.62, Math.cos(a) * 0.62, 0.262);
+    t.rotation.z = -a;
+    corpo.add(t);
+  }
+  const ponteiro = (comp, larg, ang) => {
+    const p = new THREE.Mesh(new RoundedBoxGeometry(larg, comp, 0.03, 2, larg / 2.2), fosco(COR.tinta, { roughness: 0.5 }));
+    p.geometry.translate(0, comp / 2 - 0.06, 0);
+    p.position.z = 0.28; p.rotation.z = ang;
+    corpo.add(p);
+  };
+  ponteiro(0.42, 0.07, -0.95);
+  ponteiro(0.58, 0.05, 0.55);
+  const eixo = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 20).rotateX(Math.PI / 2), plastico(COR.lilasForte));
+  eixo.position.z = 0.3; corpo.add(eixo);
+  for (const s of [-1, 1]) {
+    const sino = new THREE.Mesh(new THREE.SphereGeometry(0.34, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), plastico(COR.lilas));
+    sino.position.set(s * 0.5, 0.78, 0); sino.rotation.z = -s * 0.55;
+    const pe = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.22, 4, 12), plastico(COR.lilasForte));
+    pe.position.set(s * 0.5, -0.86, 0); pe.rotation.z = s * 0.6;
+    corpo.add(sino, pe);
+  }
+  const alca = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.04, 10, 30, Math.PI), plastico(COR.lilasForte));
+  alca.position.set(0, 0.86, 0); corpo.add(alca);
+  corpo.position.y = 1.05;
+  corpo.rotation.y = -0.32;
+  g.add(corpo);
+  fotografar('ajuda-4.webp', g, { dist: 6.6, altura: 0.3, alvoY: 0.95 });
+}
+
+// Lápis sozinho, na diagonal.
+{
+  const g = new THREE.Group();
+  const l = lapis();
+  l.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0.75, 0.6, 0.2).normalize());
+  l.position.set(-0.75, 0.25, 0);
+  g.add(l);
+  fotografar('lapis.webp', g, { dist: 5.3, altura: 0.25, alvoY: 0.95, chaoY: -0.4 });
+}
+
+// Reserva da abertura: a cena real, já escrita.
+{
+  const palco = document.getElementById('palco');
+  palco.style.cssText += 'width:1200px;height:1100px';
+  const cena = iniciarCena(palco, { pularIntro: true, captura: true });
+  await new Promise((r) => setTimeout(r, 300));
+  guardar('cena.webp', cena.capturar().toDataURL('image/webp', 0.85));
+  cena.destruir();
+}
+window.__pronto = true;
+</script>
+</body>
+</html>

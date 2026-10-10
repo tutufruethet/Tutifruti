@@ -11,5 +11,6 @@ tags: [regra, design, cor]
 3. Neutros quentes em vez de preto e branco puros. Paleta da demo: tinta `#0b0b0c`, papel `#edebe6`, cinza `#8a8883`, acento `#ff4d1f`.
 4. Hierarquia por **opacidade e cinza**, não por cores novas (ex.: lista com itens apagados e o item em hover aceso).
 5. Nada de gradiente genérico roxo→azul.
+6. Marca acolhedora (infantil, educação): creme + tinta escura + **lilás que manda e amarelo que só grifa**. Sombras em lilás, nunca pretas ([Tia Gláucia](../tia-glaucia.md)).
 
 Related: [Lusion](../referencias/lusion.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Erros que eu cometia](erros-que-eu-cometia.md)
