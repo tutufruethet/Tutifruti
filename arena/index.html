@@ -120,7 +120,8 @@ main,footer{position:relative;z-index:1}
 
 .xp{grid-column:1/-1;margin-top:clamp(3rem,7vw,6rem);list-style:none;border-bottom:1px solid var(--line)}
 .xp li{display:grid;grid-template-columns:subgrid;grid-column:1/-1;align-items:baseline;padding-block:1.4rem;border-top:1px solid var(--line);cursor:default;transition:opacity .6s var(--ease)}
-.xp:hover li:not(:hover),.xp.touch li:not(.on){opacity:.32}
+.xp:hover li:not(:hover){opacity:.32}
+.xp.touch li:not(.on){opacity:.6}
 .xp__n{grid-column:1/2;color:var(--mute)}
 .xp__name{grid-column:2/8;font:500 clamp(1.6rem,3.4vw,3rem)/1.05 var(--sans);letter-spacing:-.03em;transition:transform .9s var(--ease)}
 .xp li:hover .xp__name,.xp li.on .xp__name{transform:translateX(.6rem)}
