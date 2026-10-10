@@ -12,6 +12,8 @@ tags: [regra, motion]
 4. **Cursor e hover com lerp** de 0,08–0,2, nunca colados ao mouse.
 5. **Scroll conta história:** palavras que acendem conforme o scroll, parallax leve, elementos sticky (Locomotive Scroll / GSAP).
 6. **Linear só no marquee.**
-7. Sempre respeitar `prefers-reduced-motion`.
+7. **Parallax por atributo:** um número de velocidade por elemento (`progresso × janela × velocidade`), como o `data-scroll-speed` da Locomotive. Para scroll suave, Lenis.
+8. Gravar a **direção do scroll** numa variável CSS para o layout reagir (menu some ao descer, aparece ao subir).
+9. Sempre respeitar `prefers-reduced-motion`.
 
 Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
