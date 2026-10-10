@@ -8,4 +8,6 @@ Antes de qualquer trabalho de design, UI, landing page, 3D ou animação neste r
 4. Salve prints e scripts de teste só no scratchpad, nunca dentro do repositório (use caminhos absolutos: o diretório atual pode mudar).
 5. Quando aprender algo novo de design (correção do usuário, referência nova), registre na nota certa em `estudo/` e ligue com `Related:`.
 
+Para mostrar um site pronto, abra como artifact no app do Claude (o usuário vê pelo celular). GitHub Pages é opcional.
+
 Respostas em português, curtas e diretas.
