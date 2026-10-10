@@ -18,6 +18,7 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Movimento](regras/movimento.md): easing, durações, reveal por linha, lerp.
 - [Fundo vivo e 3D](regras/fundo-vivo-e-3d.md): quando usar 3D e os truques baratos.
 - [Performance](regras/performance.md): DPR, pausar fora da tela, reduced-motion.
+- [Mundos e navegação](regras/mundos-e-navegacao.md): sites imersivos, cenas, dois caminhos de navegação.
 - [Detalhes de acabamento](regras/detalhes-de-acabamento.md): loader, cursor, marquee, wordmark.
 - [Erros que eu cometia](regras/erros-que-eu-cometia.md): o que evitar.
 - [Checklist de entrega](checklist-de-entrega.md): conferir antes de entregar.
@@ -28,6 +29,8 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Bruno Simon](referencias/bruno-simon.md): portfólio que é um jogo; otimização de assets.
 - [Locomotive](referencias/locomotive.md): design editorial, serifa × grotesca, scroll.
 - [Instrument](referencias/instrument.md): sistema de design, escala fixa, conteúdo primeiro.
+- [Resn](referencias/resn.md): conceito antes do código, duas direções, tipografia própria.
+- [Active Theory](referencias/active-theory.md): mundos 3D, navegação por público, motor próprio.
 
 ## Prática
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
