@@ -1,6 +1,6 @@
-// Page layer: loader, reveals, scramble, cursor, magnet, manifesto, clock. Works without WebGL.
+// Page layer: loader, reveals, scramble, cursor, magnet, clock, contacts. Works without WebGL.
 
-// Fill in the arena's real contacts. Empty keeps the links pointing at #contato.
+// Fill in the real contacts. Empty keeps the links pointing at #contato.
 export const CONTACT = { whatsapp: '', instagram: '' }; // whatsapp: '5581999999999' (DDI+DDD+número), instagram: 'usuario'
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -62,7 +62,7 @@ const io = new IntersectionObserver(es => es.forEach(e => {
   $$('[data-scramble]', e.target).forEach(el => scramble(el));
   io.unobserve(e.target);
 }), { rootMargin: '0px 0px -12% 0px' });
-$$('[data-reveal],[data-manifesto]').forEach(el => io.observe(el));
+$$('[data-reveal]').forEach(el => io.observe(el));
 $$('[data-scramble-hover]').forEach(el => el.addEventListener('pointerenter', () => scramble(el, 450)));
 
 /* ---------- clock ---------- */
@@ -81,36 +81,11 @@ addEventListener('scroll', () => {
   lastY = y;
 }, { passive: true });
 
-/* ---------- manifesto: words light with scroll ---------- */
-const man = $('.manifesto');
-man.innerHTML = man.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
-const words = $$('.w', man);
-function lightWords() {
-  const r = man.getBoundingClientRect();
-  const k = reduce ? 1 : Math.min(Math.max((innerHeight * 0.8 - r.top) / (r.height + innerHeight * 0.35), 0), 1);
-  const n = Math.round(k * words.length);
-  words.forEach((w, i) => w.classList.toggle('lit', i < n));
-}
-addEventListener('scroll', lightWords, { passive: true });
-lightWords();
+/* ---------- kick again ---------- */
+const kickers = [];
+export const onKick = fn => kickers.push(fn);
+$$('[data-kick]').forEach(b => b.addEventListener('click', () => kickers.forEach(fn => fn())));
 
-/* ---------- experiences: hover (mouse) or centered row (touch) picks a world ---------- */
-const xpList = $('.xp');
-const xpHandlers = [];
-export const onXp = fn => xpHandlers.push(fn);
-const pick = li => {
-  $$('li', xpList).forEach(x => x.classList.toggle('on', x === li));
-  xpHandlers.forEach(fn => fn(+li.dataset.xp));
-};
-if (fine) {
-  $$('li', xpList).forEach(li => li.addEventListener('pointerenter', () => pick(li)));
-} else {
-  xpList.classList.add('touch');
-  const mid = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && pick(e.target)), { rootMargin: '-45% 0px -45% 0px' });
-  $$('li', xpList).forEach(li => mid.observe(li));
-}
-
-/* ---------- back to the real world ---------- */
 $('[data-top]').addEventListener('click', () => scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }));
 
 /* ---------- cursor + magnetic buttons (mouse only) ---------- */
@@ -119,7 +94,7 @@ if (fine && !reduce) {
   let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
   addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; c.classList.add('on'); }, { passive: true });
   document.addEventListener('pointerleave', () => c.classList.remove('on'));
-  document.addEventListener('pointerover', e => c.classList.toggle('big', !!e.target.closest('a,button,[data-hover],.xp li')));
+  document.addEventListener('pointerover', e => c.classList.toggle('big', !!e.target.closest('a,button,[data-hover]')));
   (function loop() {
     x += (tx - x) * 0.18; y += (ty - y) * 0.18;
     c.style.transform = `translate3d(${x}px,${y}px,0)`;

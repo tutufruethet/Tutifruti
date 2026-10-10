@@ -3,5 +3,5 @@
 - [Estudo de design e 3D](estudo/README.md): notas ligadas (vault do Obsidian) com as regras de design e as referências (Bolt, Lusion, Bruno Simon, Locomotive, Instrument).
 - [Demo](demo/index.html): landing page que aplica o estudo. Abra direto no navegador; não tem dependências.
 - [Ilha 3D](mundo/index.html): portfólio em dois níveis, design editorial e uma ilha 3D para dirigir até as fotos. Precisa ser servido por HTTP.
-- [Arena VR](arena/index.html): landing de arena de realidade virtual; o scroll mergulha no visor dos óculos até a arena 3D. Precisa ser servido por HTTP.
+- [VR Arena Janga](arena/index.html): site do campo de society, com abertura em 3D (o chute) e voo pelo complexo. Precisa ser servido por HTTP.
 - [Portfólio de fotografia](portfolio/index.html): site com as fotos em séries, hero em WebGL, galeria em tela cheia. Precisa ser servido por HTTP (ex.: GitHub Pages) para o efeito WebGL funcionar.
