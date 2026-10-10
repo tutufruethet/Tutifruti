@@ -22,10 +22,11 @@
   --t-xs:.75rem; --t-s:.875rem; --t-m:1.05rem; --t-l:1.26rem;
   --t-xl:clamp(1.9rem,4.4vw,4.2rem);
   --t-d:clamp(3.2rem,11.5vw,11rem);
+  color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased;scroll-behavior:auto}
-body{font:400 var(--t-m)/1.5 var(--sans);overflow-x:clip;background:var(--ink)}
+body{font:400 var(--t-m)/1.5 var(--sans);overflow-x:clip;background:var(--ink);color:var(--paper)}
 body:not(.ready){overflow:hidden}
 a,button{color:inherit;font:inherit;text-decoration:none;background:none;border:0;cursor:pointer}
 a:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:4px}
