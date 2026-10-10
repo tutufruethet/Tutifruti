@@ -14,6 +14,7 @@ tags: [regra, 3d, webgl]
    - vídeo pré-renderizado + luz que segue o cursor (Lusion);
    - atlas de paleta em vez de texturas (Bruno Simon);
    - instancing de geometria simples (78 mil triângulos de grama).
+   - objeto procedural em vista explodida guiada pelo scroll (ver [Hamburgueria](../hamburgueria.md)).
 5. **Atmosfera em presets:** cor da luz, **cor da sombra** (nunca preta: roxo ou azul) e névoa em gradiente de 2 cores, interpoladas por keyframes (Bruno Simon).
 6. **Bloom só no emissivo:** threshold 1 e força baixa, para brilhar só o que é luz.
 7. **Campos infinitos:** muitas instâncias simples que se repetem com `mod` em volta da câmera.

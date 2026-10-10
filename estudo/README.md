@@ -35,3 +35,4 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 ## Prática
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
+- [Hamburgueria Cozinha da Carla](hamburgueria.md): apresentação com burger 3D que abre no scroll e página de pedidos.
