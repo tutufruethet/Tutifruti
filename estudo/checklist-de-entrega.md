@@ -16,6 +16,7 @@ tags: [regra, checklist]
 - [ ] Funciona com `reduced-motion`, no toque e sem WebGL? → [Performance](regras/performance.md)
 - [ ] Funciona bem em 375px, sem scroll horizontal?
 - [ ] Nenhum item da lista de [erros que eu cometia](regras/erros-que-eu-cometia.md)?
+- [ ] `body` tem `background` **e** `color` explícitos (a página pode abrir dentro de outro app)?
 - [ ] Testei com screenshot (desktop e celular) antes de entregar?
 
 Related: [Erros que eu cometia](regras/erros-que-eu-cometia.md) · [Demo Tutifruti](demo-tutifruti.md)

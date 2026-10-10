@@ -24,6 +24,7 @@ Landing de uma arena de realidade virtual no Janga (Paulista, PE), em [arena/ind
 - **3D com foco:** fora da seção que usa o holograma, ele e o chão apagam para ~15%. Sem isso, o acento brilha atrás de todo texto e deixa de ser acento.
 - **Opacidade em dois lugares briga:** o `data-fade` (opacidade 1) anulava o fade do scroll no mesmo elemento. Um efeito por elemento; o outro vai num wrapper.
 - **Teste:** o `hover` do Playwright rola a página até o elemento; tire os prints de outras seções sem hover. O gancho `#debug` (`stop()` e `step(n)`) segue indispensável no renderizador por software.
+- **Cor do texto no `body`, não só no `html`:** ao abrir a página dentro do app do Claude, o estilo padrão do app pintou o texto de preto sobre o fundo escuro (correção do usuário). Defina `color` e `color-scheme` explícitos no `body` e no `:root`.
 - O Three.js vendorizado em `mundo/vendor` é reaproveitado por import map; nada de cópia nova.
 
 Related: [Ilha 3D](mundo-3d.md) · [Mundos e navegação](regras/mundos-e-navegacao.md) · [Fundo vivo e 3D](regras/fundo-vivo-e-3d.md) · [Checklist de entrega](checklist-de-entrega.md)
