@@ -16,6 +16,8 @@ Pequenos detalhes que deixam o site com cara de estúdio:
 - Marquee gigante ("Vamos conversar —") com uma palavra no acento.
 - Relógio local no rodapé.
 - Wordmark gigante ocupando toda a largura no rodapé.
+- Menu em pílula com brilho suave por trás (Active Theory).
+- Brilhos de cor nos cantos da tela, mudando devagar com ruído.
 - Sublinhado que cresce da esquerda no hover.
 
-Related: [Grid e espaço](grid-e-espaco.md) · [Movimento](movimento.md) · [Demo Tutifruti](../demo-tutifruti.md)
+Related: [Active Theory](../referencias/active-theory.md) · [Grid e espaço](grid-e-espaco.md) · [Movimento](movimento.md) · [Demo Tutifruti](../demo-tutifruti.md)

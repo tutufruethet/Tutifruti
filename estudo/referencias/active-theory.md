@@ -17,6 +17,20 @@ Estúdio de experiências em WebGL (Los Angeles e Amsterdã). A v4 do site foi S
 | Lugares reais | Ambientes inspirados nos bairros dos escritórios (Abbot Kinney e Venice Beach, canais de Amsterdã). |
 | Navegação por público | **Clientes** querem o trabalho rápido, então têm filtros claros por tipo de projeto. **Criativos e devs** querem a experiência, então ficam com a home imersiva e o reel. |
 
+## Visto no código (build público do Hydra, lido em 2026-10-10)
+
+Fonte: [Snychng/open-active-theory](https://github.com/Snychng/open-active-theory), uma cópia de terceiros do build público do site da Active Theory, com a marca trocada. As cenas, shaders e interações são os da Active Theory. Os ~200 shaders vêm num único arquivo GLSL.
+
+| Técnica | Como fazem |
+|---|---|
+| Transição entre cenas | Cada cena é renderizada numa **textura**. Um shader de tela cheia mistura a cena atual com a próxima num **corte diagonal**. A inclinação do corte acompanha a **velocidade do scroll**, e a borda é distorcida por um normal map (parece vidro passando). Borda suavizada com `fwidth`. |
+| Fluido do mouse | **Simulação de fluido de verdade** (advecção, divergência, pressão, vorticidade, "splat" no ponto do mouse) numa textura pequena. A velocidade do fluido **distorce a imagem final** e acende as bordas. |
+| Composição final | Um shader global por cima de tudo: separação RGB, contraste, bloom, raios de luz (*lens streak*), **brilhos nos cantos** com ruído e cor que muda devagar, e **vidro fosco** num canto. |
+| Toque | Ao **segurar o clique**, a imagem dá um zoom leve, escurece e o vidro fosco aumenta. O site responde ao gesto, não só ao clique. |
+| Texto | Texto renderizado **dentro do WebGL** (MSDF), com revelação **embaralhando letras** antes de formar a palavra. UI em fonte mono, caixa alta e espaçada. |
+| UI | Menu em **pílula** com brilho por trás e setas `<<` `>>` para navegar entre ambientes. Painéis de vidro com refração por cima das cenas. |
+| Celular | Todo shader tem um `uMobile` que ajusta a intensidade dos efeitos. |
+
 **Lições:**
 - **Dois caminhos para dois públicos:** a experiência imersiva não pode esconder o portfólio de quem tem pressa.
 - **Variedade de cenas** evita repetição; a transição é tão importante quanto a cena.

@@ -14,6 +14,7 @@ tags: [regra, motion]
 6. **Linear só no marquee.**
 7. **Parallax por atributo:** um número de velocidade por elemento (`progresso × janela × velocidade`), como o `data-scroll-speed` da Locomotive. Para scroll suave, Lenis.
 8. Gravar a **direção do scroll** numa variável CSS para o layout reagir (menu some ao descer, aparece ao subir).
-9. Sempre respeitar `prefers-reduced-motion`.
+9. **Texto que embaralha:** letras aleatórias que se resolvem na palavra certa, para UI em fonte mono (Active Theory).
+10. Sempre respeitar `prefers-reduced-motion`.
 
 Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
