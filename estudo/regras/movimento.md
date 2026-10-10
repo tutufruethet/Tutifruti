@@ -1,0 +1,17 @@
+---
+title: Movimento
+date: 2026-10-10
+tags: [regra, motion]
+---
+
+# Movimento
+
+1. **Um easing só, com assinatura:** expo-out `cubic-bezier(.16,1,.3,1)`.
+2. **Durações:** entradas de 0,9–1,2s; stagger de 60–90ms entre itens.
+3. **Texto revelado por linha, com máscara:** `.line{overflow:hidden}` + `span{transform:translateY(110%)}` → `none`. Padding inferior ~0,16em para não cortar descendentes (g, p).
+4. **Cursor e hover com lerp** de 0,08–0,2, nunca colados ao mouse.
+5. **Scroll conta história:** palavras que acendem conforme o scroll, parallax leve, elementos sticky (Locomotive Scroll / GSAP).
+6. **Linear só no marquee.**
+7. Sempre respeitar `prefers-reduced-motion`.
+
+Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
