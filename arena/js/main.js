@@ -115,7 +115,7 @@ async function start() {
   const clock = new THREE.Clock();
   let t = reduce ? 4 : 0;
   function frame(forced) {
-    const dt = typeof forced === 'number' ? forced : Math.min(clock.getDelta(), 1 / 20);
+    const dt = forced ?? Math.min(clock.getDelta(), 1 / 20);
     if (reduce && !dirty) return;
     dirty = false;
     if (!reduce) t += dt;
@@ -142,7 +142,7 @@ async function start() {
     renderer.setRenderTarget(null);
     renderer.render(finalScene, finalCam);
   }
-  renderer.setAnimationLoop(frame);
+  renderer.setAnimationLoop(() => frame());
 
   // test hook: stop the loop and step frames by hand (software GL is too slow for real time)
   if (location.hash === '#debug') window.__arena = {
