@@ -1,4 +1,4 @@
 # Tutifruti
 
-- `estudo/ESTUDO-DESIGN-3D.md`: estudo de design e 3D (Bolt, Lusion, Bruno Simon, Locomotive, Instrument) e as regras tiradas dele.
-- `demo/index.html`: landing page que aplica o estudo. Abra direto no navegador; não tem dependências.
+- [Estudo de design e 3D](estudo/README.md): notas ligadas (vault do Obsidian) com as regras de design e as referências (Bolt, Lusion, Bruno Simon, Locomotive, Instrument).
+- [Demo](demo/index.html): landing page que aplica o estudo. Abra direto no navegador; não tem dependências.
