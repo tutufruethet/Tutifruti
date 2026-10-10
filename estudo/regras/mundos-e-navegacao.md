@@ -17,6 +17,7 @@ Para sites onde a experiência é imersiva (cenas 3D, mundos, jogos).
 7. **Transição como efeito:** renderize cada cena numa textura e misture as duas num shader (corte diagonal, dissolve com ruído, distorção de vidro). A transição reage à **velocidade do scroll** (Active Theory).
 8. **Um shader final para tudo:** a imagem passa por uma composição global (RGB, contraste, bloom, brilhos de canto, grão). É o que dá unidade às cenas.
 9. **Gestos além do clique:** segurar, arrastar e a velocidade do mouse mudam a imagem (zoom, fluido, vidro fosco).
-10. **Performance é arquitetura:** trabalho pesado fora da thread principal (Web Worker), WebGL2 com fallback e alvo de LCP abaixo de 2s.
+10. **Portal em espaço de tela:** um objeto da cena (visor, janela, tela) amostra a próxima cena com `gl_FragCoord`; quando a câmera o atravessa, a troca é invisível ([Arena VR](../arena-vr.md)).
+11. **Performance é arquitetura:** trabalho pesado fora da thread principal (Web Worker), WebGL2 com fallback e alvo de LCP abaixo de 2s.
 
-Related: [Active Theory](../referencias/active-theory.md) · [Resn](../referencias/resn.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Performance](performance.md)
+Related: [Arena VR](../arena-vr.md) · [Active Theory](../referencias/active-theory.md) · [Resn](../referencias/resn.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Performance](performance.md)

@@ -17,7 +17,8 @@ tags: [regra, 3d, webgl]
 5. **Atmosfera em presets:** cor da luz, **cor da sombra** (nunca preta: roxo ou azul) e névoa em gradiente de 2 cores, interpoladas por keyframes (Bruno Simon).
 6. **Bloom só no emissivo:** threshold 1 e força baixa, para brilhar só o que é luz.
 7. **Campos infinitos:** muitas instâncias simples que se repetem com `mod` em volta da câmera.
-8. **Stack:** Three.js (WebGPU + TSL com fallback WebGL), Rapier para física, Blender para modelar, KTX2/Draco para comprimir.
-9. **Prontos para usar:** React Bits (MIT) para backgrounds animados.
+8. **3D com foco:** o elemento brilhante (holograma, acento) fica forte só na seção que fala dele e apaga atrás do resto do texto ([Arena VR](../arena-vr.md)).
+9. **Stack:** Three.js (WebGPU + TSL com fallback WebGL), Rapier para física, Blender para modelar, KTX2/Draco para comprimir.
+10. **Prontos para usar:** React Bits (MIT) para backgrounds animados.
 
-Related: [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Arena VR](../arena-vr.md) · [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
