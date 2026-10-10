@@ -2,7 +2,7 @@
 
 Antes de qualquer trabalho de design, UI, landing page, 3D ou animação neste repositório:
 
-1. Leia [estudo/README.md](estudo/README.md) e todas as notas em `estudo/regras/`.
+1. Use a skill `design-3d-web` (em `.claude/skills/`) e leia [estudo/README.md](estudo/README.md) com as notas em `estudo/regras/`. Ao aprender algo novo, atualize as duas.
 2. Siga essas regras; elas valem mais que seus padrões de design.
 3. Antes de entregar, passe pelo [checklist de entrega](estudo/checklist-de-entrega.md) e confira com screenshots em desktop (1440px) e celular (375px).
 4. Salve prints e scripts de teste só no scratchpad, nunca dentro do repositório (use caminhos absolutos: o diretório atual pode mudar).
