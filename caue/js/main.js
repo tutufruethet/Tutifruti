@@ -10,6 +10,7 @@ const damp = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
 document.body.dataset.level = '1';
+document.body.classList.add('lock');
 if (!document.createElement('canvas').getContext('webgl2')) {
   initPage({});
   document.body.classList.remove('lock');
