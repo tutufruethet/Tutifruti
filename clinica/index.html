@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clínica Lume</title>
+<meta name="description" content="Dermatologia e estética em São Paulo. Tratamentos, equipe e agendamento online.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eeebe5; --fg:#191b1a; --mute:#7d7b76; --accent:#2e6b55; --line:#d3cfc7; --on-accent:#eeebe5;
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --serif:"Instrument Serif",ui-serif,Georgia,serif;
+  --pad:clamp(1rem,3vw,2.5rem); --gap:1.25rem;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --t-xs:.75rem; --t-s:.875rem; --t-m:1.05rem; --t-l:clamp(1.8rem,4vw,3.4rem);
+  --t-xl:clamp(2.6rem,12vw,11rem);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#121413;--fg:#ebe8e2;--mute:#8f8d87;--accent:#7cc0a2;--line:#2b2e2c;--on-accent:#121413}
+}
+:root[data-theme="dark"]{--bg:#121413;--fg:#ebe8e2;--mute:#8f8d87;--accent:#7cc0a2;--line:#2b2e2c;--on-accent:#121413}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{background:var(--bg);font:400 var(--t-m)/1.5 var(--sans);overflow-x:hidden}
+body.loading{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+::selection{background:var(--accent);color:var(--on-accent)}
+:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);padding-inline:var(--pad)}
+.label{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.serif{font-family:var(--serif);font-weight:400;font-style:italic;letter-spacing:-.02em}
+.acc{color:var(--accent)}
+.h2{font:400 var(--t-l)/1.05 var(--sans);letter-spacing:-.035em}
+.u{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s var(--ease)}
+.u:hover{background-size:100% 1px}
+
+/* loader */
+.loader{position:fixed;inset:0;z-index:100;background:var(--fg);color:var(--bg);display:flex;align-items:flex-end;justify-content:space-between;padding:var(--pad);transition:transform 1.1s var(--ease)}
+.loader.done{transform:translateY(-100%)}
+.loader .label{color:var(--bg);opacity:.6}
+.loader__num{font:400 var(--t-xl)/.8 var(--sans);letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;padding-block:var(--pad);align-items:center;mix-blend-mode:difference;color:#fff;transition:transform .8s var(--ease)}
+.nav.hide{transform:translateY(-120%)}
+.nav__logo{grid-column:1/4;font-weight:500;letter-spacing:-.01em}
+.nav__links{grid-column:5/10;display:flex;gap:1.5rem;font-size:var(--t-s)}
+.nav__cta{grid-column:10/13;justify-self:end;font-size:var(--t-s)}
+
+/* hero */
+.hero{position:relative;height:100svh;min-height:600px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 50%);pointer-events:none}
+.hero__title{position:relative;z-index:1;font:400 var(--t-xl)/.9 var(--sans);letter-spacing:-.045em;padding-inline:var(--pad)}
+.hero__title .serif{letter-spacing:-.03em}
+.hero__meta{position:relative;z-index:1;padding-block:2.2rem var(--pad);align-items:end}
+.hero__meta p{font-size:var(--t-s);max-width:36ch}
+
+/* reveals */
+.line{display:block;overflow:hidden;padding-bottom:.16em;margin-bottom:-.16em}
+.line>span{display:inline-block;transform:translateY(110%);transition:transform 1.2s var(--ease) calc(var(--i,0)*80ms)}
+.in .line>span,.line.in>span{transform:none}
+[data-fade]{opacity:0;transform:translateY(1.5rem);transition:opacity 1s var(--ease) calc(var(--i,0)*80ms),transform 1s var(--ease) calc(var(--i,0)*80ms)}
+[data-fade].in{opacity:1;transform:none}
+
+section{position:relative;scroll-margin-top:4.5rem}
+.sec{padding-block:clamp(6rem,14vw,12rem)}
+.sec__head{margin-bottom:clamp(3rem,6vw,5rem);align-items:baseline}
+
+/* apresentação */
+.about p.big{grid-column:3/12;font-size:var(--t-l);line-height:1.12;letter-spacing:-.025em}
+.about .w{opacity:.15;transition:opacity .3s linear}
+.about .w.on{opacity:1}
+.facts{margin-top:clamp(4rem,8vw,7rem)}
+.fact{grid-column:span 3;border-top:1px solid var(--line);padding-top:1.1rem}
+.fact b{display:block;font:400 clamp(2.4rem,5vw,4.2rem)/1 var(--sans);letter-spacing:-.04em;margin:1.6rem 0 .5rem}
+.fact span:last-child{font-size:var(--t-s);color:var(--mute)}
+
+/* tratamentos */
+.list{list-style:none;padding-inline:var(--pad)}
+.row{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);align-items:baseline;padding-block:1.5rem;border-top:1px solid var(--line);transition:color .5s var(--ease),opacity 1s var(--ease) calc(var(--i,0)*80ms),transform 1s var(--ease) calc(var(--i,0)*80ms)}
+.row:last-child{border-bottom:1px solid var(--line)}
+.row__n{grid-column:1/2;font-size:var(--t-xs);color:var(--mute)}
+.row__name{grid-column:2/8;font-size:clamp(1.9rem,4.4vw,4rem);line-height:1;letter-spacing:-.04em;transition:transform .7s var(--ease)}
+.row__tag{grid-column:8/10;font-size:var(--t-s);color:var(--mute)}
+.row__price{grid-column:10/12;font-size:var(--t-s)}
+.row__go{grid-column:12/13;justify-self:end;font-size:var(--t-s);opacity:0;transform:translateX(-.6rem);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+@media (hover:hover){
+  .list:hover .row{color:var(--mute)}
+  .list .row:hover{color:var(--fg)}
+  .row:hover .row__name{transform:translateX(1.5rem)}
+  .row:hover .row__go{opacity:1;transform:none}
+}
+.row{cursor:pointer}
+
+/* equipe */
+.doc{grid-column:span 4}
+.doc__img{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--line)}
+.doc__img::before{content:"";position:absolute;inset:-20%;background:radial-gradient(60% 50% at var(--x,40%) var(--y,30%),var(--bg),transparent 70%),radial-gradient(50% 40% at 70% 85%,color-mix(in srgb,var(--accent) 35%,transparent),transparent 70%);transition:transform 1.4s var(--ease)}
+.doc:hover .doc__img::before{transform:scale(1.08) rotate(-3deg)}
+.doc__img span{position:absolute;left:1rem;bottom:.2rem;font:400 clamp(6rem,14vw,12rem)/1 var(--serif);font-style:italic;letter-spacing:-.04em}
+.doc h3{font:400 1.7rem/1.1 var(--sans);letter-spacing:-.03em;margin:1.2rem 0 .3rem}
+.doc p{font-size:var(--t-s);color:var(--mute)}
+
+/* processo */
+.step{grid-column:span 4;border-top:1px solid var(--line);padding-top:1.25rem}
+.step h3{font:400 2rem/1.05 var(--sans);letter-spacing:-.03em;margin:2.5rem 0 1rem}
+.step p{color:var(--mute);font-size:var(--t-s);max-width:32ch}
+
+/* agenda */
+.agenda__side{grid-column:1/5;align-self:start;position:sticky;top:6rem}
+.agenda__main{grid-column:6/13;min-width:0}
+.sum{margin-top:2.5rem;border-top:1px solid var(--line)}
+.sum div{display:flex;justify-content:space-between;gap:1rem;padding-block:.8rem;border-bottom:1px solid var(--line);font-size:var(--t-s)}
+.sum dt{color:var(--mute)}
+.sum dd{text-align:right}
+.block{border:0;margin-bottom:3.2rem;min-width:0}
+.block legend{display:flex;gap:1rem;align-items:baseline;margin-bottom:1.2rem;width:100%}
+.block legend b{font:400 1.6rem/1 var(--sans);letter-spacing:-.03em}
+.opts{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.opt{display:flex;justify-content:space-between;gap:1rem;padding:1rem .2rem;border-bottom:1px solid var(--line);text-align:left;transition:background .5s var(--ease),color .5s var(--ease),padding .5s var(--ease)}
+.opt small{color:var(--mute);font-size:var(--t-s);white-space:nowrap}
+.opt[aria-pressed="true"]{background:var(--fg);color:var(--bg);padding-inline:1rem}
+.opt[aria-pressed="true"] small{color:inherit;opacity:.65}
+.days{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.6rem;scrollbar-width:thin;scroll-snap-type:x mandatory}
+.day{flex:0 0 4.6rem;scroll-snap-align:start;display:flex;flex-direction:column;align-items:flex-start;gap:.3rem;padding:.8rem;border:1px solid var(--line);transition:background .5s var(--ease),color .5s var(--ease),border-color .5s var(--ease)}
+.day b{font:400 1.7rem/1 var(--sans);letter-spacing:-.03em}
+.day small{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.day[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.day[aria-pressed="true"] small{color:inherit;opacity:.65}
+.day:disabled,.slot:disabled{opacity:.3;cursor:not-allowed}
+.slots{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem}
+.slot{padding:.7rem 0;border:1px solid var(--line);font-size:var(--t-s);font-variant-numeric:tabular-nums;transition:background .5s var(--ease),color .5s var(--ease)}
+.slot:disabled{text-decoration:line-through}
+.slot[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.hint{font-size:var(--t-s);color:var(--mute)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem var(--gap)}
+.field{display:flex;flex-direction:column;gap:.4rem}
+.field.full{grid-column:1/-1}
+.field input,.field textarea{background:none;border:0;border-bottom:1px solid var(--line);padding:.6rem 0;font-size:1.15rem;border-radius:0;transition:border-color .5s var(--ease)}
+.field textarea{resize:vertical;min-height:3.2rem}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--fg)}
+.field input[aria-invalid="true"]{border-color:var(--accent)}
+.check{display:flex;gap:.6rem;align-items:center;font-size:var(--t-s)}
+.check input{accent-color:var(--accent);width:1rem;height:1rem}
+.err{min-height:1.4em;margin-top:1rem;font-size:var(--t-s);color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:.6rem;padding:1.05rem 1.7rem;border-radius:999px;background:var(--accent);color:var(--on-accent);font-weight:500;transition:background .4s var(--ease),color .4s var(--ease)}
+.btn:hover{background:var(--fg);color:var(--bg)}
+.btn--ghost{background:none;color:var(--fg);border:1px solid var(--line)}
+.btn--ghost:hover{border-color:var(--fg)}
+.done{display:none}
+.agenda.ok .done{display:block}
+.agenda.ok form{display:none}
+.done h3{font:400 var(--t-l)/1.05 var(--sans);letter-spacing:-.035em;margin-bottom:1.5rem}
+.done__actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2.5rem}
+
+/* faq */
+.faq{grid-column:3/13}
+.faq details{border-top:1px solid var(--line)}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;display:flex;justify-content:space-between;gap:1rem;padding-block:1.4rem;cursor:pointer;font-size:clamp(1.25rem,2.2vw,1.8rem);letter-spacing:-.02em}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--mute);transition:transform .6s var(--ease)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{max-width:60ch;color:var(--mute);padding-bottom:1.6rem}
+
+/* marquee */
+.marquee{overflow:hidden;padding-block:clamp(3rem,8vw,6rem);border-block:1px solid var(--line);display:block}
+.marquee__track{display:flex;width:max-content;animation:mq 26s linear infinite}
+.marquee__track span{font:400 clamp(4rem,12vw,12rem)/1 var(--sans);letter-spacing:-.05em;padding-right:.4em;white-space:nowrap}
+.marquee:hover .marquee__track{animation-play-state:paused}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* footer */
+.foot{padding-top:clamp(5rem,10vw,8rem);overflow:hidden}
+.foot__cta{grid-column:1/6}
+.foot__col{grid-column:span 2;font-size:var(--t-s);display:flex;flex-direction:column;gap:.35rem}
+.foot__col--a{grid-column:7/9}
+.foot__col .label{margin-bottom:.6rem}
+.status::before{content:"";display:inline-block;width:.5rem;height:.5rem;border-radius:50%;margin-right:.5rem;background:var(--mute)}
+.status.open::before{background:var(--accent)}
+.foot__note{grid-column:1/-1;margin-top:4rem;font-size:var(--t-xs);color:var(--mute)}
+.foot__mark{font:400 41.5vw/.76 var(--sans);letter-spacing:-.07em;white-space:nowrap;padding-inline:calc(var(--pad) - .03em);margin-top:2rem;transform:translateY(9%)}
+
+/* cursor */
+.cursor{position:fixed;top:0;left:0;z-index:90;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;transition:width .4s var(--ease),height .4s var(--ease),margin .4s var(--ease)}
+.cursor.big{width:56px;height:56px;margin:-28px 0 0 -28px}
+@media (hover:none){.cursor{display:none}}
+
+@media (max-width:900px){
+  .nav__links{display:none}
+  .nav__logo{grid-column:1/7}.nav__cta{grid-column:7/13}
+  .hero__meta>*{grid-column:1/-1!important;justify-self:start!important}
+  .about p.big,.faq{grid-column:1/-1}
+  .fact{grid-column:span 6;margin-bottom:1.5rem}
+  .row__n,.row__go{display:none}
+  .row__name{grid-column:1/-1}.row__tag{grid-column:1/8}.row__price{grid-column:8/13;justify-self:end}
+  .doc,.step{grid-column:1/-1;margin-bottom:2.5rem}
+  .doc__img{aspect-ratio:5/4}
+  .agenda__side,.agenda__main{grid-column:1/-1;position:static}
+  .agenda__side{margin-bottom:3rem}
+  .slots{grid-template-columns:repeat(4,1fr)}
+  .fields{grid-template-columns:1fr}
+  .foot__cta{grid-column:1/-1}.foot__col{grid-column:span 6;margin-top:2.5rem}
+  .sec__head>*{grid-column:1/-1!important}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important;animation:none!important}
+}
+</style>
+</head>
+<body class="loading">
+
+<div class="loader" aria-hidden="true"><span class="label">Clínica Lume — dermatologia &amp; estética</span><span class="loader__num">0</span></div>
+<div class="cursor" aria-hidden="true"></div>
+
+<header class="nav grid">
+  <a class="nav__logo" href="#top">Lume®</a>
+  <nav class="nav__links" aria-label="Seções"><a class="u" href="#clinica">Clínica</a><a class="u" href="#tratamentos">Tratamentos</a><a class="u" href="#equipe">Equipe</a><a class="u" href="#duvidas">Dúvidas</a></nav>
+  <a class="nav__cta u" href="#agenda" data-magnetic>Agendar ↗</a>
+</header>
+
+<main>
+  <section class="hero" id="top">
+    <canvas aria-hidden="true"></canvas>
+    <h1 class="hero__title" data-reveal>
+      <span class="line" style="--i:0"><span>Pele que</span></span>
+      <span class="line" style="--i:1"><span><span class="serif acc">respira.</span></span></span>
+    </h1>
+    <div class="hero__meta grid">
+      <span class="label" style="grid-column:1/3" data-fade>(01) — Dermatologia &amp; estética</span>
+      <p style="grid-column:5/9" data-fade>Tratamentos baseados em evidência, sem exagero. Uma clínica pequena em Pinheiros, São Paulo, com tempo para ouvir você.</p>
+      <a class="btn" style="grid-column:9/12;justify-self:end" href="#agenda" data-fade data-magnetic>Agendar avaliação <span aria-hidden="true">↗</span></a>
+      <span class="label" style="grid-column:12/13;justify-self:end" data-fade>Role ↓</span>
+    </div>
+  </section>
+
+  <section class="sec about" id="clinica">
+    <div class="grid">
+      <span class="label" style="grid-column:1/3">(02) — A clínica</span>
+      <p class="big" data-words>Acreditamos que cuidar da pele começa por entender a pessoa. Cada plano nasce de uma avaliação sem pressa, usa só o que funciona e respeita o seu tempo. Resultado natural é aquele que ninguém percebe, só você.</p>
+    </div>
+    <div class="grid facts">
+      <div class="fact" data-fade style="--i:0"><span class="label">Desde</span><b>2014</b><span>Doze anos no mesmo endereço</span></div>
+      <div class="fact" data-fade style="--i:1"><span class="label">Equipe</span><b>3</b><span>Especialistas, uma conversa só</span></div>
+      <div class="fact" data-fade style="--i:2"><span class="label">Avaliação</span><b>40 min</b><span>Primeira consulta sem pressa</span></div>
+      <div class="fact" data-fade style="--i:3"><span class="label">Sábados</span><b>8–12h</b><span>Para quem não pode na semana</span></div>
+    </div>
+  </section>
+
+  <section class="sec" id="tratamentos" style="padding-top:0">
+    <div class="sec__head grid">
+      <span class="label" style="grid-column:1/3">(03) — Tratamentos</span>
+      <h2 class="h2 line" style="grid-column:3/13" data-reveal><span>O que <span class="serif">fazemos</span></span></h2>
+    </div>
+    <ul class="list" id="treatments"></ul>
+  </section>
+
+  <section class="sec" id="equipe" style="padding-top:0">
+    <div class="sec__head grid">
+      <span class="label" style="grid-column:1/3">(04) — Equipe</span>
+      <h2 class="h2 line" style="grid-column:3/13" data-reveal><span>Quem vai <span class="serif">cuidar de você</span></span></h2>
+    </div>
+    <div class="grid">
+      <article class="doc" data-fade style="--i:0"><div class="doc__img" style="--x:35%;--y:25%"><span aria-hidden="true">H</span></div><h3>Dra. Helena Matos</h3><p>Dermatologista · CRM-SP 000000</p></article>
+      <article class="doc" data-fade style="--i:1"><div class="doc__img" style="--x:65%;--y:35%"><span aria-hidden="true">R</span></div><h3>Dr. Rafael Nunes</h3><p>Dermatologia cirúrgica · CRM-SP 000000</p></article>
+      <article class="doc" data-fade style="--i:2"><div class="doc__img" style="--x:45%;--y:60%"><span aria-hidden="true">L</span></div><h3>Lívia Prado</h3><p>Esteticista · Cuidados e procedimentos</p></article>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0">
+    <div class="sec__head grid">
+      <span class="label" style="grid-column:1/3">(05) — Como funciona</span>
+    </div>
+    <div class="grid">
+      <div class="step" data-fade style="--i:0"><span class="label">01</span><h3>Avaliação</h3><p>Conversa, exame da pele e histórico. Você sai sabendo o que tem e o que não precisa fazer.</p></div>
+      <div class="step" data-fade style="--i:1"><span class="label">02</span><h3>Plano</h3><p>Um plano escrito com etapas, prazos e valores. Sem pacote surpresa.</p></div>
+      <div class="step" data-fade style="--i:2"><span class="label">03</span><h3>Acompanhamento</h3><p>Retorno incluso e fotos de evolução para medir o resultado de verdade.</p></div>
+    </div>
+  </section>
+
+  <section class="sec agenda" id="agenda" style="padding-top:0">
+    <div class="grid">
+      <aside class="agenda__side">
+        <span class="label">(06) — Agenda</span>
+        <h2 class="h2 line" style="margin-top:1.4rem" data-reveal><span>Marque sua <span class="serif acc">visita.</span></span></h2>
+        <dl class="sum" aria-live="polite">
+          <div><dt>Tratamento</dt><dd data-sum="t">—</dd></div>
+          <div><dt>Dia</dt><dd data-sum="d">—</dd></div>
+          <div><dt>Horário</dt><dd data-sum="h">—</dd></div>
+          <div><dt>Valor</dt><dd data-sum="p">—</dd></div>
+        </dl>
+      </aside>
+
+      <div class="agenda__main">
+        <form novalidate>
+          <fieldset class="block"><legend><span class="label">1</span><b>Tratamento</b></legend><div class="opts" id="opt-t"></div></fieldset>
+          <fieldset class="block"><legend><span class="label">2</span><b>Dia</b></legend><div class="days" id="opt-d"></div></fieldset>
+          <fieldset class="block"><legend><span class="label">3</span><b>Horário</b></legend><div class="slots" id="opt-h"></div><p class="hint" id="slot-hint">Escolha um dia para ver os horários.</p></fieldset>
+          <fieldset class="block"><legend><span class="label">4</span><b>Seus dados</b></legend>
+            <div class="fields">
+              <label class="field"><span class="label">Nome</span><input name="nome" autocomplete="name" required></label>
+              <label class="field"><span class="label">WhatsApp</span><input name="fone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" required></label>
+              <label class="field full"><span class="label">Algo que devemos saber? (opcional)</span><textarea name="obs" rows="2"></textarea></label>
+              <label class="check full"><input type="checkbox" name="primeira"> É minha primeira vez na clínica</label>
+            </div>
+          </fieldset>
+          <button class="btn" type="submit" data-magnetic>Confirmar agendamento <span aria-hidden="true">↗</span></button>
+          <p class="err" role="alert"></p>
+        </form>
+
+        <div class="done" tabindex="-1">
+          <span class="label">Pedido recebido</span>
+          <h3 style="margin-top:1.4rem">Até <span class="serif acc" data-done="d">breve</span>.</h3>
+          <p class="hint" data-done="txt"></p>
+          <div class="done__actions">
+            <a class="btn" data-done="wa" target="_blank" rel="noopener">Confirmar no WhatsApp <span aria-hidden="true">↗</span></a>
+            <a class="btn btn--ghost" data-done="ics" download="consulta-lume.ics">Salvar na agenda <span aria-hidden="true">↓</span></a>
+            <button class="btn btn--ghost" type="button" data-again>Novo agendamento</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="duvidas" style="padding-top:0">
+    <div class="sec__head grid">
+      <span class="label" style="grid-column:1/3">(07) — Dúvidas</span>
+    </div>
+    <div class="grid">
+      <div class="faq">
+        <details><summary>Vocês atendem convênio?</summary><p>Atendemos particular e emitimos recibo para reembolso. A maioria dos planos devolve parte do valor da consulta.</p></details>
+        <details><summary>Preciso de consulta antes de um procedimento?</summary><p>Sim. Todo procedimento começa com uma avaliação, para confirmar a indicação e montar o plano. Se fizer o procedimento em até 30 dias, a consulta é abatida.</p></details>
+        <details><summary>Posso remarcar ou cancelar?</summary><p>Pode, sem custo, até 24 horas antes, pelo WhatsApp. Depois disso cobramos 50% do valor reservado.</p></details>
+        <details><summary>Quais as formas de pagamento?</summary><p>Pix, débito e crédito em até 6 vezes sem juros nos procedimentos.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <a class="marquee" href="#agenda" aria-label="Agendar avaliação">
+    <span class="marquee__track" aria-hidden="true">
+      <span>Agende sua <span class="serif acc">avaliação</span> —</span><span>Agende sua <span class="serif acc">avaliação</span> —</span>
+      <span>Agende sua <span class="serif acc">avaliação</span> —</span><span>Agende sua <span class="serif acc">avaliação</span> —</span>
+    </span>
+  </a>
+</main>
+
+<footer class="foot" id="contato">
+  <div class="grid">
+    <div class="foot__cta">
+      <span class="label">(08) — Contato</span>
+      <h2 class="h2 line" data-reveal style="margin-top:1.5rem"><span>Ficou com <span class="serif">alguma dúvida?</span></span></h2>
+      <a class="btn" style="margin-top:2rem" href="https://wa.me/5511900000000" target="_blank" rel="noopener" data-magnetic>Falar no WhatsApp <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="foot__col foot__col--a"><span class="label">Endereço</span><span>Rua das Acácias, 120</span><span>Pinheiros, São Paulo</span><a class="u" href="https://maps.google.com/?q=Pinheiros,São+Paulo" target="_blank" rel="noopener">Ver no mapa ↗</a></div>
+    <div class="foot__col"><span class="label">Horário</span><span>Seg–Sex 8h–19h</span><span>Sáb 8h–12h</span><span class="status">--</span></div>
+    <div class="foot__col"><span class="label">Contato</span><a class="u" href="tel:+5511900000000">(11) 90000-0000</a><a class="u" href="mailto:contato@exemplo.com.br">contato@exemplo.com.br</a><a class="u" href="#">Instagram</a></div>
+    <p class="foot__note">Clínica fictícia, projeto de demonstração. Responsável técnico: Dra. Helena Matos, CRM-SP 000000.</p>
+  </div>
+  <div class="foot__mark" aria-hidden="true">Lume</div>
+</footer>
+
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(hover: hover)').matches;
+const lerp = (a, b, t) => a + (b - a) * t;
+const mouse = { x: innerWidth * .62, y: innerHeight * .38 };
+addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
+
+/* Data */
+const TREATMENTS = [
+  { n: 'Consulta dermatológica', tag: 'Avaliação', min: 40, price: 380 },
+  { n: 'Limpeza de pele', tag: 'Estética', min: 60, price: 260 },
+  { n: 'Peeling químico', tag: 'Estética', min: 45, price: 450 },
+  { n: 'Laser de rejuvenescimento', tag: 'Tecnologia', min: 50, price: 900 },
+  { n: 'Toxina botulínica', tag: 'Injetáveis', min: 30, price: 1400 },
+  { n: 'Mapeamento de pintas', tag: 'Prevenção', min: 40, price: 520 },
+];
+const brl = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+
+/* WebGL: soft skin-like membrane, cursor light, grain */
+const canvas = document.querySelector('.hero canvas');
+const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+let draw = () => {};
+if (gl) {
+  const vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  const fs = `precision highp float;
+uniform vec2 uRes,uMouse;uniform float uTime,uScroll;uniform vec3 uBg,uFg,uAcc;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);
+ return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<5;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}
+void main(){
+ vec2 p=(gl_FragCoord.xy-.5*uRes)/uRes.y, m=(uMouse-.5*uRes)/uRes.y;
+ float d=length(p-m), t=uTime*.04;
+ p+=(p-m)*.35*exp(-d*d*4.);
+ vec2 q=vec2(fbm(p*1.1+t),fbm(p*1.1-t+3.1));
+ vec2 r=vec2(fbm(p*1.4+2.*q+vec2(1.7,9.2)+t),fbm(p*1.4+2.*q+vec2(8.3,2.8)-t*1.2));
+ float f=fbm(p*1.4+2.2*r);
+ vec3 shade=mix(uBg,uFg,.10);
+ vec3 c=mix(uBg,shade,smoothstep(.35,.85,f));
+ c=mix(c,uAcc,smoothstep(.55,1.,f+.3*length(r)-.15)*.55);
+ float ridge=1.-abs(sin(f*18.+t*4.));
+ c=mix(c,uBg,pow(ridge,6.)*.25);
+ c=mix(c,uAcc,.22*exp(-d*d*6.));
+ c=mix(c,uBg,clamp(uScroll,0.,1.)*.8);
+ c+=(h(gl_FragCoord.xy+fract(uTime*7.))-.5)*.035;
+ gl_FragColor=vec4(c,1.);
+}`;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = n => gl.getUniformLocation(prog, n);
+  const uRes = U('uRes'), uMouse = U('uMouse'), uTime = U('uTime'), uScroll = U('uScroll');
+  const setColors = () => {
+    gl.uniform3fv(U('uBg'), rgb(css('--bg'))); gl.uniform3fv(U('uFg'), rgb(css('--fg'))); gl.uniform3fv(U('uAcc'), rgb(css('--accent')));
+  };
+  setColors(); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setColors);
+  const dpr = Math.min(devicePixelRatio, 1.5);
+  const resize = () => {
+    canvas.width = canvas.clientWidth * dpr; canvas.height = canvas.clientHeight * dpr;
+    gl.viewport(0, 0, canvas.width, canvas.height); gl.uniform2f(uRes, canvas.width, canvas.height);
+  };
+  resize(); addEventListener('resize', resize);
+  const m = { x: mouse.x, y: mouse.y };
+  let visible = true;
+  new IntersectionObserver(([e]) => visible = e.isIntersecting).observe(canvas);
+  draw = time => {
+    if (!visible) return;
+    m.x = lerp(m.x, mouse.x, .05); m.y = lerp(m.y, mouse.y, .05);
+    gl.uniform1f(uTime, reduce ? 24 : time / 1000);
+    gl.uniform2f(uMouse, m.x * dpr, (canvas.clientHeight - m.y) * dpr);
+    gl.uniform1f(uScroll, scrollY / innerHeight);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+}
+
+/* Treatments list */
+const list = document.getElementById('treatments');
+list.innerHTML = TREATMENTS.map((t, i) => `<li class="row" data-fade style="--i:${i}" data-t="${i}" tabindex="0" role="button" aria-label="Agendar ${t.n}">
+  <span class="row__n">0${i + 1}</span><span class="row__name">${t.n}</span>
+  <span class="row__tag">${t.tag} · ${t.min} min</span><span class="row__price">a partir de ${brl(t.price)}</span>
+  <span class="row__go">Agendar ↗</span></li>`).join('');
+
+/* Booking */
+const state = { t: null, d: null, h: null };
+const DOW = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const MON = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const pad2 = n => String(n).padStart(2, '0');
+const key = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const longDate = d => new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(d);
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const days = Array.from({ length: 21 }, (_, i) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + i));
+const busy = s => { let x = 0; for (const c of s) x = (x * 31 + c.charCodeAt(0)) >>> 0; return x % 10 < 3; };
+const slotsFor = d => {
+  const dow = d.getDay(); if (dow === 0) return [];
+  const end = dow === 6 ? 12 : 19, out = [];
+  for (let m = 8 * 60; m < end * 60; m += 30) out.push(`${pad2(m / 60 | 0)}:${pad2(m % 60)}`);
+  return out;
+};
+const isPast = (d, h) => { const [hh, mm] = h.split(':'); const x = new Date(d); x.setHours(hh, mm); return x < new Date(Date.now() + 60 * 60 * 1000); };
+
+const optT = document.getElementById('opt-t'), optD = document.getElementById('opt-d'), optH = document.getElementById('opt-h');
+const hint = document.getElementById('slot-hint');
+optT.innerHTML = TREATMENTS.map((t, i) => `<button type="button" class="opt" data-v="${i}" aria-pressed="false"><span>${t.n}</span><small>${t.min} min · ${brl(t.price)}</small></button>`).join('');
+optD.innerHTML = days.map((d, i) => `<button type="button" class="day" data-v="${i}" aria-pressed="false" ${slotsFor(d).every(h => isPast(d, h)) ? 'disabled' : ''} aria-label="${longDate(d)}"><small>${i === 0 ? 'Hoje' : DOW[d.getDay()]}</small><b>${d.getDate()}</b><small>${MON[d.getMonth()]}</small></button>`).join('');
+
+const press = (box, v) => box.querySelectorAll('[data-v]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === String(v)));
+const sum = Object.fromEntries([...document.querySelectorAll('[data-sum]')].map(el => [el.dataset.sum, el]));
+const render = () => {
+  const t = TREATMENTS[state.t], d = days[state.d];
+  sum.t.textContent = t ? t.n : '—';
+  sum.d.textContent = d ? longDate(d) : '—';
+  sum.h.textContent = state.h || '—';
+  sum.p.textContent = t ? brl(t.price) : '—';
+};
+const renderSlots = () => {
+  const d = days[state.d];
+  const slots = d ? slotsFor(d) : [];
+  optH.innerHTML = slots.map(h => `<button type="button" class="slot" data-v="${h}" aria-pressed="${h === state.h}" ${busy(key(d) + h) || isPast(d, h) ? 'disabled' : ''}>${h}</button>`).join('');
+  hint.hidden = !!d;
+};
+const pickT = i => { state.t = +i; press(optT, i); render(); };
+optT.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) pickT(b.dataset.v); });
+optD.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; state.d = +b.dataset.v; state.h = null; press(optD, b.dataset.v); renderSlots(); render(); });
+optH.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; state.h = b.dataset.v; press(optH, b.dataset.v); render(); });
+
+const goBook = row => { pickT(row.dataset.t); document.getElementById('agenda').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); };
+list.addEventListener('click', e => { const r = e.target.closest('.row'); if (r) goBook(r); });
+list.addEventListener('keydown', e => { const r = e.target.closest('.row'); if (r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); goBook(r); } });
+
+const agenda = document.querySelector('.agenda'), form = agenda.querySelector('form'), err = form.querySelector('.err');
+const done = agenda.querySelector('.done'), D = Object.fromEntries([...done.querySelectorAll('[data-done]')].map(el => [el.dataset.done, el]));
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const nome = form.nome.value.trim(), fone = form.fone.value.replace(/\D/g, '');
+  form.nome.setAttribute('aria-invalid', !nome); form.fone.setAttribute('aria-invalid', fone.length < 10);
+  const miss = [state.t === null && 'o tratamento', state.d === null && 'o dia', !state.h && 'o horário', !nome && 'seu nome', fone.length < 10 && 'um WhatsApp válido'].filter(Boolean);
+  if (miss.length) { err.textContent = `Falta escolher ${miss.join(', ').replace(/, ([^,]*)$/, ' e $1')}.`; return; }
+  err.textContent = '';
+  const t = TREATMENTS[state.t], d = days[state.d], when = `${longDate(d)}, às ${state.h}`;
+  D.d.textContent = `${DOW[d.getDay()].toLowerCase()}, ${state.h}`;
+  D.txt.textContent = `${nome.split(' ')[0]}, reservamos ${t.n.toLowerCase()} para ${when}. Confirme pelo WhatsApp para garantir o horário; você recebe um lembrete na véspera.`;
+  const msg = `Olá! Sou ${nome} e quero confirmar: ${t.n} em ${when}.${form.primeira.checked ? ' É minha primeira vez.' : ''}${form.obs.value.trim() ? ' Obs.: ' + form.obs.value.trim() : ''}`;
+  D.wa.href = `https://wa.me/5511900000000?text=${encodeURIComponent(msg)}`;
+  const [hh, mm] = state.h.split(':').map(Number), endM = hh * 60 + mm + t.min;
+  const stamp = (h, m) => `${key(d).replace(/-/g, '')}T${pad2(h)}${pad2(m)}00`;
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lume//Agenda//PT', 'BEGIN:VEVENT', `UID:${Date.now()}@lume`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+    `DTSTART;TZID=America/Sao_Paulo:${stamp(hh, mm)}`, `DTEND;TZID=America/Sao_Paulo:${stamp(endM / 60 | 0, endM % 60)}`,
+    `SUMMARY:${t.n} — Clínica Lume`, 'LOCATION:Rua das Acácias\\, 120 — Pinheiros\\, São Paulo', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  D.ics.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+  agenda.classList.add('ok');
+  agenda.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  done.focus({ preventScroll: true });
+});
+agenda.querySelector('[data-again]').addEventListener('click', () => {
+  Object.assign(state, { d: null, h: null }); form.reset(); press(optD, -1); renderSlots(); render();
+  agenda.classList.remove('ok');
+});
+renderSlots(); render();
+
+/* Reveals */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+}), { rootMargin: '0px 0px -10% 0px' });
+const observeReveals = () => {
+  document.querySelectorAll('.hero [data-reveal],.hero [data-fade]').forEach(el => el.classList.add('in'));
+  document.querySelectorAll('[data-reveal]:not(.in),[data-fade]:not(.in)').forEach(el => io.observe(el));
+};
+
+/* Presentation: words light up with scroll */
+const mp = document.querySelector('[data-words]');
+mp.innerHTML = mp.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+const words = [...mp.querySelectorAll('.w')];
+const lightWords = () => {
+  const r = mp.getBoundingClientRect();
+  const k = Math.min(Math.max((innerHeight * .85 - r.top) / (r.height + innerHeight * .4), 0), 1);
+  const lit = reduce ? words.length : Math.round(k * words.length);
+  words.forEach((w, i) => w.classList.toggle('on', i < lit));
+};
+
+/* Nav hides on scroll down, returns on scroll up */
+const nav = document.querySelector('.nav');
+let lastY = scrollY;
+addEventListener('scroll', () => {
+  nav.classList.toggle('hide', scrollY > lastY && scrollY > innerHeight * .5);
+  lastY = scrollY;
+}, { passive: true });
+
+/* Magnetic */
+document.querySelectorAll('[data-magnetic]').forEach(el => {
+  if (!fine || reduce) return;
+  el.addEventListener('pointermove', e => {
+    const r = el.getBoundingClientRect();
+    el.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .25}px,${(e.clientY - r.top - r.height / 2) * .35}px)`;
+  });
+  el.addEventListener('pointerleave', () => el.style.transform = '');
+  el.style.transition = 'background .4s var(--ease),color .4s var(--ease),transform .6s var(--ease)';
+});
+
+/* Cursor */
+const cursor = document.querySelector('.cursor');
+const cp = { x: mouse.x, y: mouse.y };
+document.addEventListener('pointerover', e => cursor.classList.toggle('big', !!e.target.closest('a,button,.row,summary')));
+
+/* Open now (São Paulo time) */
+const status = document.querySelector('.status');
+const tick = () => {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { weekday: 'short', hour: 'numeric', hourCycle: 'h23', timeZone: 'America/Sao_Paulo' }).formatToParts(new Date()).map(x => [x.type, x.value]));
+  const h = +p.hour, open = p.weekday === 'Sat' ? h >= 8 && h < 12 : p.weekday !== 'Sun' && h >= 8 && h < 19;
+  status.textContent = open ? 'Aberto agora' : 'Fechado agora';
+  status.classList.toggle('open', open);
+};
+tick(); setInterval(tick, 60000);
+
+/* Loop */
+const loop = t => {
+  draw(t);
+  lightWords();
+  cp.x = lerp(cp.x, mouse.x, .2); cp.y = lerp(cp.y, mouse.y, .2);
+  cursor.style.transform = `translate(${cp.x}px,${cp.y}px)`;
+  requestAnimationFrame(loop);
+};
+requestAnimationFrame(loop);
+
+/* Loader */
+const loader = document.querySelector('.loader'), num = loader.querySelector('.loader__num');
+const start = performance.now(), dur = reduce ? 1 : 1100;
+const count = now => {
+  const k = Math.min((now - start) / dur, 1);
+  num.textContent = Math.round((1 - Math.pow(1 - k, 3)) * 100);
+  if (k < 1) return requestAnimationFrame(count);
+  loader.classList.add('done'); document.body.classList.remove('loading');
+  setTimeout(observeReveals, 350);
+};
+requestAnimationFrame(count);
+</script>
+</body>
+</html>
