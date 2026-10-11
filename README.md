@@ -4,3 +4,4 @@
 - [Demo](demo/index.html): landing page que aplica o estudo. Abra direto no navegador; não tem dependências.
 - [Ilha 3D](mundo/index.html): portfólio em dois níveis, design editorial e uma ilha 3D para dirigir até as fotos. Precisa ser servido por HTTP.
 - [Portfólio de fotografia](portfolio/index.html): site com as fotos em séries, hero em WebGL, galeria em tela cheia. Precisa ser servido por HTTP (ex.: GitHub Pages) para o efeito WebGL funcionar.
+- [Painel do PC](painel/index.html): finanças, assinaturas, cuidados, gráficos de desempenho e "o que roda" no seu PC. Abra direto no navegador; `painel/coletar-specs.ps1` importa as specs do Windows.

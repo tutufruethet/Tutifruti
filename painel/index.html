@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel do PC</title>
+<meta name="description" content="Finanças, assinaturas, cuidados e desempenho do seu PC num lugar só.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b0b0c; --paper:#edebe6; --mute:#8a8883; --accent:#ff3b2f;
+  --line:rgba(237,235,230,.12); --dim:rgba(237,235,230,.6);
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --serif:"Instrument Serif",ui-serif,Georgia,serif;
+  --pad:clamp(1rem,3vw,2.5rem); --gap:1.25rem;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --t-xs:.75rem; --t-s:.875rem; --t-m:1.05rem; --t-l:clamp(1.5rem,3vw,2.4rem);
+  --t-xl:clamp(3.2rem,13vw,9.5rem); --t-h:clamp(2.8rem,9vw,6rem);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased;scrollbar-color:#333 var(--ink)}
+body{background:var(--ink);font:400 var(--t-m)/1.5 var(--sans);overflow-x:hidden;min-height:100svh}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+::selection{background:var(--accent);color:var(--ink)}
+.serif{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.02em}
+.label{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.num{font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}
+
+/* topo */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.5rem;padding:1rem var(--pad);background:rgba(11,11,12,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{font-weight:500;letter-spacing:-.01em;white-space:nowrap;text-decoration:none}
+.brand .serif{color:var(--mute);margin-left:.25em}
+.tabs{display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{font-size:var(--t-s);padding:.4rem .85rem;border-radius:99px;text-decoration:none;color:var(--dim);white-space:nowrap;transition:color .6s var(--ease),background .6s var(--ease)}
+.tabs a:hover{color:var(--paper)}
+.tabs a[aria-current]{color:var(--ink);background:var(--paper)}
+.clock{font-size:var(--t-s);color:var(--mute);white-space:nowrap}
+
+/* views */
+main{padding:0 var(--pad) 6rem}
+.view{display:none}
+.view.on{display:block}
+.head{padding-block:clamp(3rem,8vw,6rem) clamp(2rem,4vw,3rem);border-bottom:1px solid var(--line);margin-bottom:clamp(2rem,4vw,3rem)}
+.head .label{margin-bottom:1.25rem;display:flex;justify-content:space-between;gap:1rem}
+.head h2{font:400 var(--t-h)/.92 var(--sans);letter-spacing:-.045em}
+.hero h1{font:400 var(--t-xl)/.9 var(--sans);letter-spacing:-.045em}
+.lead{grid-column:7/12;color:var(--dim);font-size:var(--t-m);max-width:34ch;margin-top:2rem}
+
+.line{display:block;overflow:hidden;padding-bottom:.16em;margin-bottom:-.16em}
+.line>span{display:inline-block;transform:translateY(110%);transition:transform 1.1s var(--ease) calc(var(--i,0)*80ms)}
+.view.in .line>span{transform:none}
+.fade{opacity:0;transform:translateY(1rem);transition:opacity 1s var(--ease) calc(var(--i,0)*70ms + .15s),transform 1s var(--ease) calc(var(--i,0)*70ms + .15s)}
+.view.in .fade{opacity:1;transform:none}
+
+.block{margin-bottom:clamp(3rem,6vw,5rem)}
+.block>h3,.col>h3{font:500 var(--t-xs)/1.4 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding-bottom:.75rem;border-bottom:1px solid var(--line);margin-bottom:1rem;display:flex;justify-content:space-between;gap:1rem}
+.span4{grid-column:span 4}.span5{grid-column:span 5}.span6{grid-column:span 6}.span7{grid-column:span 7}.span8{grid-column:span 8}.span12{grid-column:1/-1}
+
+/* números */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap)}
+.stat{border-top:1px solid var(--line);padding-top:1rem}
+.stat b{display:block;font:400 var(--t-l)/1.1 var(--sans);letter-spacing:-.03em;margin-top:.5rem}
+.stat small{color:var(--mute);font-size:var(--t-s)}
+.big{font:400 clamp(3rem,7vw,5.5rem)/1 var(--sans);letter-spacing:-.04em}
+.acc{color:var(--accent)}
+
+/* linhas */
+.rows{list-style:none}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:1rem;align-items:center;padding:.85rem 0;border-bottom:1px solid var(--line);font-size:var(--t-s)}
+.row .t{font-size:var(--t-m)}
+.row .s{color:var(--mute);font-size:var(--t-xs);display:block;margin-top:.15rem}
+.row .v{text-align:right}
+.row.late .st{color:var(--accent)}
+.row.ok{opacity:.65}
+.row.ok:hover{opacity:1}
+.empty{color:var(--mute);padding:1rem 0;font-size:var(--t-s)}
+.tip-list li{display:grid;grid-template-columns:3rem minmax(0,1fr);gap:1rem;padding:1rem 0;border-bottom:1px solid var(--line)}
+.tip-list li .label{padding-top:.25rem}
+.tip-list p{color:var(--dim);font-size:var(--t-s);margin-top:.25rem;max-width:62ch}
+
+/* forms */
+form{display:grid;gap:1rem}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+label.fl{display:grid;gap:.35rem;font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+input,select,textarea{background:transparent;border:0;border-bottom:1px solid var(--line);padding:.5rem 0;font-size:var(--t-m);letter-spacing:0;text-transform:none;outline:none;border-radius:0;width:100%;transition:border-color .6s var(--ease)}
+input:focus,select:focus,textarea:focus{border-color:var(--paper)}
+select option{background:var(--ink)}
+textarea{border:1px solid var(--line);padding:.75rem;min-height:7rem;font-size:var(--t-s);resize:vertical}
+input[type=date]{color-scheme:dark}
+.seg{position:relative;display:flex;border:1px solid var(--line);border-radius:99px;padding:3px;width:max-content}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg input:focus-visible+label{outline:1px solid var(--paper);outline-offset:2px}
+.seg label{padding:.35rem 1rem;border-radius:99px;font-size:var(--t-s);cursor:pointer;color:var(--dim)}
+.seg input:checked+label{background:var(--paper);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;justify-content:center;padding:.6rem 1.2rem;border-radius:99px;border:1px solid var(--line);background:transparent;cursor:pointer;font-size:var(--t-s);white-space:nowrap;text-decoration:none;transition:background .6s var(--ease),color .6s var(--ease),border-color .6s var(--ease)}
+.btn:hover{border-color:var(--paper)}
+.btn.main{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.btn.main:hover{background:var(--paper);border-color:var(--paper)}
+.btn.sm{padding:.3rem .8rem;font-size:var(--t-xs)}
+.x{background:none;border:0;color:var(--mute);cursor:pointer;font-size:var(--t-m);padding:0 .25rem}
+.x:hover{color:var(--accent)}
+.bar-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.monthnav{display:flex;align-items:center;gap:.75rem}
+.monthnav button{background:none;border:1px solid var(--line);border-radius:99px;width:2rem;height:2rem;cursor:pointer}
+.monthnav button:hover{border-color:var(--paper)}
+
+/* gráficos */
+.chart{width:100%;position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--mute);font:400 11px var(--sans);font-variant-numeric:tabular-nums}
+.chart .grid-l{stroke:var(--line);stroke-width:1}
+.hb{display:grid;grid-template-columns:minmax(6rem,9rem) minmax(0,1fr) auto;gap:.75rem;align-items:center;font-size:var(--t-s);padding:.35rem 0}
+.hb .track{height:10px;position:relative}
+.hb .fill{position:absolute;inset:0 auto 0 0;background:var(--paper);opacity:.85;border-radius:0 4px 4px 0;transition:width 1s var(--ease)}
+.hb.hi .fill{background:var(--accent);opacity:1}
+.hb .n{color:var(--dim);text-align:right}
+.meter{display:block;height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:.5rem}
+.meter i{display:block;height:100%;background:var(--paper);border-radius:99px;transition:width 1s var(--ease)}
+.meter.warn i{background:var(--accent)}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--paper);color:var(--ink);font-size:var(--t-xs);padding:.4rem .6rem;border-radius:6px;opacity:0;transform:translate(-50%,calc(-100% - 10px));transition:opacity .2s;white-space:nowrap}
+#tip.on{opacity:1}
+
+/* roda */
+.res{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.2fr);gap:1rem;align-items:center;padding:.8rem 0;border-bottom:1px solid var(--line);font-size:var(--t-s)}
+.res .t{font-size:var(--t-m)}
+.res .lvl{display:flex;align-items:center;gap:.5rem}
+.res .lvl i{width:8px;height:8px;border-radius:50%;background:var(--paper);flex:none}
+.res.l0 .lvl{color:var(--accent)} .res.l0 .lvl i{background:var(--accent)}
+.res.l1 .lvl i{opacity:.35} .res.l2 .lvl i{opacity:.65}
+.kv{display:grid;grid-template-columns:minmax(7rem,auto) minmax(0,1fr);gap:.4rem 1rem;font-size:var(--t-s)}
+.kv dt{color:var(--mute)}
+.kv dd{overflow-wrap:anywhere}
+.steps{counter-reset:s;list-style:none;display:grid;gap:.75rem;font-size:var(--t-s);color:var(--dim);margin-bottom:1rem}
+.steps li{counter-increment:s;display:grid;grid-template-columns:2rem 1fr}
+.steps li::before{content:"(0" counter(s) ")";color:var(--mute);font-size:var(--t-xs);padding-top:.15rem}
+code{font-size:.85em;background:var(--line);padding:.1em .35em;border-radius:4px}
+.note{font-size:var(--t-xs);color:var(--mute);margin-top:1rem;max-width:70ch}
+footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:2rem var(--pad);border-top:1px solid var(--line);font-size:var(--t-xs);color:var(--mute)}
+footer .bar-actions{gap:.75rem}
+
+@media (max-width:900px){
+  .span4,.span5,.span6,.span7,.span8{grid-column:1/-1}
+  .lead{grid-column:1/-1}
+  .stats{grid-template-columns:1fr 1fr}
+  .clock{display:none}
+}
+@media (max-width:560px){
+  .top{flex-wrap:wrap;gap:.6rem}
+  .tabs{flex-basis:100%;order:2}
+  .res{grid-template-columns:minmax(0,1fr) auto}
+  .res .mt{grid-column:1/-1}
+  .hb{grid-template-columns:minmax(5rem,7rem) minmax(0,1fr) auto}
+  .f2{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .line>span,.fade{transform:none;opacity:1}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#geral">Painel<span class="serif">do PC</span></a>
+  <nav class="tabs" aria-label="Seções">
+    <a href="#geral">Visão geral</a>
+    <a href="#financas">Finanças</a>
+    <a href="#assinaturas">Assinaturas</a>
+    <a href="#cuidados">Cuidados</a>
+    <a href="#desempenho">Desempenho</a>
+    <a href="#roda">O que roda</a>
+  </nav>
+  <span class="clock num" id="clock"></span>
+</header>
+
+<main>
+<!-- 01 visão geral -->
+<section class="view hero" id="v-geral">
+  <div class="head grid">
+    <p class="label span12"><span>(01) — Visão geral</span><span id="today"></span></p>
+    <h1 class="span12"><span class="line"><span>Seu PC,</span></span><span class="line"><span style="--i:1"><span class="serif">em ordem.</span></span></span></h1>
+    <p class="lead fade">Dinheiro, assinaturas, manutenção e desempenho num lugar só. Tudo fica salvo neste navegador.</p>
+  </div>
+  <div class="stats block fade" style="--i:2" id="g-stats"></div>
+  <div class="grid block">
+    <div class="col span6 fade" style="--i:3"><h3><span>Próximas ações</span></h3><ul class="rows" id="g-acoes"></ul></div>
+    <div class="col span6 fade" style="--i:4"><h3><span>Seu setup, pela foto</span><span>06 pontos</span></h3><ol class="rows tip-list" id="g-setup"></ol></div>
+  </div>
+</section>
+
+<!-- 02 finanças -->
+<section class="view" id="v-financas">
+  <div class="head">
+    <p class="label"><span>(02) — Finanças</span><span class="monthnav"><button type="button" id="m-prev" aria-label="Mês anterior">←</button><span id="m-label" class="num"></span><button type="button" id="m-next" aria-label="Próximo mês">→</button></span></p>
+    <h2><span class="line"><span>Para onde vai</span></span><span class="line"><span style="--i:1">o <span class="serif">dinheiro.</span></span></span></h2>
+  </div>
+  <div class="grid block">
+    <div class="col span4 fade">
+      <h3><span>Novo lançamento</span></h3>
+      <form id="f-tx">
+        <div class="seg" role="radiogroup" aria-label="Tipo">
+          <input type="radio" name="tipo" id="t-out" value="out" checked><label for="t-out">Saída</label>
+          <input type="radio" name="tipo" id="t-in" value="in"><label for="t-in">Entrada</label>
+        </div>
+        <label class="fl">Descrição<input name="desc" required placeholder="Ex.: mercado, salário, SSD"></label>
+        <div class="f2">
+          <label class="fl">Valor (R$)<input name="v" type="number" step="0.01" min="0.01" inputmode="decimal" required></label>
+          <label class="fl">Data<input name="d" type="date" required></label>
+        </div>
+        <label class="fl">Categoria<select name="cat" id="tx-cat"></select></label>
+        <button class="btn main" type="submit">Adicionar ↵</button>
+      </form>
+    </div>
+    <div class="col span8 fade" style="--i:1">
+      <h3><span>Saldo do mês</span><span id="fin-io" class="num"></span></h3>
+      <p class="big num" id="fin-saldo"></p>
+      <div class="grid" style="margin-top:2.5rem">
+        <div class="col span7"><h3><span>Saídas por mês</span><span>6 meses</span></h3><div class="chart" id="c-meses"></div></div>
+        <div class="col span5"><h3><span>Saídas por categoria</span></h3><div id="c-cats"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="block fade" style="--i:2"><h3><span>Lançamentos</span><span id="tx-count"></span></h3><ul class="rows" id="tx-list"></ul></div>
+</section>
+
+<!-- 03 assinaturas -->
+<section class="view" id="v-assinaturas">
+  <div class="head">
+    <p class="label"><span>(03) — Assinaturas</span><span>SaaS, jogos, streaming</span></p>
+    <h2><span class="line"><span>O que você paga</span></span><span class="line"><span style="--i:1"><span class="serif">todo mês.</span></span></span></h2>
+  </div>
+  <div class="grid block">
+    <div class="col span4 fade">
+      <h3><span>Nova assinatura</span></h3>
+      <form id="f-sub">
+        <label class="fl">Serviço<input name="nome" required placeholder="Ex.: Game Pass, Spotify" list="sub-sug"></label>
+        <datalist id="sub-sug"><option>Xbox Game Pass</option><option>Spotify</option><option>Discord Nitro</option><option>Netflix</option><option>YouTube Premium</option><option>Microsoft 365</option><option>Google One</option><option>ChatGPT / Claude</option><option>Adobe</option><option>PlayStation Plus</option></datalist>
+        <div class="f2">
+          <label class="fl">Valor (R$)<input name="v" type="number" step="0.01" min="0.01" inputmode="decimal" required></label>
+          <label class="fl">Ciclo<select name="ciclo"><option value="m">Mensal</option><option value="a">Anual</option></select></label>
+        </div>
+        <label class="fl">Próxima cobrança<input name="prox" type="date" required></label>
+        <button class="btn main" type="submit">Adicionar ↵</button>
+      </form>
+    </div>
+    <div class="col span8 fade" style="--i:1">
+      <h3><span>Custo por mês</span><span id="sub-ano" class="num"></span></h3>
+      <p class="big num" id="sub-total"></p>
+      <div style="margin-top:2rem" id="c-subs"></div>
+    </div>
+  </div>
+  <div class="block fade" style="--i:2"><h3><span>Próximas cobranças</span><span>“Paguei” lança nas finanças</span></h3><ul class="rows" id="sub-list"></ul></div>
+</section>
+
+<!-- 04 cuidados -->
+<section class="view" id="v-cuidados">
+  <div class="head">
+    <p class="label"><span>(04) — Cuidados</span><span id="care-sum"></span></p>
+    <h2><span class="line"><span>Manutenção</span></span><span class="line"><span style="--i:1">em <span class="serif">dia.</span></span></span></h2>
+  </div>
+  <div class="grid block">
+    <div class="col span8 fade"><h3><span>Rotina</span><span>“Feito” marca hoje</span></h3><ul class="rows" id="care-list"></ul></div>
+    <div class="col span4 fade" style="--i:1">
+      <h3><span>Nova tarefa</span></h3>
+      <form id="f-care">
+        <label class="fl">Tarefa<input name="nome" required placeholder="Ex.: trocar filtro de poeira"></label>
+        <label class="fl">Repetir a cada (dias)<input name="dias" type="number" min="1" value="30" required></label>
+        <button class="btn" type="submit">Adicionar ↵</button>
+      </form>
+      <p class="note">Ferramentas grátis que ajudam: CrystalDiskInfo (saúde do SSD), HWiNFO (temperaturas), NVIDIA App ou AMD Adrenalin (drivers), Limpeza de Disco do Windows.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 desempenho -->
+<section class="view" id="v-desempenho">
+  <div class="head">
+    <p class="label"><span>(05) — Desempenho</span><span>Gráficos ao vivo</span></p>
+    <h2><span class="line"><span>Como o PC</span></span><span class="line"><span style="--i:1"><span class="serif">está indo.</span></span></span></h2>
+  </div>
+  <div class="grid block">
+    <div class="col span8 fade"><h3><span>Quadros por segundo do navegador</span><span id="fps-now" class="num"></span></h3><div class="chart" id="c-fps"></div><p class="note">Mede a fluidez desta aba. Quedas fortes com o PC parado indicam algo pesando em segundo plano.</p></div>
+    <div class="col span4 fade" style="--i:1"><h3><span>Este aparelho</span><span>detectado</span></h3><dl class="kv" id="det"></dl></div>
+  </div>
+  <div class="grid block">
+    <div class="col span8 fade"><h3><span>Teste rápido de CPU</span><span id="bench-last" class="num"></span></h3><div class="chart" id="c-bench"></div>
+      <div class="bar-actions" style="margin-top:1rem"><button class="btn" id="bench-run" type="button">Rodar teste (≈2 s)</button><span class="note" style="margin:0">Rode de vez em quando com tudo fechado. Se a nota cair, o PC está pesado (poeira, calor ou programas).</span></div>
+    </div>
+    <div class="col span4 fade" style="--i:1">
+      <h3><span>Dados do Windows</span><span id="imp-when"></span></h3>
+      <ol class="steps">
+        <li><span>Baixe <a href="coletar-specs.ps1" download>coletar-specs.ps1</a>.</span></li>
+        <li><span>Clique com o botão direito › <b>Executar com o PowerShell</b>. Ele só lê, não muda nada.</span></li>
+        <li><span>Cole aqui (Ctrl+V) ou escolha <code>painel-pc.json</code> na Área de Trabalho.</span></li>
+      </ol>
+      <textarea id="imp-text" placeholder='{"cpu": …}' aria-label="JSON do PC"></textarea>
+      <div class="bar-actions" style="margin-top:.75rem"><button class="btn" id="imp-btn" type="button">Importar</button><label class="btn">Arquivo…<input type="file" id="imp-file" accept=".json,application/json" hidden></label></div>
+    </div>
+  </div>
+  <div id="win" class="block"></div>
+</section>
+
+<!-- 06 roda -->
+<section class="view" id="v-roda">
+  <div class="head">
+    <p class="label"><span>(06) — O que roda</span><span>Estimativa a 60 fps</span></p>
+    <h2><span class="line"><span>O que roda e</span></span><span class="line"><span style="--i:1">o que <span class="serif">melhorar.</span></span></span></h2>
+  </div>
+  <div class="grid block">
+    <div class="col span4 fade">
+      <h3><span>Seu PC</span></h3>
+      <form id="f-pc" onsubmit="return false">
+        <label class="fl">Placa de vídeo<select name="gpu" id="pc-gpu"></select></label>
+        <div class="f2">
+          <label class="fl">Memória RAM<select name="ram"><option>8</option><option>12</option><option selected>16</option><option>24</option><option>32</option><option>64</option></select></label>
+          <label class="fl">Resolução<select name="res"><option value="1080">1080p</option><option value="1440">1440p</option><option value="uw">Ultrawide 1440p</option><option value="4k">4K</option></select></label>
+        </div>
+      </form>
+      <div class="stat" style="margin-top:2rem"><span class="label">Índice da placa</span><b class="num" id="pc-score"></b><small id="pc-tier"></small></div>
+      <p class="note" id="pc-src"></p>
+    </div>
+    <div class="col span8 fade" style="--i:1"><h3><span>Jogos e programas</span><span>Resultado</span></h3><div id="roda-list"></div></div>
+  </div>
+  <div class="block fade" style="--i:2"><h3><span>O que melhorar, em ordem</span><span>maior ganho primeiro</span></h3><ol class="rows tip-list" id="roda-up"></ol>
+  <p class="note">Índices são estimativas a partir de testes públicos (RTX 4090 = 100), com configurações gráficas altas e sem ray tracing. Use como guia, não como garantia.</p></div>
+</section>
+</main>
+
+<footer>
+  <span>Dados só neste navegador. Faça backup de vez em quando.</span>
+  <span class="bar-actions"><button class="btn sm" id="bk-out" type="button">Exportar backup ↓</button><label class="btn sm">Restaurar backup<input type="file" id="bk-in" accept=".json" hidden></label></span>
+</footer>
+<div id="tip" role="tooltip"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const BRL = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'});
+const brl = n => BRL.format(n || 0);
+const iso = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const today = () => iso(new Date());
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diffDays = (a, b) => Math.round((parse(a) - parse(b)) / 864e5);
+const fmtDate = s => parse(s).toLocaleDateString('pt-BR', {day:'2-digit', month:'short'}).replace('.', '');
+const monthName = k => { const [y, m] = k.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('pt-BR', {month:'long', year:'numeric'}); };
+const shiftMonth = (k, n) => { const [y, m] = k.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return iso(d).slice(0, 7); };
+const uid = () => Math.random().toString(36).slice(2, 10);
+const arr = x => Array.isArray(x) ? x : (x ? [x] : []);
+
+/* ---------- estado ---------- */
+const KEY = 'painel-pc-v1';
+const defaultTasks = () => [
+  ['Limpar poeira das ventoinhas e filtros', 90],
+  ['Atualizar driver da placa de vídeo', 30],
+  ['Windows Update', 14],
+  ['Limpar arquivos temporários (Limpeza de Disco)', 30],
+  ['Revisar programas que abrem com o Windows', 60],
+  ['Backup de arquivos importantes', 30],
+  ['Conferir saúde do SSD (CrystalDiskInfo)', 90],
+  ['Limpar teclado e keycaps', 30],
+  ['Lavar o mousepad', 60],
+  ['Limpar a tela com pano de microfibra', 14],
+  ['Trocar pasta térmica da CPU', 730]
+].map(([nome, dias]) => ({id: uid(), nome, dias, ult: ''}));
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+S = Object.assign({tx: [], subs: [], tasks: null, bench: [], pc: null, cfg: {gpu: '', ram: '16', res: '1080'}}, S || {});
+if (!S.tasks) S.tasks = defaultTasks();
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+/* ---------- tabela de placas (RTX 4090 = 100, 1080p/1440p raster) ---------- */
+const GPUS = [
+  ['RTX 5090',125],['RTX 4090',100],['RTX 5080',86],['RTX 4080 Super',80],['RTX 4080',78],['RX 7900 XTX',78],
+  ['RTX 5070 Ti',72],['RX 9070 XT',70],['RTX 4070 Ti Super',68],['RX 7900 XT',68],['RX 9070',63],['RTX 4070 Ti',60],
+  ['RTX 5070',58],['RTX 4070 Super',56],['RTX 3090 Ti',56],['RX 6950 XT',54],['RX 7800 XT',52],['RTX 3090',52],
+  ['RX 6900 XT',50],['RTX 3080 Ti',50],['RTX 3080',47],['RTX 4070',47],['RX 6800 XT',46],['RX 7700 XT',44],
+  ['RX 9060 XT',43],['RTX 5060 Ti',42],['RX 6800',41],['RTX 3070 Ti',40],['RTX 4060 Ti',38],['RTX 3070',37],
+  ['RTX 5060',36],['RTX 2080 Ti',36],['RX 6750 XT',36],['RX 6700 XT',35],['Arc B580',32],['RTX 3060 Ti',31],
+  ['RTX 2080 Super',30],['RTX 4060',30],['RX 7600',30],['RTX 2080',28],['Arc A770',28],['RX 6650 XT',28],
+  ['RX 6600 XT',26],['RTX 2070 Super',26],['Arc A750',25],['RTX 3060',24],['RX 5700 XT',24],['RTX 2070',22],
+  ['RX 6600',22],['GTX 1080 Ti',22],['RTX 2060 Super',21],['RTX 2060',18],['GTX 1080',18],['RX 5600 XT',18],
+  ['GTX 1660 Ti',15],['GTX 1660 Super',15],['RTX 3050',15],['GTX 1070 Ti',16],['GTX 1070',14],['GTX 1660',13],
+  ['RX 6500 XT',11],['GTX 1060',11],['RX 590',11],['RX 580',10],['GTX 1650 Super',10],['RX 570',8],
+  ['GTX 1650',9],['Radeon 780M',8],['GTX 1050 Ti',6],['Radeon 680M',6],['Iris Xe',4],['Vega 8',3],['UHD Graphics',2]
+];
+const gpuFind = name => {
+  if (!name) return null;
+  const n = name.toLowerCase().replace(/geforce|radeon(?! \d{3}m)|nvidia|amd|intel\(r\)|\(tm\)|\(r\)/g, ' ').replace(/\s+/g, ' ');
+  return [...GPUS].sort((a, b) => b[0].length - a[0].length).find(([g]) => n.includes(g.toLowerCase())) || null;
+};
+const gpuScore = g => (GPUS.find(x => x[0] === g) || [0, 0])[1];
+const tier = s => s >= 70 ? 'Topo de linha' : s >= 45 ? 'Alto desempenho' : s >= 28 ? 'Intermediário forte' : s >= 15 ? 'Intermediário' : s >= 8 ? 'Entrada' : 'Básico';
+
+/* jogos/apps: índice para 60 fps em baixo e em alto (1080p) */
+const APPS = [
+  ['League of Legends', 1, 3, 8], ['Valorant', 2, 5, 8], ['Counter-Strike 2', 4, 10, 8], ['GTA V', 3, 9, 8],
+  ['Fortnite', 4, 18, 8], ['Minecraft com shaders', 3, 25, 8], ['Forza Horizon 5', 7, 18, 16], ['Elden Ring', 9, 16, 16],
+  ['Call of Duty: Warzone', 8, 20, 16], ["Baldur's Gate 3", 10, 20, 16], ['Marvel Rivals', 11, 28, 16],
+  ['Hogwarts Legacy', 12, 30, 16], ['Cyberpunk 2077', 12, 30, 16], ['Black Myth: Wukong', 15, 40, 16], ['Alan Wake 2', 20, 45, 16],
+  ['OBS: gravar/transmitir 1080p60', 8, 15, 16, 1], ['Blender (render)', 10, 35, 16, 1], ['DaVinci Resolve 4K', 15, 40, 32, 1],
+  ['IA local (Stable Diffusion, LLM 8B)', 18, 30, 16, 1]
+];
+const RES = {'1080': 1, '1440': .62, 'uw': .48, '4k': .33};
+const RESNAME = {'1080': '1080p', '1440': '1440p', 'uw': 'ultrawide 1440p', '4k': '4K'};
+
+/* ---------- tooltip ---------- */
+const tip = $('#tip');
+document.addEventListener('pointermove', e => {
+  const t = e.target.closest && e.target.closest('[data-tip]');
+  if (!t) { tip.classList.remove('on'); return; }
+  tip.textContent = t.dataset.tip; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.classList.add('on');
+});
+document.addEventListener('pointerleave', () => tip.classList.remove('on'));
+
+/* ---------- gráficos ---------- */
+function columns(el, data, {fmt = brl, hi = -1} = {}) {
+  const W = Math.max(280, el.clientWidth || 560), H = 220, top = 24, bot = 26, left = 44;
+  const max = Math.max(1, ...data.map(d => d.v));
+  const step = niceStep(max), ymax = Math.ceil(max / step) * step;
+  const y = v => top + (H - top - bot) * (1 - v / ymax);
+  const bw = (W - left) / data.length, w = Math.min(24, bw * .5);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de colunas">`;
+  for (let v = 0; v <= ymax; v += step) s += `<line class="grid-l" x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${left - 8}" y="${y(v) + 4}" text-anchor="end">${compact(v)}</text>`;
+  data.forEach((d, i) => {
+    const cx = left + bw * i + bw / 2, h = H - bot - y(d.v), x = cx - w / 2, r = Math.min(4, h);
+    if (d.v > 0) s += `<path d="M${x},${H - bot}V${y(d.v) + r}q0,-${r} ${r},-${r}h${w - 2 * r}q${r},0 ${r},${r}V${H - bot}Z" fill="${i === hi ? 'var(--accent)' : 'var(--paper)'}" opacity="${i === hi ? 1 : .55}"/>`;
+    if (i === hi && d.v > 0) s += `<text x="${cx}" y="${y(d.v) - 8}" text-anchor="middle" style="fill:var(--paper)">${compact(d.v)}</text>`;
+    s += `<text x="${cx}" y="${H - 8}" text-anchor="middle">${esc(d.l)}</text>`;
+    s += `<rect x="${left + bw * i}" y="${top}" width="${bw}" height="${H - top - bot}" fill="transparent" data-tip="${esc(d.t || d.l)}: ${esc(fmt(d.v))}"/>`;
+  });
+  el.innerHTML = s + '</svg>';
+}
+function hbars(el, data, {fmt = brl, hi = -1} = {}) {
+  if (!data.length) { el.innerHTML = '<p class="empty">Sem dados ainda.</p>'; return; }
+  const max = Math.max(...data.map(d => d.v));
+  el.innerHTML = data.map((d, i) => `<div class="hb${i === hi ? ' hi' : ''}" data-tip="${esc(d.l)}: ${esc(fmt(d.v))}"><span>${esc(d.l)}</span><span class="track"><span class="fill" style="width:${(d.v / max * 100).toFixed(1)}%"></span></span><span class="n num">${esc(fmt(d.v))}</span></div>`).join('');
+}
+function lineChart(el, vals, {min = 0, max, unit = '', labels} = {}) {
+  const W = Math.max(280, el.clientWidth || 560), H = 180, top = 12, bot = 22, left = 40;
+  max = max ?? Math.max(1, ...vals);
+  const step = niceStep(max - min);
+  const n = Math.max(vals.length, 2);
+  const x = i => left + (W - left) * i / (n - 1), y = v => top + (H - top - bot) * (1 - (v - min) / (max - min));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de linha">`;
+  for (let v = min; v <= max + 1e-9; v += step) s += `<line class="grid-l" x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${left - 8}" y="${y(v) + 4}" text-anchor="end">${compact(v)}</text>`;
+  if (vals.length) {
+    const pts = vals.map((v, i) => `${x(i).toFixed(1)},${y(Math.min(max, Math.max(min, v))).toFixed(1)}`);
+    s += `<path d="M${left},${H - bot}L${pts.join('L')}L${x(vals.length - 1)},${H - bot}Z" fill="var(--paper)" opacity=".08"/>`;
+    s += `<polyline points="${pts.join(' ')}" fill="none" stroke="var(--paper)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const lx = x(vals.length - 1), ly = y(Math.min(max, vals[vals.length - 1]));
+    s += `<circle cx="${lx}" cy="${ly}" r="4" fill="var(--accent)" stroke="var(--ink)" stroke-width="2"/>`;
+    s += `<line class="xh" x1="0" x2="0" y1="${top}" y2="${H - bot}" stroke="var(--dim)" stroke-width="1" opacity="0"/>`;
+  }
+  if (labels) { s += `<text x="${left}" y="${H - 4}">${esc(labels[0])}</text><text x="${W}" y="${H - 4}" text-anchor="end">${esc(labels[1])}</text>`; }
+  el.innerHTML = s + '</svg>';
+  const svg = el.firstChild, xh = svg.querySelector('.xh');
+  if (!xh) return;
+  svg.onpointermove = e => {
+    const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(vals.length - 1, Math.round((px - left) / (W - left) * (n - 1))));
+    xh.setAttribute('x1', x(i)); xh.setAttribute('x2', x(i)); xh.setAttribute('opacity', 1);
+    tip.textContent = (el._tipLabel ? el._tipLabel(i) + ': ' : '') + Math.round(vals[i]) + unit;
+    tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.classList.add('on');
+  };
+  svg.onpointerleave = () => { xh.setAttribute('opacity', 0); tip.classList.remove('on'); };
+}
+function niceStep(range) { const raw = range / 4, p = 10 ** Math.floor(Math.log10(raw || 1)), m = raw / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; }
+function compact(v) { return v >= 1000 ? (v / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' mil' : Math.round(v).toLocaleString('pt-BR'); }
+
+/* ---------- finanças ---------- */
+const CATS = {out: ['Alimentação','Moradia','Contas','Transporte','Lazer','Jogos','PC e hardware','Assinaturas','Saúde','Educação','Outros'], in: ['Salário','Freela','Venda','Presente','Outros']};
+let month = today().slice(0, 7);
+const ftx = $('#f-tx');
+const fillCats = () => { const t = ftx.tipo.value; $('#tx-cat').innerHTML = CATS[t].map(c => `<option>${c}</option>`).join(''); };
+ftx.addEventListener('change', e => { if (e.target.name === 'tipo') fillCats(); });
+ftx.addEventListener('submit', e => {
+  e.preventDefault();
+  const f = ftx;
+  S.tx.push({id: uid(), tipo: f.tipo.value, desc: f.desc.value.trim(), v: +f.v.value, d: f.d.value, cat: f.cat.value});
+  month = f.d.value.slice(0, 7);
+  f.desc.value = ''; f.v.value = ''; f.desc.focus();
+  save(); render();
+});
+$('#m-prev').onclick = () => { month = shiftMonth(month, -1); renderFin(); };
+$('#m-next').onclick = () => { month = shiftMonth(month, 1); renderFin(); };
+const monthTotals = k => S.tx.filter(t => t.d.startsWith(k)).reduce((a, t) => (a[t.tipo] += t.v, a), {in: 0, out: 0});
+
+function renderFin() {
+  $('#m-label').textContent = monthName(month);
+  const tot = monthTotals(month), saldo = tot.in - tot.out;
+  $('#fin-saldo').innerHTML = `<span class="${saldo < 0 ? 'acc' : ''}">${brl(saldo)}</span>`;
+  $('#fin-io').textContent = `Entrou ${brl(tot.in)} · Saiu ${brl(tot.out)}`;
+  const ms = Array.from({length: 6}, (_, i) => shiftMonth(month, i - 5));
+  columns($('#c-meses'), ms.map(k => ({l: monthName(k).slice(0, 3), t: monthName(k), v: monthTotals(k).out})), {hi: 5});
+  const byCat = {};
+  S.tx.filter(t => t.tipo === 'out' && t.d.startsWith(month)).forEach(t => byCat[t.cat] = (byCat[t.cat] || 0) + t.v);
+  hbars($('#c-cats'), Object.entries(byCat).map(([l, v]) => ({l, v})).sort((a, b) => b.v - a.v).slice(0, 7));
+  const list = S.tx.filter(t => t.d.startsWith(month)).sort((a, b) => b.d.localeCompare(a.d));
+  $('#tx-count').textContent = list.length + (list.length === 1 ? ' item' : ' itens');
+  $('#tx-list').innerHTML = list.length ? list.map(t => `<li class="row"><span><span class="t">${esc(t.desc)}</span><span class="s">${fmtDate(t.d)} · ${esc(t.cat)}</span></span><span class="v num" style="${t.tipo === 'in' ? '' : 'color:var(--dim)'}">${t.tipo === 'in' ? '+' : '−'} ${brl(t.v)}</span><button class="x" data-del-tx="${t.id}" aria-label="Apagar">×</button></li>`).join('') : '<li class="empty">Nenhum lançamento neste mês. Comece pelo formulário ao lado.</li>';
+}
+$('#tx-list').addEventListener('click', e => { const id = e.target.dataset.delTx; if (id && confirm('Apagar este lançamento?')) { S.tx = S.tx.filter(t => t.id !== id); save(); render(); } });
+
+/* ---------- assinaturas ---------- */
+const monthly = s => s.ciclo === 'a' ? s.v / 12 : s.v;
+$('#f-sub').addEventListener('submit', e => {
+  e.preventDefault(); const f = e.target;
+  S.subs.push({id: uid(), nome: f.nome.value.trim(), v: +f.v.value, ciclo: f.ciclo.value, prox: f.prox.value});
+  f.reset(); f.prox.value = today(); save(); render();
+});
+function nextDate(s) { const d = parse(s.prox); s.ciclo === 'a' ? d.setFullYear(d.getFullYear() + 1) : d.setMonth(d.getMonth() + 1); return iso(d); }
+$('#sub-list').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const s = S.subs.find(x => x.id === b.dataset.id); if (!s) return;
+  if (b.dataset.act === 'pay') { S.tx.push({id: uid(), tipo: 'out', desc: s.nome, v: s.v, d: today(), cat: 'Assinaturas'}); s.prox = nextDate(s); }
+  if (b.dataset.act === 'del' && confirm(`Remover ${s.nome}?`)) S.subs = S.subs.filter(x => x !== s);
+  save(); render();
+});
+function renderSubs() {
+  const tot = S.subs.reduce((a, s) => a + monthly(s), 0);
+  $('#sub-total').textContent = brl(tot);
+  $('#sub-ano').textContent = brl(tot * 12) + ' por ano';
+  hbars($('#c-subs'), S.subs.map(s => ({l: s.nome, v: monthly(s)})).sort((a, b) => b.v - a.v), {fmt: v => brl(v) + '/mês'});
+  const t = today();
+  const list = [...S.subs].sort((a, b) => a.prox.localeCompare(b.prox));
+  $('#sub-list').innerHTML = list.length ? list.map(s => {
+    const d = diffDays(s.prox, t), late = d < 0;
+    const quando = late ? `venceu há ${-d} dia${d === -1 ? '' : 's'}` : d === 0 ? 'cobra hoje' : `em ${d} dia${d === 1 ? '' : 's'}`;
+    return `<li class="row${late ? ' late' : ''}"><span><span class="t">${esc(s.nome)}</span><span class="s"><span class="st">${fmtDate(s.prox)} · ${quando}</span> · ${s.ciclo === 'a' ? 'anual' : 'mensal'}</span></span><span class="v num">${brl(s.v)}</span><span class="bar-actions"><button class="btn sm" data-act="pay" data-id="${s.id}">Paguei</button><button class="x" data-act="del" data-id="${s.id}" aria-label="Remover">×</button></span></li>`;
+  }).join('') : '<li class="empty">Nenhuma assinatura ainda. Some tudo: Game Pass, Spotify, Discord, nuvem, IA.</li>';
+}
+
+/* ---------- cuidados ---------- */
+const taskState = k => { if (!k.ult) return {d: -1, txt: 'Sem registro: marque quando fizer', late: false, nova: true}; const d = diffDays(addDays(k.ult, k.dias), today()); return {d, late: d < 0, txt: d < 0 ? `Atrasada ${-d} dia${d === -1 ? '' : 's'}` : d === 0 ? 'Vence hoje' : `Em dia · faltam ${d} dias`}; };
+$('#f-care').addEventListener('submit', e => { e.preventDefault(); const f = e.target; S.tasks.push({id: uid(), nome: f.nome.value.trim(), dias: +f.dias.value, ult: ''}); f.reset(); save(); render(); });
+$('#care-list').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const k = S.tasks.find(x => x.id === b.dataset.id); if (!k) return;
+  if (b.dataset.act === 'done') k.ult = today();
+  if (b.dataset.act === 'del' && confirm(`Remover "${k.nome}"?`)) S.tasks = S.tasks.filter(x => x !== k);
+  save(); render();
+});
+function renderCare() {
+  const list = S.tasks.map(k => ({k, st: taskState(k)})).sort((a, b) => a.st.d - b.st.d);
+  const late = list.filter(x => x.st.late).length;
+  $('#care-sum').textContent = late ? `${late} atrasada${late > 1 ? 's' : ''}` : 'Nada atrasado';
+  $('#care-list').innerHTML = list.map(({k, st}) => `<li class="row ${st.late ? 'late' : st.nova ? '' : 'ok'}"><span><span class="t">${esc(k.nome)}</span><span class="s"><span class="st">${st.txt}</span> · a cada ${k.dias} dias${k.ult ? ' · último ' + fmtDate(k.ult) : ''}</span></span><button class="btn sm" data-act="done" data-id="${k.id}">Feito</button><button class="x" data-act="del" data-id="${k.id}" aria-label="Remover">×</button></li>`).join('');
+}
+
+/* ---------- desempenho ---------- */
+const det = {};
+(function detect() {
+  det.threads = navigator.hardwareConcurrency || null;
+  det.mem = navigator.deviceMemory || null;
+  det.res = `${Math.round(screen.width * devicePixelRatio)}×${Math.round(screen.height * devicePixelRatio)}`;
+  try {
+    const gl = document.createElement('canvas').getContext('webgl');
+    const ext = gl && gl.getExtension('WEBGL_debug_renderer_info');
+    det.gpu = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : (gl ? gl.getParameter(gl.RENDERER) : '');
+    det.gpu = (det.gpu || '').replace(/^ANGLE \((.*)\)$/, '$1').replace(/ \(0x[0-9a-f]+\)| Direct3D.*$| vs_.*$/gi, '').replace(/^[^,]+, /, '');
+  } catch (e) { det.gpu = ''; }
+  det.os = /Windows/.test(navigator.userAgent) ? 'Windows' : /Android/.test(navigator.userAgent) ? 'Android' : /Mac/.test(navigator.userAgent) ? 'macOS / iOS' : /Linux/.test(navigator.userAgent) ? 'Linux' : '—';
+})();
+function renderDet() {
+  $('#det').innerHTML = [
+    ['Sistema', det.os], ['Placa de vídeo', det.gpu || 'não informada'], ['Threads da CPU', det.threads || '—'],
+    ['Memória', det.mem ? (det.mem >= 8 ? '8 GB ou mais' : det.mem + ' GB') : '—'], ['Tela', det.res],
+    ['Atualização', det.hz ? det.hz + ' Hz' : 'medindo…']
+  ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+}
+const fps = [];
+let frames = 0, last = performance.now(), deltas = [], prev = last;
+function loop(now) {
+  frames++;
+  if (deltas.length < 120) { deltas.push(now - prev); if (deltas.length === 120) { const m = [...deltas].sort((a, b) => a - b)[60]; det.hz = [30, 60, 75, 90, 100, 120, 144, 165, 170, 180, 200, 240, 280, 360].reduce((a, b) => Math.abs(b - 1000 / m) < Math.abs(a - 1000 / m) ? b : a); if (view === 'desempenho') renderDet(); } }
+  prev = now;
+  if (now - last >= 1000) {
+    fps.push(frames * 1000 / (now - last)); if (fps.length > 60) fps.shift();
+    frames = 0; last = now;
+    if (view === 'desempenho') drawFps();
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+document.addEventListener('visibilitychange', () => { last = performance.now(); frames = 0; deltas = deltas.length < 120 ? [] : deltas; });
+function drawFps() {
+  const top = Math.max(60, ...fps.map(v => Math.ceil(v / 30) * 30));
+  const el = $('#c-fps'); el._tipLabel = i => `há ${fps.length - 1 - i} s`;
+  lineChart(el, fps, {max: top, unit: ' fps', labels: ['60 s atrás', 'agora']});
+  $('#fps-now').textContent = fps.length ? Math.round(fps[fps.length - 1]) + ' fps' : '';
+}
+
+function bench() {
+  const t0 = performance.now();
+  let acc = 0;
+  for (let r = 0; r < 3; r++) {
+    const n = 2e6, sieve = new Uint8Array(n);
+    for (let i = 2; i * i < n; i++) if (!sieve[i]) for (let j = i * i; j < n; j += i) sieve[j] = 1;
+    for (let i = 0; i < 4e6; i++) acc += Math.sqrt(i) * Math.sin(i);
+    const a = Array.from({length: 2e5}, (_, i) => (i * 2654435761) % 1000003); a.sort((x, y) => x - y); acc += a[7];
+  }
+  return {ms: performance.now() - t0, acc};
+}
+$('#bench-run').onclick = e => {
+  const b = e.currentTarget; b.disabled = true; b.textContent = 'Rodando…';
+  setTimeout(() => {
+    const {ms} = bench();
+    S.bench.push({d: today(), s: Math.round(1e6 / ms)}); S.bench = S.bench.slice(-30); save();
+    b.disabled = false; b.textContent = 'Rodar de novo'; drawBench();
+  }, 60);
+};
+function drawBench() {
+  const el = $('#c-bench');
+  if (!S.bench.length) { el.innerHTML = '<p class="empty">Nenhum teste ainda. A nota fica guardada para comparar com o tempo.</p>'; $('#bench-last').textContent = ''; return; }
+  const v = S.bench.map(b => b.s), best = Math.max(...v);
+  el._tipLabel = i => fmtDate(S.bench[i].d);
+  lineChart(el, v, {max: Math.ceil(best * 1.15 / 100) * 100 || 100, unit: ' pts', labels: [fmtDate(S.bench[0].d), fmtDate(S.bench[S.bench.length - 1].d)]});
+  const lastV = v[v.length - 1], drop = Math.round((1 - lastV / best) * 100);
+  $('#bench-last').textContent = `Última ${lastV} pts${drop >= 10 ? ` · ${drop}% abaixo do melhor` : ''}`;
+}
+
+function importPC(txt) {
+  try {
+    const j = JSON.parse(txt.replace(/^﻿/, ''));
+    if (!j.cpu && !j.gpu) throw 0;
+    S.pc = j; save();
+    const g = arr(j.gpu).map(x => gpuFind(x.nome)).filter(Boolean).sort((a, b) => b[1] - a[1])[0];
+    if (g) S.cfg.gpu = g[0];
+    if (j.ram && j.ram.totalGB) S.cfg.ram = String([8, 12, 16, 24, 32, 64].reduce((a, b) => Math.abs(b - j.ram.totalGB) < Math.abs(a - j.ram.totalGB) ? b : a));
+    const r = arr(j.gpu).map(x => x.res).find(x => x && x !== 'x');
+    if (r) { const [w, h] = r.split('x').map(Number); S.cfg.res = w >= 3400 ? 'uw' : h >= 2000 ? '4k' : h >= 1400 ? '1440' : '1080'; }
+    save(); render(); $('#imp-text').value = '';
+  } catch (e) { alert('Não consegui ler esse JSON. Cole exatamente o que o script copiou.'); }
+}
+$('#imp-btn').onclick = () => importPC($('#imp-text').value);
+$('#imp-file').onchange = e => { const f = e.target.files[0]; if (f) f.text().then(importPC); e.target.value = ''; };
+
+function renderWin() {
+  const j = S.pc, el = $('#win');
+  $('#imp-when').textContent = j ? 'de ' + esc(j.geradoEm || '') : '';
+  if (!j) { el.innerHTML = ''; return; }
+  const ram = j.ram || {}, usedR = ram.totalGB ? (ram.totalGB - ram.livreGB) / ram.totalGB : 0;
+  const discos = arr(j.discos).map(d => { const u = d.totalGB ? 1 - d.livreGB / d.totalGB : 0; return `<div class="stat" style="border:0;padding:0;margin-bottom:1.25rem"><span class="label">${esc(d.nome)} ${esc(d.rotulo || '')} · ${esc(d.tipo || '—')}</span><div class="meter${u > .85 ? ' warn' : ''}" data-tip="${Math.round(u * 100)}% usado"><i style="width:${(u * 100).toFixed(1)}%"></i></div><small class="num">${d.livreGB} GB livres de ${d.totalGB} GB</small></div>`; }).join('');
+  el.innerHTML = `<div class="grid">
+    <div class="col span4"><h3><span>Máquina</span></h3><dl class="kv">
+      <dt>Processador</dt><dd>${esc(j.cpu?.nome)}</dd><dt>Núcleos</dt><dd>${esc(j.cpu?.nucleos)} núcleos · ${esc(j.cpu?.threads)} threads</dd>
+      ${arr(j.gpu).map(g => `<dt>Vídeo</dt><dd>${esc(g.nome)}<br><span class="label">driver ${esc(g.driverData || g.driver)} · ${esc(g.res)} · ${esc(g.hz)} Hz</span></dd>`).join('')}
+      <dt>Memória</dt><dd>${esc(ram.totalGB)} GB · ${esc(ram.modulos)} pente${ram.modulos > 1 ? 's' : ''}${ram.mhz ? ' · ' + esc(ram.mhz) + ' MHz' : ''}</dd>
+      <dt>Sistema</dt><dd>${esc(j.os?.nome)}</dd><dt>Ligado há</dt><dd>${esc(j.os?.ligadoHaDias)} dias</dd>
+      <dt>Temporários</dt><dd>${esc(j.tempGB)} GB</dd></dl></div>
+    <div class="col span4"><h3><span>Memória em uso</span><span class="num">${Math.round(usedR * 100)}%</span></h3>
+      <div class="meter${usedR > .8 ? ' warn' : ''}"><i style="width:${(usedR * 100).toFixed(1)}%"></i></div><small class="note num">${(ram.totalGB - ram.livreGB).toFixed(1)} de ${ram.totalGB} GB no momento da coleta</small>
+      <h3 style="margin-top:2rem"><span>Discos</span></h3>${discos}</div>
+    <div class="col span4"><h3><span>Quem mais usa memória</span></h3><div id="c-procs"></div>
+      <h3 style="margin-top:2rem"><span>Abrem com o Windows</span><span>${arr(j.inicializacao).length}</span></h3><p class="note" style="margin:0">${arr(j.inicializacao).map(esc).join(' · ') || '—'}</p></div>
+  </div>`;
+  hbars($('#c-procs'), arr(j.processos).map(p => ({l: p.nome, v: p.mb})), {fmt: v => v >= 1024 ? (v / 1024).toFixed(1).replace('.', ',') + ' GB' : v + ' MB'});
+}
+
+/* ---------- o que roda ---------- */
+const fpc = $('#f-pc');
+$('#pc-gpu').innerHTML = '<option value="">Escolha a sua…</option>' + [...GPUS].sort((a, b) => b[1] - a[1]).map(([g]) => `<option>${g}</option>`).join('');
+fpc.addEventListener('change', () => { S.cfg = {gpu: fpc.gpu.value, ram: fpc.ram.value, res: fpc.res.value}; save(); renderRoda(); renderGeral(); });
+function ensureCfg() {
+  if (!S.cfg.gpu) { const g = gpuFind(det.gpu); if (g) S.cfg.gpu = g[0]; }
+}
+function renderRoda() {
+  ensureCfg();
+  fpc.gpu.value = S.cfg.gpu; fpc.ram.value = S.cfg.ram; fpc.res.value = S.cfg.res;
+  const sc = gpuScore(S.cfg.gpu), ram = +S.cfg.ram, f = RES[S.cfg.res], eff = sc * f;
+  $('#pc-score').textContent = sc ? sc : '—';
+  $('#pc-tier').textContent = sc ? `${tier(sc)} · em ${RESNAME[S.cfg.res]} rende como ${Math.round(eff)} em 1080p` : 'Escolha sua placa ou importe os dados do Windows.';
+  $('#pc-src').textContent = S.pc ? 'Preenchido com os dados importados do Windows.' : det.gpu ? `Detectado neste aparelho: ${det.gpu}. Se não for o seu PC, ajuste acima.` : '';
+  $('#roda-list').innerHTML = sc ? APPS.map(([nome, lo, hi, rmin, app]) => {
+    let lvl = eff >= hi ? 3 : eff >= (lo + hi) / 2 ? 2 : eff >= lo ? 1 : 0;
+    if (ram < rmin) lvl = Math.min(lvl, ram * 2 <= rmin ? 0 : 1);
+    const txt = app ? ['Fica pesado', 'Funciona, devagar', 'Funciona bem', 'Voa'][lvl] : ['Não roda bem', 'Baixo', 'Médio', 'Alto'][lvl];
+    const why = ram < rmin ? ` · pede ${rmin} GB de RAM` : '';
+    const pct = Math.min(1, eff / (hi * 1.5));
+    return `<div class="res l${lvl}"><span class="t">${esc(nome)}</span><span class="lvl"><i></i>${txt}${why}</span><span class="mt"><span class="meter" data-tip="${Math.round(eff / hi * 100)}% do necessário para alto"><i style="width:${(pct * 100).toFixed(1)}%;${lvl === 0 ? 'background:var(--accent)' : ''}"></i></span></span></div>`;
+  }).join('') : '<p class="empty">Escolha a placa de vídeo para ver o resultado.</p>';
+  const ups = upgrades();
+  $('#roda-up').innerHTML = ups.map(([t, p], i) => `<li><span class="label num">(${String(i + 1).padStart(2, '0')})</span><div><span>${t}</span><p>${p}</p></div></li>`).join('');
+}
+function upgrades() {
+  const out = [], j = S.pc, sc = gpuScore(S.cfg.gpu), ram = +S.cfg.ram, res = S.cfg.res, eff = sc * RES[res];
+  if (j) {
+    arr(j.gpu).forEach(g => { if (g.hz && g.hz <= 75) out.push(['Coloque o monitor na taxa máxima', `O Windows está em ${g.hz} Hz. Monitor curvo gamer costuma ir a 144–180 Hz: Configurações › Sistema › Tela › Tela avançada › Taxa de atualização. Ganho grátis e imediato.`]); });
+    arr(j.discos).forEach(d => { if (d.totalGB && d.livreGB / d.totalGB < .15) out.push([`Libere espaço no ${esc(d.nome)}`, `Só ${d.livreGB} GB livres (${Math.round(d.livreGB / d.totalGB * 100)}%). Abaixo de 15% o Windows e os jogos ficam lentos. Use Limpeza de Disco e desinstale jogos parados.`]); });
+    const sys = arr(j.discos).find(d => /^C/i.test(d.nome));
+    if (sys && /HDD/i.test(sys.tipo)) out.push(['Troque o disco do sistema por SSD NVMe', 'O Windows está num HD mecânico. Um SSD NVMe de 1 TB é o upgrade que mais muda a sensação de velocidade (boot, jogos, programas).']);
+    arr(j.gpu).forEach(g => { if (g.driverData && diffDays(today(), g.driverData) > 120) out.push(['Atualize o driver de vídeo', `Driver de ${fmtDate(g.driverData)} ${g.driverData.slice(0, 4)}. Drivers novos trazem até 10–20% em jogos recentes. Use NVIDIA App ou AMD Adrenalin.`]); });
+    if (j.os && j.os.ligadoHaDias > 7) out.push(['Reinicie o PC', `Ligado há ${j.os.ligadoHaDias} dias. "Desligar" no Windows não zera a memória por causa da Inicialização rápida; reiniciar zera.`]);
+    if (arr(j.inicializacao).length > 6) out.push(['Corte programas que abrem com o Windows', `${arr(j.inicializacao).length} programas abrem sozinhos. Gerenciador de Tarefas (Ctrl+Shift+Esc) › Aplicativos de inicialização › desative o que não usa todo dia.`]);
+    if (j.ram && j.ram.modulos === 1) out.push(['Use 2 pentes de memória (dual channel)', 'Só um pente instalado. Com dois iguais a CPU recebe o dobro de banda: 10–25% a mais de fps em muitos jogos.']);
+    if (j.tempGB > 3) out.push(['Limpe os temporários', `${j.tempGB} GB em arquivos temporários. Win+R › %temp% › apague tudo que der.`]);
+    if (j.cpu && j.cpu.threads && j.cpu.threads < 8 && sc >= 25) out.push(['O processador pode segurar a placa', `${j.cpu.threads} threads é pouco para jogos atuais com essa placa. Um Ryzen 5 7600 ou 5700X3D (se a placa-mãe for AM4) equilibra.`]);
+  }
+  if (ram < 16) out.push(['Suba a RAM para 16 GB', 'Menos de 16 GB trava jogos atuais e Discord/Chrome juntos. Dois pentes de 8 GB custam pouco e dão o maior ganho por real.']);
+  else if (ram < 32 && sc >= 30) out.push(['32 GB se você grava, transmite ou edita', 'Para só jogar, 16 GB ainda dão conta. Com OBS, Chrome e Discord abertos, 32 GB evitam engasgos.']);
+  if (sc && eff < 20) out.push(['Placa de vídeo: o próximo passo', `Para jogos novos no alto em ${RESNAME[res]}, mire em ${res === '1080' ? 'RTX 5060, RX 9060 XT ou Arc B580' : 'RTX 5070, RX 9070 ou superior'}: cerca de ${Math.max(2, Math.round((res === '1080' ? 36 : 60) / sc))}× o desempenho atual.`]);
+  else if (sc && eff < 35 && res !== '1080') out.push(['Use DLSS / FSR no modo Qualidade', `Em ${RESNAME[res]} sua placa trabalha como uma de índice ${Math.round(eff)}. Upscaling no modo Qualidade devolve 30–50% de fps com pouca perda visual.`]);
+  if (!j) out.push(['Importe os dados do Windows', 'Na aba Desempenho, rode o script de coleta. Com ele o painel vê disco, driver, memória e programas pesados e a lista fica sob medida.']);
+  out.push(['Ative o Modo de Jogo e o XMP/EXPO', 'Windows: Configurações › Jogos › Modo de Jogo. BIOS: ligue XMP (Intel) ou EXPO/DOCP (AMD) para a RAM rodar na velocidade da caixa, não em 2133 MHz.']);
+  return out;
+}
+
+/* ---------- visão geral ---------- */
+const SETUP = [
+  ['Luz atrás do monitor', 'O quarto está escuro e o papel de parede é muito claro: é a combinação que mais cansa a vista. Uma fita de LED branca atrás da tela (bias light) ou brilho perto de 40% à noite resolve. Ative também a Luz noturna.'],
+  ['Cabo do mouse solto', 'O cabo sai pela direita e arrasta na mesa. Um suporte de cabo (bungee) ou passar o fio por trás da mesa deixa o movimento livre. Mouse sem fio também resolve.'],
+  ['Altura e centro do monitor', 'O topo da tela deve ficar na altura dos olhos e o centro alinhado com o teclado. Monitor curvo funciona melhor a cerca de um braço de distância.'],
+  ['Taxa de atualização', 'Confira se o monitor está no máximo (144/165 Hz). É comum ficar em 60 Hz sem perceber. O painel avisa sozinho se você importar os dados.'],
+  ['Keycaps brancas', 'O conjunto branco/estampado com RGB vermelho fica ótimo, mas suja rápido. Tire as teclas com o extrator e lave a cada 1–2 meses (está na rotina de Cuidados).'],
+  ['Barra de tarefas e área de trabalho', 'A área de trabalho está limpa, ótimo. Deixe poucos ícones fixos e use Win+número para abrir apps rápido.']
+];
+function renderGeral() {
+  $('#today').textContent = new Date().toLocaleDateString('pt-BR', {weekday: 'long', day: 'numeric', month: 'long'});
+  const m = today().slice(0, 7), tot = monthTotals(m), saldo = tot.in - tot.out;
+  const subsM = S.subs.reduce((a, s) => a + monthly(s), 0);
+  const late = S.tasks.filter(k => taskState(k).late).length, novas = S.tasks.filter(k => taskState(k).nova).length, sc = gpuScore(S.cfg.gpu);
+  $('#g-stats').innerHTML = [
+    ['Saldo do mês', `<span class="${saldo < 0 ? 'acc' : ''}">${brl(saldo)}</span>`, `${monthName(m)}`, 'financas'],
+    ['Assinaturas', brl(subsM), `${S.subs.length} serviço${S.subs.length === 1 ? '' : 's'} · ${brl(subsM * 12)}/ano`, 'assinaturas'],
+    ['Cuidados', late ? `<span class="acc">${late}</span>` : '0', late ? 'atrasados' : novas ? `${novas} sem registro` : 'tudo em dia', 'cuidados'],
+    ['Índice da placa', sc || '—', sc ? tier(sc) : 'defina em O que roda', 'roda']
+  ].map(([l, v, s, h]) => `<a class="stat" href="#${h}" style="text-decoration:none"><span class="label">${l}</span><b class="num">${v}</b><small>${s}</small></a>`).join('');
+  const acoes = [];
+  S.tasks.map(k => ({k, st: taskState(k)})).filter(x => x.st.late).slice(0, 4).forEach(({k, st}) => acoes.push([k.nome, st.txt, 'cuidados', true]));
+  S.subs.map(s => ({s, d: diffDays(s.prox, today())})).filter(x => x.d <= 7).sort((a, b) => a.d - b.d).forEach(({s, d}) => acoes.push([`${s.nome} · ${brl(s.v)}`, d < 0 ? 'cobrança vencida' : d === 0 ? 'cobra hoje' : `cobra em ${d} dia${d === 1 ? '' : 's'}`, 'assinaturas', d < 0]));
+  if (novas >= 3) acoes.push([`Marque o que já fez na rotina (${novas} sem registro)`, 'assim o painel avisa quando vencer', 'cuidados', false]);
+  const up = upgrades()[0]; if (up) acoes.push([up[0], 'melhoria sugerida', 'roda', false]);
+  $('#g-acoes').innerHTML = acoes.map(([t, s, h, l]) => `<li class="row${l ? ' late' : ''}"><a href="#${h}" style="text-decoration:none"><span class="t">${esc(t)}</span><span class="s st">${esc(s)}</span></a><span></span><a class="btn sm" href="#${h}">Abrir ↗</a></li>`).join('') || '<li class="empty">Nada pendente.</li>';
+  $('#g-setup').innerHTML = SETUP.map(([t, p], i) => `<li><span class="label num">(0${i + 1})</span><div><span>${t}</span><p>${p}</p></div></li>`).join('');
+}
+
+/* ---------- navegação ---------- */
+let view = 'geral';
+const VIEWS = ['geral', 'financas', 'assinaturas', 'cuidados', 'desempenho', 'roda'];
+function route() {
+  view = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'geral';
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on', 'in'));
+  const el = $('#v-' + view); el.classList.add('on');
+  document.querySelectorAll('.tabs a').forEach(a => a.toggleAttribute('aria-current', a.hash === '#' + view));
+  render();
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
+  window.scrollTo(0, 0);
+}
+function render() {
+  ({geral: renderGeral, financas: renderFin, assinaturas: renderSubs, cuidados: renderCare, desempenho: () => { renderDet(); drawFps(); drawBench(); renderWin(); }, roda: renderRoda})[view]();
+}
+window.addEventListener('hashchange', route);
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(render, 150); });
+
+/* relógio */
+const clock = () => { $('#clock').textContent = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}) + ' · ' + (Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop().replace(/_/g, ' ')); };
+clock(); setInterval(clock, 15e3);
+
+/* backup */
+$('#bk-out').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], {type: 'application/json'}));
+  a.download = `painel-backup-${today()}.json`; a.click(); URL.revokeObjectURL(a.href);
+};
+$('#bk-in').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { try { const j = JSON.parse(t); if (!j.tx || !j.tasks) throw 0; if (confirm('Substituir os dados atuais pelo backup?')) { S = Object.assign(S, j); save(); route(); } } catch (err) { alert('Arquivo de backup inválido.'); } }); e.target.value = ''; };
+
+/* início */
+fillCats();
+ftx.d.value = today(); $('#f-sub').prox.value = today();
+route();
+})();
+</script>
+</body>
+</html>
