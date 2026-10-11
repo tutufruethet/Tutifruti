@@ -58,7 +58,7 @@ void main(){
   } else if (t == 2) {     // gelado: placas e rachaduras
     bp = p * 2.;
     h = fbm(bp);
-    col = mix(uC0, uC1, smoothstep(-.1, .75, h));
+    col = mix(uC1, uC0, smoothstep(-.2, .8, h) * .55) * .8;   // a cor do meio manda; o branco só nas placas altas
     float c1 = 1. - smoothstep(0., .04, abs(snoise(p * 3.)));
     float c2 = 1. - smoothstep(0., .025, abs(snoise(p * 7. + 2.)));
     float k = max(c1, c2 * .6);
@@ -313,7 +313,9 @@ export function createSystem(sys, { octaves, glow, burst, renderer, sky }) {
     const moons = Array.from({ length: Math.min(d.moons, 2) }, (_, k) => {
       const ms = d.size * (0.16 + hash(d.name + k) * 0.08);
       const md = { type: 0, size: ms, colors: [], atmo: '#ffffff' };
-      const m = new THREE.Mesh(new THREE.SphereGeometry(ms, 48, 32), planetMaterial(md, hash(d.name + 'm' + k), light, defs, moonColors));
+      const tint = new THREE.Color(d.colors[k % 2 ? 2 : 1]);
+      const mc = moonColors.map((c, j) => c.clone().lerp(tint, 0.35 + j * 0.1));
+      const m = new THREE.Mesh(new THREE.SphereGeometry(ms, 48, 32), planetMaterial(md, hash(d.name + 'm' + k), light, defs, mc));
       const piv = new THREE.Group();
       piv.rotation.set((hash(d.name + 'i' + k) - 0.5) * 0.5, hash(d.name + 'a' + k) * 6.28, 0);
       m.position.x = d.size * (d.rings ? 3 + k * 0.7 : 2.2 + k * 0.9);
