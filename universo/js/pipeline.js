@@ -24,11 +24,11 @@ void main(){
 const QUAD_VS = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`;
 
 export class WorldPass extends Pass {
-  constructor(edge) {
+  constructor(edge, samples = 0) {
     super();
     this.needsSwap = false;
     this.a = null; this.b = null; this.mix = 0;
-    const o = { type: THREE.HalfFloatType };
+    const o = { type: THREE.HalfFloatType, samples };
     this.rtA = new THREE.WebGLRenderTarget(1, 1, o);
     this.rtB = new THREE.WebGLRenderTarget(1, 1, o);
     this.mat = new THREE.ShaderMaterial({

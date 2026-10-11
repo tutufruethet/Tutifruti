@@ -11,5 +11,6 @@ tags: [regra, design, cor]
 3. Neutros quentes em vez de preto e branco puros. Paleta da demo: tinta `#0b0b0c`, papel `#edebe6`, cinza `#8a8883`, acento `#ff4d1f`.
 4. Hierarquia por **opacidade e cinza**, não por cores novas (ex.: lista com itens apagados e o item em hover aceso).
 5. Nada de gradiente genérico roxo→azul.
+6. **Mundos 3D podem ter cor; a interface não.** Correção do usuário no [Atlas do universo](../universo-3d.md): planetas e espaço só em neutros ficaram "mortos". A paleta 3+1 vale para a UI (texto, botões, linhas); o conteúdo do mundo (planetas, nebulosas, estrelas) ganha paletas próprias, vindas do assunto (temperatura das estrelas, tipo do planeta).
 
 Related: [Lusion](../referencias/lusion.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Erros que eu cometia](erros-que-eu-cometia.md)

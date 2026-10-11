@@ -3,9 +3,9 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { GALAXY, SYSTEMS, TYPES } from './data.js';
+import { GALAXY, SYSTEMS, TYPES, PLANET_COUNT } from './data.js';
 import { createGalaxy, PALETTE } from './galaxy.js';
-import { createSystem, glowTexture } from './system.js';
+import { createSystem, glowTexture, burstTexture } from './system.js';
 import { Orbit } from './orbit.js';
 import { WorldPass, FinalShader } from './pipeline.js';
 
@@ -29,13 +29,13 @@ $('#sysList').innerHTML = SYSTEMS.map((s, i) => `
     <span class="label kind">${s.star} · ${s.planets.length} planetas</span>
     <div class="pl">${s.planets.map((p, j) => `<button class="u" data-go="${i}:${j}">${p.name}</button>`).join('')}</div>
   </li>`).join('');
-$('#openIndex .num').textContent = `(${SYSTEMS.reduce((n, s) => n + s.planets.length, 0)})`;
+$('#openIndex .num').textContent = `(${PLANET_COUNT})`;
 
 const gl = document.createElement('canvas').getContext('webgl2');
 if (!gl) {
   body.classList.add('nogl', 'in');
   $('.loader').classList.add('done');
-  $('#heroText').textContent = 'Seu navegador não abriu o 3D. O atlas continua aqui embaixo, em lista: cinco sistemas e dezessete planetas.';
+  $('#heroText').textContent = 'Seu navegador não abriu o 3D. O atlas continua aqui embaixo, em lista: cinco sistemas e vinte e dois planetas.';
   $('#hero').classList.add('in');
   throw new Error('WebGL2 indisponível: atlas em modo lista');
 }
@@ -61,17 +61,19 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPrefer
 const dpr = () => Math.min(devicePixelRatio, high ? 1.75 : 1.5);
 renderer.setPixelRatio(dpr());
 renderer.setSize(innerWidth, innerHeight);
-renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
 
-const quality = { points: high ? 170000 : 70000, octaves: high ? 5 : 4, bloom: high };
+const quality = { points: high ? 200000 : 80000, octaves: high ? 5 : 4, bloom: high, msaa: high ? 4 : 0, sky: { size: high ? 1536 : 768, octaves: high ? 6 : 4 } };
 const px = () => renderer.getPixelRatio();
-const glow = glowTexture();
+const glow = glowTexture(), burst = burstTexture();
 
-const composer = new EffectComposer(renderer);
-const world = new WorldPass(PALETTE.accent.clone().multiplyScalar(2.2));
+// MSAA no buffer da composição: bordas de planetas e órbitas sem serrilhado
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * dpr(), innerHeight * dpr(), { type: THREE.HalfFloatType, samples: quality.msaa }));
+const world = new WorldPass(PALETTE.accent.clone().multiplyScalar(2.2), quality.msaa);
 composer.addPass(world);
 let bloom = null;
-if (quality.bloom) { bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.55, 0.5, 1.0); composer.addPass(bloom); }
+if (quality.bloom) { bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.7, 0.6, 0.9); composer.addPass(bloom); }
 const final = new ShaderPass(FinalShader);
 final.uniforms.uAccent.value.copy(PALETTE.accent);
 final.uniforms.uPaper.value.copy(PALETTE.paper);
@@ -86,7 +88,7 @@ function makeView(scene, o) {
   return { scene, camera, orbit, shift: { x: 0, y: 0, gx: 0, gy: 0 } };
 }
 
-const galaxy = createGalaxy({ count: quality.points, px: px() });
+const galaxy = createGalaxy({ count: quality.points, px: px(), renderer, sky: quality.sky });
 const gView = Object.assign(makeView(galaxy.scene, { r: 150 * fit(), th: 0.5, ph: 1.0, min: 16, max: 240 }), { kind: 'galaxy', obj: galaxy });
 gView.orbit.phMax = 1.5; gView.orbit.auto = reduce ? 0 : 0.025;
 
@@ -94,7 +96,7 @@ const sViews = [];
 function systemView(i) {
   if (sViews[i]) return sViews[i];
   const s = SYSTEMS[i];
-  const obj = createSystem(s, { px: px(), octaves: quality.octaves, glow });
+  const obj = createSystem(s, { octaves: quality.octaves, glow, burst, renderer, sky: quality.sky });
   const v = Object.assign(makeView(obj.scene, { r: obj.radius * 2.2, th: 0.5, ph: 1.12, min: s.starSize * 2.2, max: obj.radius * 6 }), { kind: 'system', index: i, obj });
   v.orbit.auto = reduce ? 0 : 0.012;
   v.labels = makeSystemLabels(i, obj);
@@ -104,20 +106,21 @@ function systemView(i) {
 
 /* ---------- rótulos presos aos objetos ---------- */
 const labelsRoot = $('#labels');
-function tag(html, cls, onClick) {
+function tag(html, cls, onClick, color) {
   const b = document.createElement('button');
   b.className = 'tag ' + (cls || '');
+  if (color) b.style.setProperty('--c', color);
   b.innerHTML = html;
   b.addEventListener('click', e => { e.stopPropagation(); onClick(); });
   labelsRoot.append(b);
   return b;
 }
-gView.labels = galaxy.markers.map((m, i) => ({ el: tag(`<i>(${pad2(i)})</i>${SYSTEMS[i].name}`, 'ring', () => goSystem(i)), obj: m, hitIndex: i, side: 1.6 }));
+gView.labels = galaxy.markers.map((m, i) => ({ el: tag(`<i>(${pad2(i)})</i>${SYSTEMS[i].name}`, 'ring', () => goSystem(i), SYSTEMS[i].color), obj: m, hitIndex: i, side: 1.6 }));
 function makeSystemLabels(i, obj) {
   const s = SYSTEMS[i];
   return [
     { el: tag(`<i>${s.star}</i>`, 'star', () => goSystem(i)), obj: obj.star, side: s.starSize * 1.5 },
-    ...obj.planets.map((p, j) => ({ el: tag(`<i>(${pad2(j)})</i>${p.data.name}`, '', () => goPlanet(i, j)), obj: p.holder, side: p.data.size * 1.35 + 0.3, hitIndex: j })),
+    ...obj.planets.map((p, j) => ({ el: tag(`<i>(${pad2(j)})</i>${p.data.name}`, '', () => goPlanet(i, j), p.data.atmo), obj: p.holder, side: p.data.size * 1.35 + 0.3, hitIndex: j })),
   ];
 }
 
@@ -206,7 +209,7 @@ function focusPlanet(j, view = current) {
     const p = view.obj.planets[j];
     o.follow = p.holder;
     o.min = p.data.size * 1.7; o.max = p.data.size * 24;
-    o.goalR = p.data.size * (small() ? 6.4 : 5);
+    o.goalR = p.data.size * (small() ? 6.4 : 5) * (p.data.rings ? 1.25 : 1);
     o.goalPh = Math.min(o.goalPh, 1.25);
     // câmera do lado iluminado, em três quartos: o planeta aparece com dia e noite
     p.holder.getWorldPosition(v3);
@@ -242,7 +245,7 @@ function updateUI() {
     if (state.level === 'galaxy') {
       $('#lvLabel').textContent = '(01) — Galáxia';
       $('#lvTitle').textContent = GALAXY.name;
-      $('#lvText').textContent = 'Cinco sistemas marcados com um anel. Clique num deles para descer de escala.';
+      $('#lvText').textContent = `Cinco sistemas marcados com um anel, ${PLANET_COUNT} planetas. Clique num deles para descer de escala.`;
       $('#lvMeta').textContent = `${GALAXY.kind} · ${GALAXY.scale}`;
     } else {
       $('#lvLabel').textContent = `(02) — Sistema ${pad2(state.sys)}`;
@@ -261,6 +264,7 @@ function updateUI() {
     const p = s.planets[state.planet];
     $('#pLabel').textContent = `(03) — Planeta ${pad2(state.planet)} de ${pad2(s.planets.length - 1)} · ${TYPES[p.type]}`;
     $('#pName').textContent = p.name;
+    $('#pSwatch').innerHTML = [...p.colors, p.atmo].map(c => `<i style="background:${c}"></i>`).join('');
     $('#pText').textContent = p.text;
     const fmt = n => n.toLocaleString('pt-BR');
     $('#pRows').innerHTML = [
@@ -291,7 +295,7 @@ function toggleIndex(open = !body.classList.contains('index-open')) {
   body.classList.toggle('index-open', open);
   const b = $('#openIndex');
   b.setAttribute('aria-expanded', open);
-  b.innerHTML = open ? 'Fechar <span aria-hidden="true">✕</span>' : `Índice <span class="num">(${SYSTEMS.reduce((n, s) => n + s.planets.length, 0)})</span>`;
+  b.innerHTML = open ? 'Fechar <span aria-hidden="true">✕</span>' : `Índice <span class="num">(${PLANET_COUNT})</span>`;
 }
 $('#openIndex').onclick = () => toggleIndex();
 document.querySelectorAll('[data-open-index]').forEach(b => { b.onclick = () => toggleIndex(true); });

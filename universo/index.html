@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tutifruti — Atlas do universo</title>
-<meta name="description" content="Explorador de universo 3D interativo: uma galáxia, cinco sistemas e dezessete planetas para visitar.">
+<meta name="description" content="Explorador de universo 3D interativo: uma galáxia, cinco sistemas e vinte e dois planetas para visitar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
@@ -95,7 +95,7 @@ body.touch .hint .mouse,body:not(.touch) .hint .finger{display:none}
 /* rótulos presos aos objetos da cena */
 #labels{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden}
 .tag{position:absolute;left:0;top:0;display:flex;align-items:center;gap:.45rem;padding:.4rem .6rem .4rem 0;font-size:var(--t-xs);font-weight:500;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;pointer-events:auto;opacity:0;transition:opacity .6s var(--ease),color .5s var(--ease);will-change:transform}
-.tag::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;margin-left:-2.5px;flex:none}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c,currentColor);box-shadow:0 0 8px var(--c,transparent);margin-left:-2.5px;flex:none}
 .tag{text-shadow:0 0 10px rgba(11,11,12,.9),0 0 2px rgba(11,11,12,.9)}
 .tag i{font-style:normal;color:var(--mute);transition:color .5s var(--ease)}
 .tag.on{opacity:1}
@@ -109,6 +109,8 @@ body.touch .hint .mouse,body:not(.touch) .hint .finger{display:none}
 body[data-level="planet"] .panel{transform:none}
 .panel h2{font:400 clamp(3.4rem,7vw,6.5rem)/.9 var(--serif);font-style:italic;letter-spacing:-.03em}
 .panel p{font-size:var(--t-s);opacity:.8;max-width:38ch}
+.swatch{display:flex;gap:4px;margin-top:-.4rem}
+.swatch i{width:1.6rem;height:.35rem;border-radius:1px}
 .rows{list-style:none;font-size:var(--t-s)}
 .rows li{display:flex;justify-content:space-between;gap:1rem;padding:.7rem 0;border-top:1px solid var(--line)}
 .rows li:last-child{border-bottom:1px solid var(--line)}
@@ -198,15 +200,15 @@ body.nogl .hero__side .btns{display:none}
   <div class="brand">Tutifruti <span class="serif">Atlas</span></div>
   <nav class="crumbs" id="crumbs" aria-label="Onde você está"></nav>
   <div class="top__right">
-    <button class="u" id="openIndex" aria-expanded="false" aria-controls="index">Índice <span class="num">(17)</span></button>
+    <button class="u" id="openIndex" aria-expanded="false" aria-controls="index">Índice <span class="num">(22)</span></button>
   </div>
 </header>
 
 <section class="hero" id="hero" aria-labelledby="heroTitle">
-  <div class="hero__meta"><span class="label" data-fade>(01) — Galáxia Via Tutifruti</span><span class="label" data-fade style="--i:1">5 sistemas · 17 planetas · atlas interativo</span></div>
+  <div class="hero__meta"><span class="label" data-fade>(01) — Galáxia Via Tutifruti</span><span class="label" data-fade style="--i:1">5 sistemas · 22 planetas · atlas interativo</span></div>
   <h1 class="hero__title" id="heroTitle"><span class="line"><span>Explore o</span></span><span class="line"><span class="serif" style="--i:1">universo</span></span></h1>
   <div class="hero__side">
-    <p data-fade style="--i:2" id="heroText">Uma galáxia inventada, cinco sistemas e dezessete planetas para visitar. Arraste para girar, role para aproximar e clique numa estrela para entrar.</p>
+    <p data-fade style="--i:2" id="heroText">Uma galáxia inventada, cinco sistemas e vinte e dois planetas para visitar. Arraste para girar, role para aproximar e clique numa estrela para entrar.</p>
     <div class="btns" data-fade style="--i:3">
       <button class="btn" id="start">Começar a explorar <span aria-hidden="true">↘</span></button>
       <button class="btn btn--ghost" data-open-index>Ver índice</button>
@@ -229,6 +231,7 @@ body.nogl .hero__side .btns{display:none}
 <aside class="panel" id="panel" aria-label="Planeta" aria-live="polite">
   <span class="label" id="pLabel"></span>
   <h2 id="pName"></h2>
+  <div class="swatch" id="pSwatch" aria-hidden="true"></div>
   <p id="pText"></p>
   <ul class="rows num" id="pRows"></ul>
   <div class="panel__nav">
