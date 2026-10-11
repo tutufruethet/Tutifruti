@@ -25,4 +25,4 @@ Portfólio em dois níveis em [mundo/index.html](../mundo/index.html): o **níve
 - **Névoa forte apaga o nível 1:** a câmera do nível 1 fica longe; a névoa precisa de near/far diferentes por nível.
 - **Three.js vendorizado** (sem CDN) deixa o site funcionar no GitHub Pages e offline.
 
-Related: [Checklist de entrega](checklist-de-entrega.md) · [Demo Tutifruti](demo-tutifruti.md) · [Mundos e navegação](regras/mundos-e-navegacao.md)
+Related: [Atlas do universo](universo-3d.md) · [Checklist de entrega](checklist-de-entrega.md) · [Demo Tutifruti](demo-tutifruti.md) · [Mundos e navegação](regras/mundos-e-navegacao.md)
