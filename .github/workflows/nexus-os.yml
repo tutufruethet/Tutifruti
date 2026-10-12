@@ -1,0 +1,93 @@
+name: nexus-os
+
+on:
+  push:
+    paths:
+      - 'nexus-os/**'
+      - '.github/workflows/nexus-os.yml'
+  pull_request:
+    paths:
+      - 'nexus-os/**'
+      - '.github/workflows/nexus-os.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nexus-os-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: nexus-os
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Cache do npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('nexus-os/package-lock.json', 'nexus-os/package.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Instalar dependências
+        run: |
+          if [ -f package-lock.json ]; then
+            node scripts/ci-step.mjs install -- npm ci --no-audit --no-fund
+          else
+            node scripts/ci-step.mjs install -- npm install --no-audit --no-fund
+          fi
+
+      - name: Salvar lockfile gerado
+        if: github.event_name == 'push'
+        run: |
+          if [ -n "$(git status --porcelain package-lock.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore(nexus-os): lockfile gerado no CI"
+            git push
+          fi
+
+      - name: Lint
+        run: node scripts/ci-step.mjs lint -- npm run lint
+
+      - name: Typecheck
+        run: node scripts/ci-step.mjs typecheck -- npm run typecheck
+
+      - name: Testes unitários
+        run: node scripts/ci-step.mjs unit -- npm run test
+
+      - name: Build estático
+        id: build
+        run: node scripts/ci-step.mjs build -- npm run build
+        env:
+          NEXUS_STATIC_EXPORT: '1'
+
+      - name: Instalar Chromium
+        run: node scripts/ci-step.mjs playwright-install -- npx playwright install --with-deps chromium
+
+      - name: Testes E2E
+        run: node scripts/ci-step.mjs e2e -- npm run test:e2e
+
+      - name: Publicar build na branch de pré-visualização
+        if: always() && steps.build.outcome == 'success' && github.event_name == 'push'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out
+          touch .nojekyll
+          git init -q
+          git checkout -q -b nexus-os-preview
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "preview: ${GITHUB_SHA}"
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" nexus-os-preview
