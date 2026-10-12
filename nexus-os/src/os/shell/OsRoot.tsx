@@ -13,6 +13,8 @@ export interface OsRootProps {
   children: ReactNode;
   className?: string;
   label?: string;
+  /** Desliga animações e transições dentro do OS (Settings › Movimento). */
+  reducedMotion?: boolean;
 }
 
 /**
@@ -21,7 +23,7 @@ export interface OsRootProps {
  * separada, onde contextos de fora não chegam. Estado compartilhado mora em
  * stores Zustand, que funcionam nas duas raízes.
  */
-export function OsRoot({ viewport, children, className, label = 'NEXUS OS' }: OsRootProps) {
+export function OsRoot({ viewport, children, className, label = 'NEXUS OS', reducedMotion = false }: OsRootProps) {
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const [portal, setPortal] = useState<HTMLDivElement | null>(null);
   const value = useMemo(() => ({ root, viewport }), [root, viewport]);
@@ -32,6 +34,7 @@ export function OsRoot({ viewport, children, className, label = 'NEXUS OS' }: Os
       ref={setRoot}
       data-os-root=""
       data-os-viewport={viewport.mode}
+      data-motion={reducedMotion ? 'reduced' : 'full'}
       role="region"
       aria-label={label}
       className={cn(

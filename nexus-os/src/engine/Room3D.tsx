@@ -6,6 +6,7 @@ import { color } from '@/design/tokens';
 import { usePageHidden } from '@/experience/browser';
 import { useClientCapabilities } from '@/experience/capabilities';
 import { shouldRoomHandleKey } from '@/os/keyboard/scope';
+import { useReducedMotion } from '@/settings/motion';
 import { useSettingsStore } from '@/settings/store';
 import { CameraRig } from './CameraRig';
 import { DebugBridge } from './DebugBridge';
@@ -48,6 +49,7 @@ export default function Room3D() {
   const qualitySetting = useSettingsStore((state) => state.settings.graphicsQuality);
   const preset = resolveQuality(qualitySetting, capabilities ?? { coarsePointer: false });
   const hidden = usePageHidden();
+  const reducedMotion = useReducedMotion();
   useRoomKeys();
 
   return (
@@ -69,7 +71,7 @@ export default function Room3D() {
         <Lights preset={preset} />
         <PlaceholderRoom />
         <Monitor />
-        <CameraRig reducedMotion={capabilities?.reducedMotion ?? false} />
+        <CameraRig reducedMotion={reducedMotion} />
         <DebugBridge />
       </Canvas>
     </div>

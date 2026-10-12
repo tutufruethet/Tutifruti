@@ -41,7 +41,8 @@ jobs:
       - name: Instalar dependências
         run: |
           if [ -f package-lock.json ]; then
-            node scripts/ci-step.mjs install -- npm ci --no-audit --no-fund
+            # Lockfile desatualizado (dependência nova): npm install regenera e o passo seguinte salva.
+            node scripts/ci-step.mjs install -- "npm ci --no-audit --no-fund || npm install --no-audit --no-fund"
           else
             node scripts/ci-step.mjs install -- npm install --no-audit --no-fund
           fi

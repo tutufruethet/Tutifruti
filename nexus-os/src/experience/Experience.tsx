@@ -2,8 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { OsRoot } from '@/os/shell/OsRoot';
-import { ShellProbe } from '@/os/shell/ShellProbe';
+import { Desktop } from '@/os/desktop/Desktop';
 import { FLUID_VIEWPORT } from '@/os/shell/viewport';
+import { useReducedMotion } from '@/settings/motion';
 import { useLocationSearch } from './browser';
 import { useClientCapabilities } from './capabilities';
 import { Hud } from './Hud';
@@ -30,6 +31,7 @@ export function Experience() {
   const capabilities = useClientCapabilities();
   const search = useLocationSearch();
   const chosen = useModeStore((state) => state.chosen);
+  const reducedMotion = useReducedMotion();
 
   if (!capabilities) {
     return (
@@ -57,8 +59,8 @@ export function Experience() {
     <main data-mode="2d" className="flex h-dvh w-full flex-col overflow-hidden">
       <Hud mode="2d" capabilities={capabilities} />
       <div className="min-h-0 flex-1">
-        <OsRoot viewport={FLUID_VIEWPORT}>
-          <ShellProbe />
+        <OsRoot viewport={FLUID_VIEWPORT} reducedMotion={reducedMotion}>
+          <Desktop />
         </OsRoot>
       </div>
     </main>

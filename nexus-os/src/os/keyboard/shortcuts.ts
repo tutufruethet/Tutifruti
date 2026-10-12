@@ -9,7 +9,8 @@ export interface Shortcut {
   readonly alt: boolean;
 }
 
-type KeyEventLike = Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey'>;
+type KeyEventLike = Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey'> &
+  Partial<Pick<KeyboardEvent, 'code'>>;
 
 const KEY_ALIASES: Readonly<Record<string, string>> = {
   esc: 'escape',
@@ -48,9 +49,20 @@ export function parseShortcut(combo: string): Shortcut {
   return { key, mod, shift, alt };
 }
 
+/**
+ * Código físico da tecla. No macOS, Option+letra produz outro caractere
+ * (Option+W vira "∑"), então atalhos com Alt também conferem `event.code`.
+ */
+function codeFor(key: string): string | null {
+  if (/^[a-z]$/.test(key)) return `Key${key.toUpperCase()}`;
+  if (/^[0-9]$/.test(key)) return `Digit${key}`;
+  return null;
+}
+
 export function matchesShortcut(event: KeyEventLike, shortcut: Shortcut): boolean {
+  const keyMatches = event.key.toLowerCase() === shortcut.key || (event.code != null && event.code === codeFor(shortcut.key));
   return (
-    event.key.toLowerCase() === shortcut.key &&
+    keyMatches &&
     (event.ctrlKey || event.metaKey) === shortcut.mod &&
     event.shiftKey === shortcut.shift &&
     event.altKey === shortcut.alt

@@ -99,6 +99,15 @@
   line-height: 1.2;
 }
 
+/* Settings › Movimento › Reduzido: vale para tudo dentro do OS, inclusive portais. */
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

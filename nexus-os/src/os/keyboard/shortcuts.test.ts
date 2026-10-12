@@ -27,6 +27,12 @@ describe('matchesShortcut', () => {
     expect(matchesShortcut(keyEvent('K', { metaKey: true }), modK)).toBe(true);
   });
 
+  it('com Alt no macOS, reconhece pela tecla física', () => {
+    const altW = parseShortcut('alt+w');
+    expect(matchesShortcut({ ...keyEvent('∑', { altKey: true }), code: 'KeyW' }, altW)).toBe(true);
+    expect(matchesShortcut({ ...keyEvent('∑', { altKey: true }), code: 'KeyQ' }, altW)).toBe(false);
+  });
+
   it('exige os modificadores exatos', () => {
     expect(matchesShortcut(keyEvent('k'), modK)).toBe(false);
     expect(matchesShortcut(keyEvent('k', { ctrlKey: true, shiftKey: true }), modK)).toBe(false);
