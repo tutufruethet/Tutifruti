@@ -33,11 +33,14 @@ export function attachVfsPersistence(
 
   function handle(change: VfsChange) {
     const { node } = change;
-    if (change.type === 'created' || change.type === 'updated') {
-      const content = node.kind === 'file' ? fs.rawContent(node.id) : undefined;
+    if (change.type === 'moved') {
+      // Movido: o conteúdo continua com o mesmo id; só os caminhos mudam.
+      const from = change.from;
+      const moved = fs.nodesUnder(node.path);
       enqueue(async () => {
-        await storage.putNodes([node, ...(await parentOf(node))]);
-        if (content !== undefined) await storage.putContent(node.id, content);
+        await storage.deleteNodes(from, { contents: false });
+        await storage.putNodes(moved);
+        await storage.putNodes(await parentOf(node));
       });
     } else if (change.type === 'removed') {
       enqueue(async () => {
@@ -45,12 +48,10 @@ export function attachVfsPersistence(
         await storage.putNodes(await parentOf(node));
       });
     } else {
-      // Movido: o conteúdo continua com o mesmo id; só os caminhos mudam.
-      const moved = fs.nodesUnder(node.path);
+      const content = node.kind === 'file' ? fs.rawContent(node.id) : undefined;
       enqueue(async () => {
-        await storage.deleteNodes(change.from, { contents: false });
-        await storage.putNodes(moved);
-        await storage.putNodes(await parentOf(node));
+        await storage.putNodes([node, ...(await parentOf(node))]);
+        if (content !== undefined) await storage.putContent(node.id, content);
       });
     }
   }
