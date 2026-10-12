@@ -26,7 +26,7 @@ export function LockScreen() {
       className="absolute inset-0 flex flex-col justify-between bg-ink px-[clamp(1rem,3cqw,2.5rem)] py-[clamp(1rem,2.4cqw,2rem)]"
       style={{ zIndex: layer.system }}
     >
-      <p className="type-label flex justify-between text-slate">
+      <p className="type-label flex flex-wrap justify-between gap-x-4 gap-y-1 text-slate">
         <span>(—) — Bloqueado</span>
         <span className="first-letter:uppercase">{date}</span>
       </p>

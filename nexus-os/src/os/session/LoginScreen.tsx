@@ -49,7 +49,7 @@ export function LoginScreen() {
       style={{ zIndex: layer.system }}
     >
       <div className="flex min-h-full flex-col">
-        <p className="type-label flex justify-between text-slate">
+        <p className="type-label flex flex-wrap justify-between gap-x-4 gap-y-1 text-slate">
           <span>(01) — Entrar</span>
           <span className="first-letter:uppercase">{date}</span>
         </p>

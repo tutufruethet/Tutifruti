@@ -45,7 +45,7 @@ export function BootScreen({ reducedMotion }: { reducedMotion: boolean }) {
       )}
       style={{ zIndex: layer.system }}
     >
-      <p className="type-label flex justify-between text-slate">
+      <p className="type-label flex flex-wrap justify-between gap-x-4 gap-y-1 text-slate">
         <span>(00) — NEXUS OS</span>
         <span>Boot</span>
       </p>
