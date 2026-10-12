@@ -2,7 +2,7 @@
 
 Um sistema operacional virtual (Next.js + React) que roda em tela cheia ou dentro do monitor de um quarto 3D (React Three Fiber). O OS é o produto; o quarto é a porta de entrada.
 
-Related: [Fase 1](fase-1.md) · [Fase 2](fase-2.md) · [Estudo de design](../../estudo/README.md) · [Mundos e navegação](../../estudo/regras/mundos-e-navegacao.md)
+Related: [Fase 1](fase-1.md) · [Fase 2](fase-2.md) · [Fase 3](fase-3.md) · [Supabase](supabase.md) · [Estudo de design](../../estudo/README.md) · [Mundos e navegação](../../estudo/regras/mundos-e-navegacao.md)
 
 ## Pastas
 
@@ -20,20 +20,21 @@ nexus-os/
 │   │   ├── desktop/          desktop: boot, wallpaper, barra de tarefas, menu, calendário, avisos
 │   │   ├── keyboard/         atalhos e escopo de teclado
 │   │   ├── notifications/    store de notificações (serviço da SystemBridge)
-│   │   ├── session/          boot e sessão
+│   │   ├── session/          boot, perfis, entrada, bloqueio e ciclo de vida da sessão
 │   │   ├── shell/            OsRoot, viewport, conversão de coordenadas
 │   │   ├── vfs/              contrato, caminhos, VFS em memória, estrutura inicial
 │   │   └── window-manager/   lógica pura, store e a janela (arrastar, redimensionar)
-│   ├── services/             contratos de auth, persistência e IA
+│   ├── services/             auth (nuvem/Supabase), persistência (IndexedDB) e contrato da IA
 │   ├── settings/             schema (zod) e store de preferências
 │   ├── system/               SystemBridge: a única porta dos apps para o "sistema"
 │   └── lib/                  utilitários
 ├── tests/e2e/                Playwright: desktop 2D e quarto 3D
 ├── scripts/                  servidor estático e passos do CI
+├── supabase/migrations/      esquema da nuvem com Row Level Security
 └── docs/                     este documento e os critérios de cada fase
 ```
 
-Entram depois: `src/app/api/` (backend, Fase 6), `public/models/` (GLB, Fase 4), drivers de persistência em `src/services/` (Fase 3).
+Entram depois: `src/app/api/` (backend, Fase 6), `public/models/` (GLB, Fase 4).
 
 ## Camadas e dependências
 
@@ -83,6 +84,16 @@ Regras:
 **ADR-014 · Terminal = interpretador próprio + xterm.js como tela.** O interpretador só chama o VFS; não existe, por desenho, caminho para executar comandos do computador. A edição de linha (cursor, histórico, Tab, Ctrl+C/L/U) é uma classe sem dependência do xterm, testada com um coletor de saída.
 
 **ADR-015 · VFS em memória primeiro.** O `MemoryFileSystem` implementa o contrato inteiro (inclusive observadores e cota). A Fase 3 troca o driver por IndexedDB + Supabase sem mexer nos apps.
+
+**ADR-017 · Persistência write-through.** O VFS continua em memória (rápido, síncrono para a interface) e cada mudança vai para o IndexedDB numa fila em ordem. Ao entrar no perfil, tudo é carregado de volta. Conteúdos ficam por id, então mover uma pasta só reescreve caminhos.
+
+**ADR-018 · Um banco por perfil.** `nexus-os` guarda a lista de perfis; `nexus-os:<perfil>` guarda arquivos, preferências e janelas. Apagar os dados de um perfil é apagar um banco. Convidado nunca abre banco.
+
+**ADR-019 · Perfis locais sem senha, e a interface diz isso.** Num site, uma senha local não protege dados que estão no mesmo navegador; fingir que protege seria pior. O bloqueio é uma cortina. Proteção de verdade é a conta na nuvem (RLS no servidor).
+
+**ADR-020 · Nuvem opcional e carregada sob demanda.** O cliente do Supabase só é baixado quando as variáveis existem. O navegador usa só a chave anon; cada tabela e o bucket têm RLS por `auth.uid()`.
+
+**ADR-021 · Tudo que vem do armazenamento passa por zod.** Preferências, janelas salvas, perfis e backups são validados ao carregar; um registro ruim volta ao padrão em vez de quebrar o boot.
 
 **ADR-016 · Janelas planas.** Sem sombra (estudo: superfícies planas, linhas finas). A janela em foco tem borda mais clara e título aceso; as outras ficam apagadas.
 

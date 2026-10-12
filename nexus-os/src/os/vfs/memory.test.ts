@@ -129,6 +129,30 @@ describe('MemoryFileSystem', () => {
   });
 });
 
+describe('snapshot e restore', () => {
+  it('restaura a árvore e o conteúdo em outra instância', async () => {
+    const source = new MemoryFileSystem();
+    await source.writeText(p('/a/b/nota.md'), 'oi', { createParents: true });
+    await source.writeBlob(p('/a/foto.png'), new Blob(['x'], { type: 'image/png' }));
+    const target = new MemoryFileSystem();
+    target.restore(source.snapshot());
+    expect(await target.readText(p('/a/b/nota.md'))).toBe('oi');
+    expect((await target.list(p('/a'))).map((n) => n.name)).toEqual(['b', 'foto.png']);
+  });
+
+  it('ignora registros órfãos e clear deixa só a raiz', async () => {
+    const fs = new MemoryFileSystem();
+    fs.restore({
+      nodes: [{ kind: 'directory', id: 'x', name: 'sem-pai', path: p('/nao/existe'), parentId: 'y', createdAt: 0, updatedAt: 0 }],
+      contents: new Map(),
+    });
+    expect(await fs.stat(p('/nao/existe'))).toBeNull();
+    await fs.writeText(p('/a.txt'), 'a');
+    fs.clear();
+    expect(await fs.list(p('/'))).toHaveLength(0);
+  });
+});
+
 describe('mimeFromName', () => {
   it('deduz pelo nome e cai para binário', () => {
     expect(mimeFromName('a.MD')).toBe('text/markdown');

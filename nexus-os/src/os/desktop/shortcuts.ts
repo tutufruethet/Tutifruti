@@ -5,4 +5,5 @@ export const DESKTOP_SHORTCUTS = [
   { combo: 'alt+m', label: 'Minimizar a janela em foco' },
   { combo: 'alt+up', label: 'Maximizar ou restaurar' },
   { combo: 'alt+j', label: 'Alternar entre janelas' },
+  { combo: 'alt+l', label: 'Bloquear a sessão' },
 ] as const;

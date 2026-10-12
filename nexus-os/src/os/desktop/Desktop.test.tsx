@@ -15,8 +15,16 @@ function renderDesktop() {
   );
 }
 
+/** Passa pelo boot e, se aparecer a tela de entrada, entra como convidado. */
 async function waitForDesktop(container: HTMLElement) {
-  await waitFor(() => expect(container.querySelector('[data-desktop-ready]')).not.toBeNull(), { timeout: 4000 });
+  await waitFor(
+    () => {
+      const guest = screen.queryByTestId('login-guest');
+      if (guest) fireEvent.click(guest);
+      expect(container.querySelector('[data-desktop-ready]')).not.toBeNull();
+    },
+    { timeout: 6000 },
+  );
 }
 
 describe('Desktop', () => {

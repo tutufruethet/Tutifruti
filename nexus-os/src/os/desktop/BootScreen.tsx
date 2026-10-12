@@ -19,20 +19,22 @@ export function BootScreen({ reducedMotion }: { reducedMotion: boolean }) {
   const dismissBoot = useSessionStore((state) => state.dismissBoot);
   const [leaving, setLeaving] = useState(false);
 
+  // A cortina sobe quando o boot termina: na tela de entrada ou já no desktop.
+  const done = phase === 'ready' || phase === 'login';
   useEffect(() => {
-    if (phase !== 'ready') return;
+    if (!done) return;
     if (reducedMotion) {
       dismissBoot();
       return;
     }
     const timer = window.setTimeout(() => setLeaving(true), HOLD_MS);
     return () => window.clearTimeout(timer);
-  }, [phase, reducedMotion, dismissBoot]);
+  }, [done, reducedMotion, dismissBoot]);
 
   return (
     <div
       data-testid="boot-screen"
-      aria-busy={phase !== 'ready'}
+      aria-busy={!done}
       onTransitionEnd={(event) => {
         if (event.target === event.currentTarget && leaving) dismissBoot();
       }}
@@ -43,7 +45,7 @@ export function BootScreen({ reducedMotion }: { reducedMotion: boolean }) {
       )}
       style={{ zIndex: layer.system }}
     >
-      <p className="type-label flex justify-between text-slate">
+      <p className="type-label flex flex-wrap justify-between gap-x-4 gap-y-1 text-slate">
         <span>(00) — NEXUS OS</span>
         <span>Boot</span>
       </p>
@@ -59,7 +61,7 @@ export function BootScreen({ reducedMotion }: { reducedMotion: boolean }) {
               <span className="text-signal">✓</span> {line}
             </li>
           ))}
-          {phase !== 'ready' ? <li>…</li> : null}
+          {done ? null : <li>…</li>}
         </ol>
         <p
           data-testid="boot-progress"

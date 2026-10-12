@@ -202,3 +202,45 @@ export function cycleWindows(state: WindowManagerState): WindowManagerState {
 export function effectiveDisplay(window: WindowState, desktop: Size) {
   return isCompact(desktop) && window.display === 'normal' ? 'maximized' : window.display;
 }
+
+/** Janela como fica salva no perfil (sem id nem ordem absoluta). */
+export interface SavedWindow {
+  readonly appId: AppManifest['id'];
+  readonly title: string;
+  readonly bounds: Bounds;
+  readonly display: WindowState['display'];
+  readonly launchArgs?: Readonly<Record<string, string>>;
+}
+
+export function toSavedWindows(state: WindowManagerState): SavedWindow[] {
+  return [...state.windows]
+    .sort((a, b) => a.z - b.z)
+    .map(({ appId, title, bounds, display, launchArgs }) => ({ appId, title, bounds, display, launchArgs }));
+}
+
+/**
+ * Reabre as janelas salvas, de trás para a frente. Apps que não existem mais
+ * são ignorados; tamanhos são ajustados ao desktop atual.
+ */
+export function restoreWindows(
+  state: WindowManagerState,
+  saved: readonly SavedWindow[],
+  manifestFor: (appId: AppManifest['id']) => AppManifest | undefined,
+  makeId: () => string,
+): WindowManagerState {
+  let next = state;
+  for (const entry of saved) {
+    const manifest = manifestFor(entry.appId);
+    if (!manifest) continue;
+    const opened = openWindow(next, manifest, { id: makeId(), title: entry.title, launchArgs: entry.launchArgs });
+    const display = entry.display;
+    next = update(opened.state, opened.id, (window) => ({
+      ...window,
+      bounds: clampBounds(entry.bounds, window.minSize, next.desktop),
+      display,
+      previousDisplay: display === 'maximized' ? 'maximized' : 'normal',
+    }));
+  }
+  const top = topVisibleWindow(next.windows);
+  return { ...next, focusedId: top?.id ?? null };
+}

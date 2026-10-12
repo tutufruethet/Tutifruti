@@ -19,12 +19,15 @@ Sistema operacional virtual em [nexus-os/](../nexus-os/README.md): um quarto 3D 
 | Janelas | Sem sombra: borda mais clara e título aceso na janela em foco, o resto apagado por opacidade | [Erros que eu cometia](regras/erros-que-eu-cometia.md), [Cor e paleta](regras/cor-e-paleta.md) |
 | Boot | Contador 0→100 com as etapas reais, palavra embaralhada e saída em cortina | [Detalhes de acabamento](regras/detalhes-de-acabamento.md), [Active Theory](referencias/active-theory.md) |
 | Wallpaper | Grade fina + wordmark gigante a 3,5% de opacidade; cor só como brilho de canto | [Detalhes de acabamento](regras/detalhes-de-acabamento.md) |
+| Entrada e bloqueio | Hora em display gigante à esquerda, perfis como lista de linhas à direita (grid 6 + 5 colunas), metadados nos cantos | [Grid e espaço](regras/grid-e-espaco.md), [Tipografia](regras/tipografia.md) |
 
 ## Lições do projeto
 - **O `<Html>` do Drei some se o alvo muda depois de montar:** ele recria a raiz React no mesmo elemento e o conteúdo é descartado. Passar um `portal` fixo resolve.
 - **Com `frameloop="demand"`, o DOM do `<Html>` monta depois dos primeiros quadros:** é preciso pedir um quadro (`invalidate`) quando o conteúdo monta, senão a transformação 3D nunca é aplicada.
 - **Câmera da visão geral depende da proporção da tela:** no celular em retrato, afastar a câmera até o monitor caber.
 - **Em interface dentro do 3D, arrastar precisa de conversão:** o mouse anda em px da tela; a janela, em px do OS. Dividir pela escala do container (largura projetada ÷ largura real).
+- **Metadados nos cantos precisam quebrar linha no celular:** dois rótulos em `justify-between` encostam em 375 px; `flex-wrap` com `gap-x` resolve.
+- **Interface honesta também é design:** o bloqueio sem senha se apresenta como cortina, e a tela de entrada diz onde os dados ficam.
 - **Ícones pequenos com rótulo** resolvem o desktop sem cair em "ícones gigantes": 16 px, linha fina, nome ao lado.
 - **Gancho `?debug` de novo:** os testes leem fase da câmera e o retângulo projetado da tela, sem depender do FPS do renderizador por software (lição da [Ilha 3D](mundo-3d.md)).
 

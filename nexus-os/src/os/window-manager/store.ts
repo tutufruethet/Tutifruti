@@ -9,6 +9,8 @@ import {
   moveWindow,
   openWindow,
   resizeWindow,
+  restoreWindows,
+  type SavedWindow,
   setDesktopSize,
   toggleMaximize,
 } from './logic';
@@ -25,6 +27,8 @@ interface WindowManagerActions {
   setDesktopSize: (size: Size) => void;
   cycle: () => void;
   reset: () => void;
+  /** Reabre janelas salvas no perfil. */
+  restore: (saved: readonly SavedWindow[], manifestFor: (appId: AppManifest['id']) => AppManifest | undefined) => void;
 }
 
 export type WindowManagerStore = WindowManagerState & WindowManagerActions;
@@ -51,4 +55,11 @@ export const useWindowStore = create<WindowManagerStore>()((set, get) => ({
   setDesktopSize: (size) => set((state) => setDesktopSize(state, size)),
   cycle: () => set((state) => cycleWindows(state)),
   reset: () => set(createWindowManagerState(get().desktop)),
+  restore: (saved, manifestFor) =>
+    set((state) =>
+      restoreWindows(state, saved, manifestFor, () => {
+        sequence += 1;
+        return `w${sequence}`;
+      }),
+    ),
 }));

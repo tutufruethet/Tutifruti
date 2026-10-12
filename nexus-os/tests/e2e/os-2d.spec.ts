@@ -7,11 +7,11 @@ test.describe('desktop 2D', () => {
     await waitForDesktop(page);
   });
 
-  test('boot termina com aviso de boas-vindas', async ({ page }) => {
-    await expect(page.getByTestId('toasts')).toContainText('Bem-vindo ao NEXUS OS');
+  test('boot e entrada como convidado avisam que nada é salvo', async ({ page }) => {
+    await expect(page.getByTestId('toasts')).toContainText('Modo convidado');
     await page.getByTestId('notifications-button').click();
     const center = page.getByTestId('notification-center');
-    await expect(center).toContainText('Bem-vindo ao NEXUS OS');
+    await expect(center).toContainText('Nada é salvo');
     expect(await center.evaluate((el) => el.closest('[data-os-portal]') !== null)).toBe(true);
   });
 

@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { layer } from '@/design/tokens';
 import { cn } from '@/lib/cn';
 import { unreadCount, useNotificationStore } from '@/os/notifications/store';
+import { UserMenu } from '@/os/session/UserMenu';
 import { isCompact, topVisibleWindow } from '@/os/window-manager/logic';
 import { useWindowStore } from '@/os/window-manager/store';
 import type { WindowState } from '@/os/window-manager/types';
@@ -100,6 +101,8 @@ export function Taskbar() {
           <NotificationPanel />
         </PopoverContent>
       </Popover>
+
+      <UserMenu triggerClassName={trayButton} />
 
       <Popover {...calendar}>
         <PopoverTrigger asChild>

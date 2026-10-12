@@ -25,8 +25,9 @@ do NEXUS: nada toca o disco do seu computador.
 - Terminal: digite \`help\` para ver os comandos.
 - Notes: suas notas ficam em ~/Notas.
 
-Por enquanto os arquivos ficam na memória e somem ao recarregar a página.
-A persistência (IndexedDB e nuvem) chega na Fase 3.
+Num perfil local, tudo fica salvo no IndexedDB deste navegador.
+No modo convidado, nada é salvo: os arquivos somem quando você sai.
+Em Settings › Dados dá para exportar e importar um backup.
 `;
 
 const FIRST_NOTE = `As notas salvam sozinhas enquanto você escreve.

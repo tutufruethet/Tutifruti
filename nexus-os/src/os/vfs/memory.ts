@@ -14,7 +14,15 @@ import {
  * a Fase 3 adiciona um driver IndexedDB/Supabase com a mesma interface.
  * Nada aqui toca o disco do computador.
  */
-type Content = string | Blob;
+/** Conteúdo de arquivo: texto ou binário (importado). */
+export type VfsContent = string | Blob;
+type Content = VfsContent;
+
+export interface VfsSnapshot {
+  /** Nós em ordem de profundidade: pais antes dos filhos. */
+  readonly nodes: readonly VfsNode[];
+  readonly contents: ReadonlyMap<string, VfsContent>;
+}
 
 interface Watcher {
   readonly path: VfsPath;
@@ -96,11 +104,56 @@ export class MemoryFileSystem implements VirtualFileSystem {
     });
   }
 
+  /** Conteúdo bruto de um arquivo pelo id (usado pela camada de persistência). */
+  rawContent(id: string): VfsContent | undefined {
+    return this.contents.get(id);
+  }
+
+  /** O nó e todos os descendentes, pais antes dos filhos. */
+  nodesUnder(path: VfsPath): VfsNode[] {
+    const target = resolvePath(path);
+    return [...this.nodes.values()]
+      .filter((node) => isSameOrDescendant(node.path, target))
+      .sort((a, b) => segments(a.path).length - segments(b.path).length);
+  }
+
+  snapshot(): VfsSnapshot {
+    return { nodes: this.nodesUnder(ROOT), contents: new Map(this.contents) };
+  }
+
+  /**
+   * Substitui todo o conteúdo (ao entrar num perfil). Não avisa observadores:
+   * acontece antes de qualquer app abrir.
+   */
+  restore(snapshot: VfsSnapshot): void {
+    const root = this.nodes.get(ROOT);
+    this.nodes.clear();
+    this.contents.clear();
+    if (root) this.nodes.set(ROOT, root);
+    const ordered = [...snapshot.nodes].sort((a, b) => segments(a.path).length - segments(b.path).length);
+    for (const node of ordered) {
+      if (node.path === ROOT) continue;
+      const parent = this.nodes.get(dirname(node.path));
+      if (!parent || parent.kind !== 'directory') continue; // registro órfão: ignora
+      this.nodes.set(node.path, { ...node, parentId: parent.id });
+      if (node.kind === 'file') this.contents.set(node.id, snapshot.contents.get(node.id) ?? '');
+    }
+  }
+
+  /** Esvazia tudo, mantendo só a raiz (ao sair do perfil). */
+  clear(): void {
+    this.restore({ nodes: [], contents: new Map() });
+  }
+
   /** Bytes usados por todos os arquivos. */
   usedBytes(): number {
     let total = 0;
     for (const node of this.nodes.values()) if (node.kind === 'file') total += node.size;
     return total;
+  }
+
+  async usage(): Promise<{ usedBytes: number; quotaBytes: number }> {
+    return { usedBytes: this.usedBytes(), quotaBytes: this.quotaBytes };
   }
 
   async stat(path: VfsPath): Promise<VfsNode | null> {
