@@ -5,6 +5,8 @@ import { appRegistry } from '@/apps/catalog';
 import { isIconName } from '@/components/ui/icon';
 import { AppHost } from '@/os/apps/AppHost';
 import { useOsShortcuts } from '@/os/keyboard/use-os-shortcuts';
+import { LockScreen } from '@/os/session/LockScreen';
+import { LoginScreen } from '@/os/session/LoginScreen';
 import { useSessionStore } from '@/os/session/store';
 import { useOs } from '@/os/shell/os-context';
 import { AppWindow } from '@/os/window-manager/AppWindow';
@@ -17,11 +19,17 @@ import { Taskbar } from './Taskbar';
 import { Toasts } from './Toasts';
 import { WallpaperLayer } from './Wallpaper';
 
-function withFocused(action: (id: string) => void) {
+function whenReady(action: () => void) {
   return () => {
+    if (useSessionStore.getState().phase === 'ready') action();
+  };
+}
+
+function withFocused(action: (id: string) => void) {
+  return whenReady(() => {
     const { focusedId } = useWindowStore.getState();
     if (focusedId) action(focusedId);
-  };
+  });
 }
 
 /** O desktop do NEXUS OS: wallpaper, janelas, barra de tarefas, avisos e boot. */
@@ -55,17 +63,22 @@ export function Desktop() {
 
   const { close, minimize, toggleMaximize, cycle } = useWindowStore.getState();
   useOsShortcuts(root, {
-    'mod+k': () => useDesktopStore.getState().togglePanel('launcher'),
+    'mod+k': whenReady(() => useDesktopStore.getState().togglePanel('launcher')),
     'alt+w': withFocused(close),
     'alt+m': withFocused(minimize),
     'alt+up': withFocused(toggleMaximize),
-    'alt+j': cycle,
+    'alt+j': whenReady(cycle),
+    'alt+l': whenReady(() => {
+      useDesktopStore.getState().setPanel(null);
+      useSessionStore.getState().lock();
+    }),
   });
 
   return (
     <div
       data-desktop=""
       data-desktop-ready={phase === 'ready' && bootDismissed ? '' : undefined}
+      data-session-phase={phase}
       className="relative flex h-full flex-col overflow-hidden"
     >
       <WallpaperLayer />
@@ -88,6 +101,8 @@ export function Desktop() {
       </div>
       <Taskbar />
       <Toasts />
+      {bootDismissed && (phase === 'login' || phase === 'starting') ? <LoginScreen /> : null}
+      {bootDismissed && phase === 'locked' ? <LockScreen /> : null}
       {bootDismissed ? null : <BootScreen reducedMotion={reducedMotion} />}
     </div>
   );

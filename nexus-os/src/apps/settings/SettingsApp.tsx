@@ -11,6 +11,7 @@ import { WALLPAPERS } from '@/os/desktop/wallpapers';
 import { shortcutLabels } from '@/os/keyboard/shortcuts';
 import type { GraphicsQualitySetting, Settings } from '@/settings/schema';
 import { useSettingsStore } from '@/settings/store';
+import { DataSection } from './DataSection';
 
 const QUALITY_LABELS: Record<GraphicsQualitySetting, string> = {
   auto: 'Automática',
@@ -32,7 +33,7 @@ export default function SettingsApp({ bridge }: AppProps) {
 
   return (
     <div data-testid="settings-app" className="@container h-full overflow-y-auto px-6 py-5 text-sm">
-      <p className="type-label text-slate">As preferências valem até recarregar a página. A Fase 3 passa a salvá-las.</p>
+      <p className="type-label text-slate">As alterações são salvas no perfil automaticamente.</p>
 
       <Section index="01" title="Aparência">
         <p className="mb-3 text-paper/56">Wallpaper</p>
@@ -96,14 +97,18 @@ export default function SettingsApp({ bridge }: AppProps) {
         </dl>
       </Section>
 
-      <Section index="05" title="Sobre">
+      <Section index="05" title="Dados e privacidade">
+        <DataSection bridge={bridge} />
+      </Section>
+
+      <Section index="06" title="Sobre">
         <dl className="grid grid-cols-[10rem_1fr] gap-y-2">
           <dt className="text-paper/56">Versão</dt>
-          <dd>0.2.0 · Fase 2</dd>
+          <dd>0.3.0 · Fase 3</dd>
           <dt className="text-paper/56">Ponte do sistema</dt>
           <dd>{bridge.kind === 'virtual' ? 'Virtual (nada acessa o computador real)' : 'Nativa'}</dd>
           <dt className="text-paper/56">Armazenamento</dt>
-          <dd>Em memória, nesta aba</dd>
+          <dd>IndexedDB deste navegador (convidado: só memória)</dd>
           <dt className="text-paper/56">Apps instalados</dt>
           <dd>{appRegistry.list().map((app) => app.name).join(', ')}</dd>
         </dl>

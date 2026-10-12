@@ -57,6 +57,8 @@ export interface VirtualFileSystem {
   move(from: VfsPath, to: VfsPath): Promise<VfsNode>;
   remove(path: VfsPath, options?: { recursive?: boolean }): Promise<void>;
   search(query: string, options?: { root?: VfsPath; limit?: number }): Promise<readonly VfsNode[]>;
+  /** Espaço usado pelos arquivos e o limite do sistema virtual, em bytes. */
+  usage(): Promise<{ usedBytes: number; quotaBytes: number }>;
   /** Observa mudanças sob `path`. Retorna a função para parar de observar. */
   watch(path: VfsPath, listener: (change: VfsChange) => void): () => void;
 }

@@ -14,6 +14,9 @@ async function waitForScene(page: Page) {
     { timeout: 30_000 },
   );
   await waitForDesktop(page);
+  // Entrar como convidado clica no monitor e foca a câmera; os testes partem da visão geral.
+  await page.evaluate(() => window.__nexus?.releaseFocus());
+  await page.waitForFunction(() => window.__nexus?.phase() === 'free', null, { timeout: 45_000 });
 }
 
 async function waitForPhase(page: Page, phase: 'free' | 'focused') {
