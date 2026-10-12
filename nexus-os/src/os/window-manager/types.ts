@@ -1,9 +1,8 @@
 import type { AppId, Size } from '@/os/apps/types';
 
 /**
- * Contrato do gerenciador de janelas. A implementação (store Zustand, arrastar,
- * redimensionar, foco e ordem) é a Fase 2. Coordenadas em px do container do
- * OS, nunca da janela do navegador.
+ * Tipos do gerenciador de janelas. Coordenadas em px do desktop (o container
+ * do OS sem a barra de tarefas), nunca da janela do navegador.
  */
 export interface Bounds extends Size {
   readonly x: number;
@@ -17,22 +16,22 @@ export interface WindowState {
   readonly appId: AppId;
   readonly title: string;
   readonly bounds: Bounds;
-  /** Posição antes de maximizar, para restaurar. */
-  readonly restoreBounds: Bounds | null;
+  readonly minSize: Size;
+  readonly resizable: boolean;
+  /** Estado antes de minimizar, para restaurar igual. */
+  readonly previousDisplay: Exclude<WindowDisplay, 'minimized'>;
   readonly display: WindowDisplay;
   /** Ordem de empilhamento: maior fica na frente. */
   readonly z: number;
+  /** Argumentos de abertura (ex.: arquivo a abrir). Mudam quando o app é reaberto. */
+  readonly launchArgs?: Readonly<Record<string, string>>;
 }
 
-export interface WindowManager {
+export interface WindowManagerState {
   readonly windows: readonly WindowState[];
   readonly focusedId: string | null;
-  open(appId: AppId, options?: { title?: string; bounds?: Partial<Bounds> }): string;
-  close(id: string): void;
-  focus(id: string): void;
-  minimize(id: string): void;
-  maximize(id: string): void;
-  restore(id: string): void;
-  move(id: string, x: number, y: number): void;
-  resize(id: string, size: Size): void;
+  readonly nextZ: number;
+  readonly desktop: Size;
 }
+
+export type ResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';

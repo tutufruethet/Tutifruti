@@ -5,8 +5,9 @@ import { useThree } from '@react-three/fiber';
 import { useCallback } from 'react';
 import { color } from '@/design/tokens';
 import { OsRoot } from '@/os/shell/OsRoot';
-import { ShellProbe } from '@/os/shell/ShellProbe';
+import { Desktop } from '@/os/desktop/Desktop';
 import { MONITOR_VIEWPORT, htmlDistanceFactor } from '@/os/shell/viewport';
+import { useReducedMotion } from '@/settings/motion';
 import { htmlLayerRef } from './html-layer';
 import { DESK, MONITOR } from './layout';
 import { useRoomStore } from './room-store';
@@ -31,6 +32,7 @@ function requestFocusOnPointer() {
  * acessibilidade continuam sendo do navegador.
  */
 export function Monitor() {
+  const reducedMotion = useReducedMotion();
   const invalidate = useThree((state) => state.invalidate);
   // O conteúdo do <Html> monta numa raiz React própria, depois dos primeiros
   // quadros. Com frameloop "demand", é preciso pedir um quadro para o Drei
@@ -68,8 +70,8 @@ export function Monitor() {
         zIndexRange={[50, 0]}
       >
         <div ref={onContentMount} onPointerDownCapture={requestFocusOnPointer} className="[backface-visibility:hidden]">
-          <OsRoot viewport={MONITOR_VIEWPORT}>
-            <ShellProbe />
+          <OsRoot viewport={MONITOR_VIEWPORT} reducedMotion={reducedMotion}>
+            <Desktop />
           </OsRoot>
         </div>
       </Html>
