@@ -16,11 +16,16 @@ Sistema operacional virtual em [nexus-os/](../nexus-os/README.md): um quarto 3D 
 | Dois caminhos | Quarto 3D ou desktop 2D direto (e fallback sem WebGL2) | [Mundos e navegação](regras/mundos-e-navegacao.md) |
 | Movimento | Mesmo easing; 180 ms na interface, ~1 s na câmera | [Movimento](regras/movimento.md) |
 | Performance | `frameloop="demand"`, pausa com aba escondida, presets com DPR ≤ 2 | [Performance](regras/performance.md) |
+| Janelas | Sem sombra: borda mais clara e título aceso na janela em foco, o resto apagado por opacidade | [Erros que eu cometia](regras/erros-que-eu-cometia.md), [Cor e paleta](regras/cor-e-paleta.md) |
+| Boot | Contador 0→100 com as etapas reais, palavra embaralhada e saída em cortina | [Detalhes de acabamento](regras/detalhes-de-acabamento.md), [Active Theory](referencias/active-theory.md) |
+| Wallpaper | Grade fina + wordmark gigante a 3,5% de opacidade; cor só como brilho de canto | [Detalhes de acabamento](regras/detalhes-de-acabamento.md) |
 
 ## Lições do projeto
 - **O `<Html>` do Drei some se o alvo muda depois de montar:** ele recria a raiz React no mesmo elemento e o conteúdo é descartado. Passar um `portal` fixo resolve.
 - **Com `frameloop="demand"`, o DOM do `<Html>` monta depois dos primeiros quadros:** é preciso pedir um quadro (`invalidate`) quando o conteúdo monta, senão a transformação 3D nunca é aplicada.
 - **Câmera da visão geral depende da proporção da tela:** no celular em retrato, afastar a câmera até o monitor caber.
+- **Em interface dentro do 3D, arrastar precisa de conversão:** o mouse anda em px da tela; a janela, em px do OS. Dividir pela escala do container (largura projetada ÷ largura real).
+- **Ícones pequenos com rótulo** resolvem o desktop sem cair em "ícones gigantes": 16 px, linha fina, nome ao lado.
 - **Gancho `?debug` de novo:** os testes leem fase da câmera e o retângulo projetado da tela, sem depender do FPS do renderizador por software (lição da [Ilha 3D](mundo-3d.md)).
 
 Related: [Mundos e navegação](regras/mundos-e-navegacao.md) · [Ilha 3D](mundo-3d.md) · [Checklist de entrega](checklist-de-entrega.md)

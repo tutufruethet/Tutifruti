@@ -2,7 +2,7 @@
 
 Um sistema operacional virtual (Next.js + React) que roda em tela cheia ou dentro do monitor de um quarto 3D (React Three Fiber). O OS é o produto; o quarto é a porta de entrada.
 
-Related: [Fase 1](fase-1.md) · [Estudo de design](../../estudo/README.md) · [Mundos e navegação](../../estudo/regras/mundos-e-navegacao.md)
+Related: [Fase 1](fase-1.md) · [Fase 2](fase-2.md) · [Estudo de design](../../estudo/README.md) · [Mundos e navegação](../../estudo/regras/mundos-e-navegacao.md)
 
 ## Pastas
 
@@ -10,16 +10,20 @@ Related: [Fase 1](fase-1.md) · [Estudo de design](../../estudo/README.md) · [M
 nexus-os/
 ├── src/
 │   ├── app/                  rotas do Next: layout, página, CSS global, ícone
+│   ├── apps/                 apps do OS (files, terminal, notes, settings) + catálogo
 │   ├── components/ui/        primitivos de UI (estilo shadcn, sobre Radix), com portal preso ao OS
 │   ├── design/               tokens: cor, tipo, movimento, camadas, resolução do monitor
 │   ├── engine/               cena 3D: câmera, luz, monitor, presets de qualidade, geometria provisória
 │   ├── experience/           entrada: modo 3D/2D, HUD, capacidades do navegador
 │   ├── os/
-│   │   ├── apps/             contrato de app (manifesto) e registro
+│   │   ├── apps/             contrato de app (manifesto), registro, AppHost, openApp
+│   │   ├── desktop/          desktop: boot, wallpaper, barra de tarefas, menu, calendário, avisos
 │   │   ├── keyboard/         atalhos e escopo de teclado
-│   │   ├── shell/            OsRoot, viewport, superfície de teste da Fase 1
-│   │   ├── vfs/              contrato do sistema de arquivos virtual e caminhos
-│   │   └── window-manager/   contrato do gerenciador de janelas
+│   │   ├── notifications/    store de notificações (serviço da SystemBridge)
+│   │   ├── session/          boot e sessão
+│   │   ├── shell/            OsRoot, viewport, conversão de coordenadas
+│   │   ├── vfs/              contrato, caminhos, VFS em memória, estrutura inicial
+│   │   └── window-manager/   lógica pura, store e a janela (arrastar, redimensionar)
 │   ├── services/             contratos de auth, persistência e IA
 │   ├── settings/             schema (zod) e store de preferências
 │   ├── system/               SystemBridge: a única porta dos apps para o "sistema"
@@ -29,7 +33,7 @@ nexus-os/
 └── docs/                     este documento e os critérios de cada fase
 ```
 
-Entram depois: `src/app/api/` (backend, Fase 6), `src/os/apps/<app>/` (Fase 2 em diante), `public/models/` (GLB, Fase 4).
+Entram depois: `src/app/api/` (backend, Fase 6), `public/models/` (GLB, Fase 4), drivers de persistência em `src/services/` (Fase 3).
 
 ## Camadas e dependências
 
@@ -45,6 +49,7 @@ Regras:
 - `os/*` nunca importa `engine` nem `experience`. O OS não sabe que existe um quarto.
 - `engine` só usa a API pública do shell (`OsRoot`, viewport) para montar o OS no monitor.
 - Apps falam só com `SystemBridge` e `components/ui`. Nada de IndexedDB, Supabase ou `fetch` direto.
+- O desktop conhece os apps só pelo catálogo (`src/apps/catalog.ts`); o código de cada app é carregado sob demanda quando a janela abre.
 - Chaves secretas só no servidor (rotas em `src/app/api/`). O navegador só tem a chave pública do Supabase; a autorização real é RLS no Postgres e validação no backend.
 
 ## Decisões
@@ -70,6 +75,16 @@ Regras:
 **ADR-010 · Interação no monitor só com a câmera de frente.** O usuário explora o quarto em órbita; clicar no monitor, apertar F ou o botão "Usar o computador" leva a câmera de frente para a tela. Em tela estreita (< 768 px), o OS de 1280 px no monitor ficaria ilegível, então focar leva ao desktop 2D.
 
 **ADR-011 · Renderização sob demanda.** `frameloop="demand"`: com a cena parada, a GPU descansa; com a aba escondida, não renderiza. Animações contínuas (chuva, Fase 4) vão precisar de um orçamento explícito.
+
+**ADR-012 · Janelas em coordenadas do desktop.** Posição e tamanho ficam em px do container do desktop, nunca da janela do navegador. A lógica do gerenciador é pura (estado → estado) e testada; a store só a aplica. No monitor 3D, o arrasto divide o deslocamento do mouse pela escala do OS (`osScale`), que é uniforme com a câmera de frente (ADR-010).
+
+**ADR-013 · Só entra no catálogo app que funciona.** Nada de ícone decorativo para app futuro. Cada app é carregado sob demanda e roda dentro de um limite de erro: se quebrar, o erro fica na janela e o OS continua.
+
+**ADR-014 · Terminal = interpretador próprio + xterm.js como tela.** O interpretador só chama o VFS; não existe, por desenho, caminho para executar comandos do computador. A edição de linha (cursor, histórico, Tab, Ctrl+C/L/U) é uma classe sem dependência do xterm, testada com um coletor de saída.
+
+**ADR-015 · VFS em memória primeiro.** O `MemoryFileSystem` implementa o contrato inteiro (inclusive observadores e cota). A Fase 3 troca o driver por IndexedDB + Supabase sem mexer nos apps.
+
+**ADR-016 · Janelas planas.** Sem sombra (estudo: superfícies planas, linhas finas). A janela em foco tem borda mais clara e título aceso; as outras ficam apagadas.
 
 ## Pipeline de modelos 3D (Fase 4)
 

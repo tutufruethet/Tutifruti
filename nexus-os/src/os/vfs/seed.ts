@@ -29,9 +29,7 @@ Por enquanto os arquivos ficam na memória e somem ao recarregar a página.
 A persistência (IndexedDB e nuvem) chega na Fase 3.
 `;
 
-const FIRST_NOTE = `Primeira nota
-
-As notas salvam sozinhas enquanto você escreve.
+const FIRST_NOTE = `As notas salvam sozinhas enquanto você escreve.
 Use a busca para achar por título ou por conteúdo.
 `;
 
