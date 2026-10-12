@@ -107,7 +107,7 @@ export function PlaceholderRoom() {
       </group>
 
       {/* Cadeira */}
-      <group name="placeholder:chair" position={[0.05, 0, 0.12]} rotation-y={-0.25}>
+      <group name="placeholder:chair" position={[-0.55, 0, 0.05]} rotation-y={0.45}>
         <mesh position={[0, 0.47, 0]} castShadow receiveShadow>
           <boxGeometry args={[0.48, 0.07, 0.46]} />
           <meshStandardMaterial {...furniture} />

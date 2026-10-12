@@ -65,7 +65,7 @@ export default function Room3D() {
         camera={CAMERA_PROPS}
       >
         <color attach="background" args={[color.ink]} />
-        <fog attach="fog" args={[color.ink, 4.5, 11]} />
+        <fog attach="fog" args={[color.ink, 5.5, 13]} />
         <Lights preset={preset} />
         <PlaceholderRoom />
         <Monitor />

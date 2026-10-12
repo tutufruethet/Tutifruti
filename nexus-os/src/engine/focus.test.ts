@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { focusDistance, viewportFraction } from './focus';
+import { focusDistance, overviewDistance, viewportFraction } from './focus';
 
 const screen = { width: 0.96, height: 0.6 };
 
@@ -29,5 +29,20 @@ describe('focusDistance', () => {
 
   it('recusa parâmetros inválidos', () => {
     expect(() => focusDistance({ ...screen, fovDeg: 38, aspect: 1, fill: 1.5 })).toThrow();
+  });
+});
+
+describe('overviewDistance', () => {
+  const frame = { width: 1.3, height: 1.0 };
+
+  it('em tela larga mantém a distância padrão', () => {
+    expect(overviewDistance({ baseDistance: 2.3, frame, fovDeg: 38, aspect: 1440 / 900 })).toBe(2.3);
+  });
+
+  it('em celular em retrato afasta a câmera para o monitor caber', () => {
+    const distance = overviewDistance({ baseDistance: 2.3, frame, fovDeg: 38, aspect: 375 / 812 });
+    expect(distance).toBeGreaterThan(2.3);
+    const halfH = Math.atan(Math.tan((38 * Math.PI) / 360) * (375 / 812));
+    expect(viewportFraction(frame.width, distance, halfH)).toBeCloseTo(0.9, 6);
   });
 });

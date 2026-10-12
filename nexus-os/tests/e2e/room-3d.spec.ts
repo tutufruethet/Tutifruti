@@ -50,7 +50,7 @@ test.describe('quarto 3D', () => {
 
     const viewport = page.viewportSize()!;
     const osBox = (await page.locator('[data-os-root]').boundingBox())!;
-    expect(Math.max(osBox.width / viewport.width, osBox.height / viewport.height)).toBeGreaterThan(0.85);
+    expect(Math.max(osBox.width / viewport.width, osBox.height / viewport.height)).toBeGreaterThan(0.8);
 
     // Digitar "f" e Esc dentro do OS não pode mexer na câmera.
     await page.getByTestId('probe-input').click();

@@ -63,8 +63,8 @@ export function Hud({ mode, capabilities }: { mode: ExperienceMode; capabilities
             </ModeButton>
           </nav>
           {in3d ? (
-            <label className="type-label flex h-8 items-center gap-2 border border-line px-2 text-slate">
-              <span className="hidden sm:inline">Qualidade</span>
+            <label className="type-label hidden h-8 items-center gap-2 border border-line px-2 text-slate sm:flex">
+              <span>Qualidade</span>
               <select
                 data-testid="quality-select"
                 aria-label="Qualidade gráfica"
@@ -87,13 +87,18 @@ export function Hud({ mode, capabilities }: { mode: ExperienceMode; capabilities
 
       {in3d ? (
         <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-[100] flex items-end justify-between gap-4 px-[clamp(1rem,3vw,2.5rem)] py-4">
-          <p className="type-label max-w-[22rem] text-slate" data-testid="placeholder-notice">
-            Geometria provisória · os modelos GLB entram na Fase 4
+          <p
+            data-testid="placeholder-notice"
+            className={cn('type-label min-w-0 text-slate', focused && 'invisible')}
+          >
+            Geometria provisória<span className="hidden sm:inline"> · os modelos GLB entram na Fase 4</span>
           </p>
-          <div className="pointer-events-auto flex items-center gap-4">
-            <span className="type-label hidden items-center gap-2 text-slate [@media(hover:hover)]:flex">
-              Arraste para orbitar · <Kbd>F</Kbd> foca · <Kbd>Esc</Kbd> sai
-            </span>
+          <div className="pointer-events-auto flex shrink-0 items-center gap-4">
+            {focused ? null : (
+              <span className="type-label hidden items-center gap-2 text-slate [@media(hover:hover)_and_(min-width:64rem)]:flex">
+                Arraste para orbitar · <Kbd>F</Kbd> foca · <Kbd>Esc</Kbd> sai
+              </span>
+            )}
             {focused ? (
               <Button data-testid="leave-monitor" size="sm" onClick={releaseFocus}>
                 Sair do monitor

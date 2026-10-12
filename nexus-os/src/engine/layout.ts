@@ -31,6 +31,11 @@ export const CAMERA = {
     position: [1.05, 1.42, 1.3] as Vec3,
     target: [0, 1.0, -0.7] as Vec3,
   },
-  /** Fração da viewport que a tela ocupa quando o monitor está em foco. */
-  focusFill: 0.92,
+  /** Área (m) em volta do monitor que precisa caber na visão geral, em qualquer proporção de tela. */
+  overviewFrame: { width: 1.3, height: 1.0 },
+  /**
+   * Fração da viewport que a tela ocupa com o monitor em foco. Deixa margem
+   * para o HUD da página não cobrir o OS.
+   */
+  focusFill: 0.86,
 } as const;

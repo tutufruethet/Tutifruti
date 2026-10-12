@@ -31,3 +31,21 @@ export function focusDistance({
 export function viewportFraction(size: number, distance: number, halfFovRad: number): number {
   return size / (2 * distance * Math.tan(halfFovRad));
 }
+
+/**
+ * Distância da câmera na visão geral: a padrão, ou mais longe se a tela for
+ * estreita (celular em retrato) e o enquadramento não couber.
+ */
+export function overviewDistance({
+  baseDistance,
+  frame,
+  fovDeg,
+  aspect,
+}: {
+  baseDistance: number;
+  frame: { width: number; height: number };
+  fovDeg: number;
+  aspect: number;
+}): number {
+  return Math.max(baseDistance, focusDistance({ ...frame, fovDeg, aspect, fill: 0.9 }));
+}
