@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { color, contrastRatio, motion, typeStep } from './tokens';
 
-const css = readFileSync(fileURLToPath(new URL('../app/globals.css', import.meta.url)), 'utf8').toLowerCase();
+// O Vitest roda a partir da raiz do projeto (nexus-os/).
+const css = readFileSync(join(process.cwd(), 'src/app/globals.css'), 'utf8').toLowerCase();
 
 describe('paleta', () => {
   it('texto principal tem contraste AAA sobre o fundo', () => {
