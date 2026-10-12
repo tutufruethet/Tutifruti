@@ -9,6 +9,7 @@ import { shouldRoomHandleKey } from '@/os/keyboard/scope';
 import { useSettingsStore } from '@/settings/store';
 import { CameraRig } from './CameraRig';
 import { DebugBridge } from './DebugBridge';
+import { htmlLayerRef } from './html-layer';
 import { CAMERA } from './layout';
 import { Lights } from './Lights';
 import { Monitor } from './Monitor';
@@ -50,23 +51,27 @@ export default function Room3D() {
   useRoomKeys();
 
   return (
-    <Canvas
-      // Antialias só vale na criação do contexto: trocar a qualidade recria o canvas.
-      key={preset.level}
-      data-quality={preset.level}
-      frameloop={hidden ? 'never' : 'demand'}
-      dpr={[1, preset.maxDpr]}
-      shadows={preset.shadows}
-      gl={{ antialias: preset.antialias, powerPreference: 'high-performance' }}
-      camera={CAMERA_PROPS}
-    >
-      <color attach="background" args={[color.ink]} />
-      <fog attach="fog" args={[color.ink, 4.5, 11]} />
-      <Lights preset={preset} />
-      <PlaceholderRoom />
-      <Monitor />
-      <CameraRig reducedMotion={capabilities?.reducedMotion ?? false} />
-      <DebugBridge />
-    </Canvas>
+    <div className="relative h-full w-full">
+      {/* Camada do DOM 3D (OS no monitor). Vem antes do canvas e fica acima dele. */}
+      <div ref={htmlLayerRef} className="pointer-events-none absolute inset-0 z-[1]" />
+      <Canvas
+        // Antialias só vale na criação do contexto: trocar a qualidade recria o canvas.
+        key={preset.level}
+        data-quality={preset.level}
+        frameloop={hidden ? 'never' : 'demand'}
+        dpr={[1, preset.maxDpr]}
+        shadows={preset.shadows}
+        gl={{ antialias: preset.antialias, powerPreference: 'high-performance' }}
+        camera={CAMERA_PROPS}
+      >
+        <color attach="background" args={[color.ink]} />
+        <fog attach="fog" args={[color.ink, 4.5, 11]} />
+        <Lights preset={preset} />
+        <PlaceholderRoom />
+        <Monitor />
+        <CameraRig reducedMotion={capabilities?.reducedMotion ?? false} />
+        <DebugBridge />
+      </Canvas>
+    </div>
   );
 }

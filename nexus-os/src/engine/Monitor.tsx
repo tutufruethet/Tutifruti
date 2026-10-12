@@ -1,10 +1,13 @@
 'use client';
 
 import { Html } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
+import { useCallback } from 'react';
 import { color } from '@/design/tokens';
 import { OsRoot } from '@/os/shell/OsRoot';
 import { ShellProbe } from '@/os/shell/ShellProbe';
 import { MONITOR_VIEWPORT, htmlDistanceFactor } from '@/os/shell/viewport';
+import { htmlLayerRef } from './html-layer';
 import { DESK, MONITOR } from './layout';
 import { useRoomStore } from './room-store';
 
@@ -28,6 +31,17 @@ function requestFocusOnPointer() {
  * acessibilidade continuam sendo do navegador.
  */
 export function Monitor() {
+  const invalidate = useThree((state) => state.invalidate);
+  // O conteúdo do <Html> monta numa raiz React própria, depois dos primeiros
+  // quadros. Com frameloop "demand", é preciso pedir um quadro para o Drei
+  // aplicar a transformação 3D ao DOM recém-montado.
+  const onContentMount = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) invalidate();
+    },
+    [invalidate],
+  );
+
   return (
     <group position={MONITOR_POSITION}>
       <mesh name="placeholder:monitor-bezel" position={[0, 0, -DEPTH / 2]} castShadow>
@@ -46,8 +60,14 @@ export function Monitor() {
         <planeGeometry args={[MONITOR.screenWidth, MONITOR.screenHeight]} />
         <meshBasicMaterial color={color.ink} toneMapped={false} />
       </mesh>
-      <Html transform distanceFactor={DISTANCE_FACTOR} position={[0, 0, 0.002]} zIndexRange={[50, 0]}>
-        <div onPointerDownCapture={requestFocusOnPointer} className="[backface-visibility:hidden]">
+      <Html
+        transform
+        portal={htmlLayerRef}
+        distanceFactor={DISTANCE_FACTOR}
+        position={[0, 0, 0.002]}
+        zIndexRange={[50, 0]}
+      >
+        <div ref={onContentMount} onPointerDownCapture={requestFocusOnPointer} className="[backface-visibility:hidden]">
           <OsRoot viewport={MONITOR_VIEWPORT}>
             <ShellProbe />
           </OsRoot>

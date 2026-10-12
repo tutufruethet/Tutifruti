@@ -3,7 +3,15 @@ import { expect, test } from './fixtures';
 
 async function waitForScene(page: Page) {
   await page.waitForFunction(() => window.__nexus?.ready === true, null, { timeout: 60_000 });
-  await page.waitForFunction(() => (window.__nexus?.frames() ?? 0) > 2, null, { timeout: 30_000 });
+  // O OS montou no monitor e o Drei já aplicou a transformação 3D (largura projetada ≠ 1280).
+  await page.waitForFunction(
+    () => {
+      const rect = document.querySelector('[data-os-viewport="fixed"]')?.getBoundingClientRect();
+      return rect !== undefined && rect.width > 0 && Math.abs(rect.width - 1280) > 1;
+    },
+    null,
+    { timeout: 30_000 },
+  );
 }
 
 async function waitForPhase(page: Page, phase: 'free' | 'focused') {
