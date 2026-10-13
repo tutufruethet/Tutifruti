@@ -19,5 +19,7 @@ tags: [regra, 3d, webgl]
 7. **Campos infinitos:** muitas instâncias simples que se repetem com `mod` em volta da câmera.
 8. **Stack:** Three.js (WebGPU + TSL com fallback WebGL), Rapier para física, Blender para modelar, KTX2/Draco para comprimir.
 9. **Prontos para usar:** React Bits (MIT) para backgrounds animados.
+10. **3D simples ganha de 3D difícil.** Não recriar fotos nem cenas complexas em 3D: fica feio. Formas simples (planos, camadas, blocos) com CSS 3D ou poucas primitivas resolvem e ficam bonitas. Exemplo: pilha isométrica do [SitePlan](../siteplan.md).
+11. **Texto fora da cena 3D:** rótulos dentro de planos rotacionados ficam ilegíveis; use legenda plana.
 
-Related: [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [SitePlan](../siteplan.md) · [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
