@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Área da loja — Brasa 47</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0d0b0a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0b0a'/%3E%3Ctext x='16' y='23' font-family='Impact,sans-serif' font-size='18' text-anchor='middle' fill='%23ff6b1f'%3E47%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/brasa.css">
+</head>
+<body>
+<a class="pular" href="#principal">Pular para o conteúdo</a>
+<header class="topo grid solido" id="topo">
+  <a class="marca" href="./">Brasa <b>47</b></a>
+  <nav aria-label="Seções"><a href="./">Ver o site</a><a href="admin.html" aria-current="page">Área da loja</a></nav>
+  <div class="acoes"><button class="btn pequeno" type="button" id="sair-admin" hidden>Sair</button></div>
+</header>
+<main class="pagina grid" id="principal">
+  <h1 class="display">Área da loja</h1>
+  <div id="conteudo" style="grid-column:1/-1"></div>
+</main>
+<div class="aviso" id="aviso" role="status" aria-live="polite"><span id="aviso-texto"></span><button type="button" id="aviso-acao" hidden>Desfazer</button></div>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>

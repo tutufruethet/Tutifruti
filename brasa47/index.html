@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brasa 47 — Hamburgueria artesanal em Recife</title>
+<meta name="description" content="Hambúrguer artesanal feito na brasa, em Recife. Peça pelo site, monte o seu e acompanhe o pedido.">
+<meta name="theme-color" content="#0d0b0a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0b0a'/%3E%3Ctext x='16' y='23' font-family='Impact,sans-serif' font-size='18' text-anchor='middle' fill='%23ff6b1f'%3E47%3C/text%3E%3C/svg%3E">
+<link rel="preload" href="fonts/big-shoulders.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/brasa.css">
+<script type="importmap">{ "imports": { "three": "../mundo/vendor/three/build/three.module.min.js" } }</script>
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+<a class="pular" href="#cardapio">Pular para o cardápio</a>
+
+<header class="topo grid" id="topo">
+  <a class="marca" href="./">Brasa <b>47</b></a>
+  <nav aria-label="Seções">
+    <a href="#cardapio">Cardápio</a>
+    <a href="#historia">Nossa história</a>
+    <a href="#avaliacoes">Avaliações</a>
+  </nav>
+  <div class="acoes">
+    <a class="btn pequeno entrar" href="conta.html" id="link-conta">Entrar</a>
+    <button class="btn pequeno fogo" type="button" id="abrir-carrinho" aria-haspopup="dialog">
+      Pedido <span class="contador" id="contador" aria-label="itens no pedido">0</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="heroi grid" aria-labelledby="titulo">
+    <canvas id="cena-heroi" aria-hidden="true"></canvas>
+    <div class="texto">
+      <h1 class="display" id="titulo">
+        <span class="l" style="--i:0"><span>Feito no fogo.</span></span>
+        <span class="l" style="--i:1"><span>Marcado na</span></span>
+        <span class="l" style="--i:2"><span>memória.</span></span>
+      </h1>
+      <p class="lead">Hambúrguer artesanal na brasa, em Recife. Começou numa garagem, no número 47, com a receita do avô do Gabriel.</p>
+      <div class="botoes">
+        <a class="btn fogo" href="#cardapio">Ver o cardápio</a>
+        <button class="btn" type="button" data-montar="original">Montar o meu</button>
+      </div>
+      <p class="horario"><span class="status-loja" id="status-loja">Aberto agora</span> <span id="horario"></span></p>
+    </div>
+    <p class="arraste" aria-hidden="true">Mexa o mouse para girar</p>
+  </section>
+
+  <section class="secao" id="cardapio" aria-labelledby="cardapio-titulo">
+    <div class="cab grid">
+      <h2 class="display" id="cardapio-titulo">Cardápio</h2>
+      <p>Blend bovino moído na casa e grelhado na brasa na hora do pedido. Personalize o ponto da carne, tire o que não quiser e some adicionais.</p>
+    </div>
+    <ul class="burgers" id="lista-burgers"></ul>
+
+    <div class="quadros grid">
+      <div class="quadro">
+        <h3 class="display">Acompanhamentos</h3>
+        <ul id="lista-acompanhamentos"></ul>
+      </div>
+      <div class="quadro">
+        <h3 class="display">Bebidas</h3>
+        <ul id="lista-bebidas"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="historia" id="historia" aria-labelledby="historia-titulo">
+    <div class="cab grid">
+      <h2 class="display" id="historia-titulo">Garagem nº 47</h2>
+      <p>Uma churrasqueira antiga, uma chapa de ferro e a receita que o avô ensinou. Foi tudo o que o Gabriel Monteiro tinha em 2021.</p>
+    </div>
+    <ol class="linha-tempo">
+      <li class="grid">
+        <span class="ano num">2021</span>
+        <h3>A garagem vira hamburgueria</h3>
+        <p>Aos 24 anos, Gabriel transforma a garagem da casa dos pais numa pequena hamburgueria. Pouco dinheiro, muita vontade.</p>
+      </li>
+      <li class="grid">
+        <span class="ano num">nº 47</span>
+        <h3>O número da casa vira o nome</h3>
+        <p>Foi no 47 que ele preparou o primeiro hambúrguer e recebeu os primeiros clientes. O número não foi escolhido por acaso.</p>
+      </li>
+      <li class="grid">
+        <span class="ano num">5 opções</span>
+        <h3>Uma pessoa faz tudo</h3>
+        <p>No começo eram cinco hambúrgueres no cardápio. Gabriel preparava os ingredientes, grelhava, montava e entregava.</p>
+      </li>
+      <li class="grid">
+        <span class="ano num">O cheiro</span>
+        <h3>A vizinhança descobre</h3>
+        <p>O cheiro da carne na brasa começou a atrair os vizinhos. Um indicou para o outro, e o pequeno negócio ganhou a cidade.</p>
+      </li>
+      <li class="grid">
+        <span class="ano num">2023</span>
+        <h3>A primeira loja</h3>
+        <p>Paredes escuras, madeira, luz âmbar e letreiros acesos. Mudou o endereço; ficaram os ingredientes selecionados e o preparo na hora.</p>
+      </li>
+    </ol>
+    <blockquote class="citacao display grid">
+      <p>Não fazemos apenas hambúrgueres. Criamos motivos para você voltar.</p>
+      <cite>Gabriel Monteiro, fundador</cite>
+    </blockquote>
+  </section>
+
+  <section class="principios grid" aria-label="Missão, visão e valores">
+    <div>
+      <h3>Missão</h3>
+      <p>Proporcionar experiências gastronômicas memoráveis por meio de hambúrgueres artesanais preparados com ingredientes de qualidade, receitas exclusivas e atendimento excepcional.</p>
+    </div>
+    <div>
+      <h3>Visão</h3>
+      <p>Ser reconhecida como uma das hamburguerias artesanais mais admiradas de Pernambuco, pela qualidade, pela criatividade e pela experiência.</p>
+    </div>
+    <div>
+      <h3>Valores</h3>
+      <ul>
+        <li>Qualidade em cada ingrediente</li>
+        <li>Paixão pela gastronomia</li>
+        <li>Respeito aos clientes</li>
+        <li>Criatividade e inovação</li>
+        <li>Atendimento humanizado</li>
+        <li>Compromisso com a excelência</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="secao fidelidade grid" id="fidelidade" aria-labelledby="fid-titulo">
+    <div class="texto">
+      <h2 class="display" id="fid-titulo">Dez carimbos, um 47 por nossa conta</h2>
+      <p>Crie sua conta e ganhe um carimbo a cada pedido com hambúrguer entregue. No décimo, o 47 Original é presente da casa.</p>
+      <a class="btn fogo" href="conta.html" id="cta-fidelidade">Criar minha conta</a>
+    </div>
+    <div class="cartao" aria-label="Exemplo de cartão fidelidade">
+      <div class="topo-cartao"><strong>Cartão Brasa</strong><span class="secundario" id="cartao-legenda">3 de 10</span></div>
+      <div class="carimbos" id="carimbos"></div>
+    </div>
+  </section>
+
+  <section class="secao" id="avaliacoes" aria-labelledby="aval-titulo">
+    <div class="cab grid">
+      <h2 class="display" id="aval-titulo">Quem já provou</h2>
+      <div class="resumo-nota">
+        <div class="media num" id="media">4,8</div>
+        <div class="estrelas" id="media-estrelas" aria-hidden="true">★★★★★</div>
+        <div class="secundario" id="total-aval">4 avaliações</div>
+      </div>
+    </div>
+    <ul class="avaliacoes" id="lista-aval"></ul>
+
+    <form class="form-avaliar grid" id="form-aval" novalidate>
+      <fieldset>
+        <legend>Conte como foi</legend>
+        <div class="escolha" aria-label="Nota de 1 a 5">
+          <div class="notas" id="notas"></div>
+        </div>
+        <label class="campo"><span>Seu nome</span><input name="nome" autocomplete="name" required maxlength="40" placeholder="Ex.: Ana Clara…"></label>
+        <label class="campo"><span>Sua avaliação</span><textarea name="texto" required maxlength="400" placeholder="O que você pediu? O que achou?…"></textarea></label>
+        <p class="erro" id="erro-aval" aria-live="polite"></p>
+        <div><button class="btn" type="submit">Publicar avaliação</button></div>
+      </fieldset>
+    </form>
+  </section>
+
+  <section class="chamada grid" aria-labelledby="chamada-titulo">
+    <h2 class="display" id="chamada-titulo">A brasa está acesa. <span>Só falta o seu pedido.</span></h2>
+    <a class="btn fogo" href="#cardapio">Fazer meu pedido</a>
+  </section>
+</main>
+
+<footer class="rodape grid">
+  <div class="col">
+    <h3>Brasa 47</h3>
+    <p>Hamburgueria artesanal</p>
+    <p>Recife, Pernambuco</p>
+  </div>
+  <div class="col">
+    <h3>Horário</h3>
+    <p id="horario-rodape"></p>
+    <p>Entrega e retirada na loja</p>
+  </div>
+  <div class="col">
+    <h3>Fale com a gente</h3>
+    <ul>
+      <li><a href="#" id="whats-rodape">WhatsApp</a></li>
+      <li><a href="conta.html">Minha conta e pedidos</a></li>
+    </ul>
+  </div>
+  <div class="col">
+    <h3>Para a equipe</h3>
+    <ul><li><a href="admin.html">Área da loja</a></li></ul>
+  </div>
+  <p class="wordmark" aria-hidden="true"><span id="wordmark">Brasa <b>47</b></span></p>
+  <p class="ficticio">Marca fictícia criada para um projeto de design. Nomes, história e preços são fictícios. Pedidos, contas e a área da loja funcionam só neste navegador.</p>
+</footer>
+
+<!-- personalizar -->
+<dialog class="montar" id="montar" aria-labelledby="montar-titulo">
+  <header>
+    <h2 class="display" id="montar-titulo">Monte o seu</h2>
+    <button class="icone" type="button" data-fechar aria-label="Fechar">✕</button>
+  </header>
+  <div class="conteudo">
+    <div class="palco">
+      <canvas id="cena-montar" aria-hidden="true"></canvas>
+      <p class="dica">Arraste para girar</p>
+    </div>
+    <form class="opcoes" id="form-montar">
+      <fieldset class="escolha" id="m-base"><legend>Escolha a base</legend></fieldset>
+      <p id="m-desc"></p>
+      <fieldset class="escolha" id="m-ponto"><legend>Ponto da carne</legend></fieldset>
+      <fieldset class="escolha" id="m-extras"><legend>Adicionais</legend></fieldset>
+      <fieldset class="escolha" id="m-sem"><legend>Tirar</legend></fieldset>
+      <label class="campo"><span>Observação para a cozinha</span><textarea name="obs" maxlength="140" placeholder="Ex.: pão bem tostado…"></textarea></label>
+    </form>
+  </div>
+  <footer>
+    <div><span class="secundario" style="font-size:var(--t-14)">Total</span><div class="preco num" id="m-preco" aria-live="polite">R$ 0,00</div></div>
+    <div class="qtd">
+      <button class="icone" type="button" id="m-menos" aria-label="Diminuir quantidade">−</button>
+      <output id="m-qtd" aria-live="polite">1</output>
+      <button class="icone" type="button" id="m-mais" aria-label="Aumentar quantidade">+</button>
+    </div>
+    <button class="btn fogo" type="submit" form="form-montar" id="m-adicionar">Adicionar ao pedido</button>
+  </footer>
+</dialog>
+
+<!-- carrinho e finalização -->
+<dialog class="gaveta" id="carrinho" aria-labelledby="carrinho-titulo">
+  <header>
+    <h2 class="display" id="carrinho-titulo">Seu pedido</h2>
+    <button class="icone" type="button" data-fechar aria-label="Fechar">✕</button>
+  </header>
+  <div class="corpo" id="carrinho-corpo"></div>
+  <footer id="carrinho-rodape"></footer>
+</dialog>
+
+<div class="aviso" id="aviso" role="status" aria-live="polite"><span id="aviso-texto"></span><button type="button" id="aviso-acao" hidden>Desfazer</button></div>
+
+<script type="module" src="js/site.js"></script>
+</body>
+</html>

@@ -37,3 +37,4 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
 - [Feira](feira.md): calendário de frutas da época, feito com as skills do GitHub.
+- [Brasa 47](brasa47.md): hamburgueria com hambúrguer 3D, carrinho, pedido pelo WhatsApp, conta e área da loja.

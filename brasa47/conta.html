@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minha conta — Brasa 47</title>
+<meta name="description" content="Entre na sua conta da Brasa 47 para acompanhar pedidos, ver cupons e o cartão de carimbos.">
+<meta name="theme-color" content="#0d0b0a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0b0a'/%3E%3Ctext x='16' y='23' font-family='Impact,sans-serif' font-size='18' text-anchor='middle' fill='%23ff6b1f'%3E47%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/brasa.css">
+</head>
+<body>
+<a class="pular" href="#principal">Pular para o conteúdo</a>
+<header class="topo grid solido" id="topo">
+  <a class="marca" href="./">Brasa <b>47</b></a>
+  <nav aria-label="Seções">
+    <a href="./#cardapio">Cardápio</a>
+    <a href="./#historia">Nossa história</a>
+    <a href="conta.html" aria-current="page">Minha conta</a>
+  </nav>
+  <div class="acoes">
+    <a class="btn pequeno fogo" href="./#pedido">Pedido <span class="contador" id="contador">0</span></a>
+  </div>
+</header>
+
+<main class="pagina grid" id="principal">
+  <h1 class="display" id="titulo">Minha conta</h1>
+  <div id="conteudo" style="grid-column:1/-1"></div>
+</main>
+
+<footer class="rodape grid">
+  <p class="ficticio" style="margin-top:0">Marca fictícia. Contas, senhas e pedidos ficam só neste navegador: é uma demonstração, não use uma senha que você usa em outro lugar.</p>
+</footer>
+<div class="aviso" id="aviso" role="status" aria-live="polite"><span id="aviso-texto"></span><button type="button" id="aviso-acao" hidden>Desfazer</button></div>
+<script type="module" src="js/conta.js"></script>
+</body>
+</html>
