@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutifruti — Feira</title>
+<meta name="description" content="Calendário das frutas da época na feira: o que está bom em cada mês, o que acabou de chegar e o que já está indo embora.">
+<meta name="theme-color" content="#d6c19b">
+<link rel="icon" href="data:,">
+<link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Bricolage";src:url(fonts/bricolage.woff2) format("woff2");font-weight:200 800;font-stretch:75% 100%;font-display:swap}
+@font-face{font-family:"Marcador";src:url(fonts/caveat-brush.woff2) format("woff2");font-weight:400;font-display:swap}
+
+:root{
+  /* 3 neutros + 1 acento: papelão kraft, carvão, papel claro, rosa de etiqueta */
+  --kraft:#d6c19b;
+  --papel:#e7d9bd;
+  --carvao:#26221c;
+  --rosa:#ff2d87;
+
+  --sans:"Bricolage",ui-sans-serif,system-ui,sans-serif;
+  --mao:"Marcador","Bricolage",cursive;
+
+  /* escala ×1,2 a partir de 14px; o display fica fora */
+  --t-14:.875rem; --t-17:1.05rem; --t-20:1.26rem; --t-24:1.5rem; --t-29:1.8rem; --t-35:2.16rem;
+
+  --margem:clamp(1rem,3vw,2.5rem);
+  --gutter:1.25rem;
+  --secao:clamp(5rem,12vw,10rem);
+  --expo:cubic-bezier(.16,1,.3,1);
+  --z-regua:10;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light;-webkit-text-size-adjust:100%;scroll-padding-top:7.5rem}
+@media (pointer:fine){html{overscroll-behavior:none}}
+body{
+  margin:0;background:var(--kraft);color:var(--carvao);
+  font:400 var(--t-17)/1.55 var(--sans);font-optical-sizing:auto;
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden;
+}
+/* fibra do papelão: ruído estático, sem custo por quadro */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.22;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .16 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body>*{position:relative;z-index:1}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--carvao);outline-offset:3px}
+.pular{position:absolute;left:var(--margem);top:-4rem;background:var(--carvao);color:var(--kraft);padding:.6rem 1rem;z-index:20;text-decoration:none}
+.pular:focus{top:1rem}
+.so-leitor{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:0 var(--gutter);padding-inline:var(--margem)}
+
+/* topo */
+.topo{padding-block:1.25rem;align-items:baseline;font-size:var(--t-14)}
+.marca{grid-column:1/4;font-weight:800;font-stretch:75%;font-size:var(--t-24);letter-spacing:-.02em;text-decoration:none;line-height:1}
+.hoje{grid-column:5/9;opacity:.75}
+.topo nav{grid-column:9/13;justify-self:end;display:flex;gap:1.5rem}
+.topo nav a{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .5s var(--expo)}
+.topo nav a:hover{background-size:100% 1px}
+
+/* herói: o mês é a coisa grande da página */
+.heroi{padding-top:clamp(2rem,6vw,5rem);padding-bottom:clamp(2.5rem,6vw,5rem)}
+.mes-caixa{grid-column:1/-1;justify-self:start;position:relative}
+.mes-grande{
+  margin:0;font-weight:800;font-stretch:75%;
+  font-size:clamp(5.5rem,24vw,23rem);line-height:.8;letter-spacing:-.01em;text-transform:lowercase;
+}
+.mascara{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.mascara>span{display:inline-block;white-space:nowrap}
+.frase{
+  grid-column:1/11;margin:clamp(1.5rem,3vw,2.5rem) 0 0;
+  font-weight:800;font-stretch:75%;font-size:clamp(1.9rem,4.2vw,3.9rem);line-height:1.06;letter-spacing:-.005em;
+  text-wrap:balance;
+}
+.frase .lead{opacity:.5}
+.frase .p{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.frase .p>span{display:inline-block}
+.frase a{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.14em;text-decoration-color:color-mix(in srgb,var(--carvao) 28%,transparent);transition:text-decoration-color .3s}
+.frase a:hover{text-decoration-color:currentColor}
+/* a etiqueta de preço da feira: o único rosa do herói */
+.etiqueta{
+  position:absolute;right:-.5rem;top:0;margin:0;font:400 var(--t-29)/1 var(--mao);
+  background:var(--rosa);color:var(--carvao);padding:.3em .55em .35em;white-space:nowrap;
+  transform:translateY(-35%) rotate(7deg);transform-origin:20% 50%;
+}
+.nota-heroi{grid-column:1/6;margin:2rem 0 0;font:400 var(--t-24)/1.2 var(--mao);opacity:.85}
+
+/* régua de meses */
+.regua{position:sticky;top:0;z-index:var(--z-regua);background:var(--kraft);border-block:1px solid color-mix(in srgb,var(--carvao) 22%,transparent)}
+.regua::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;mix-blend-mode:multiply;background:inherit}
+.regua-in{padding-inline:var(--margem);display:grid;grid-template-columns:repeat(12,1fr);gap:0}
+.regua button{
+  appearance:none;border:0;background:none;color:inherit;cursor:pointer;touch-action:manipulation;
+  font:400 var(--t-14)/1 var(--sans);font-variant-numeric:tabular-nums;
+  min-height:3rem;padding:.4rem 0;position:relative;opacity:.6;transition:opacity .25s;
+}
+.regua button:hover{opacity:1}
+.regua button[aria-pressed="true"]{opacity:1;font-weight:700}
+.regua button[aria-pressed="true"]::after{
+  content:"";position:absolute;left:50%;bottom:.45rem;width:1.6rem;height:.3rem;margin-left:-.8rem;background:var(--rosa);
+}
+.regua button.agora::before{content:"";position:absolute;left:50%;top:.45rem;width:.3rem;height:.3rem;margin-left:-.15rem;border-radius:50%;background:currentColor}
+
+/* tabela */
+.tabela{padding-top:var(--secao)}
+.tabela-cab{align-items:end;margin-bottom:2rem}
+.tabela h2,.porque h2{grid-column:1/8;margin:0;font-weight:800;font-stretch:75%;font-size:clamp(2.6rem,7vw,6.5rem);line-height:.9;letter-spacing:-.01em;text-wrap:balance}
+.busca{grid-column:9/13;display:flex;flex-direction:column;gap:.35rem;font-size:var(--t-14)}
+.busca input{
+  font:400 var(--t-20)/1.2 var(--sans);color:inherit;background:transparent;
+  border:0;border-bottom:1px solid var(--carvao);padding:.45rem 0;border-radius:0;width:100%;
+}
+.busca input::placeholder{color:color-mix(in srgb,var(--carvao) 50%,transparent)}
+.busca input:focus-visible{outline:none;border-bottom-width:2px;padding-bottom:calc(.45rem - 1px)}
+
+.colunas{font-size:var(--t-14);padding-block:.5rem;border-bottom:1px solid var(--carvao)}
+.colunas .cn{grid-column:1/5;opacity:.75}
+.colunas .cm{grid-column:5/10}
+.colunas .cs{grid-column:10/13;opacity:.75}
+.meses-mini{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;text-align:center;font-variant-numeric:tabular-nums}
+.meses-mini span{opacity:.6}
+.meses-mini span.sel{opacity:1;font-weight:700}
+
+.lista{list-style:none;margin:0;padding:0}
+.lista li{border-bottom:1px solid color-mix(in srgb,var(--carvao) 22%,transparent);scroll-margin-top:8rem}
+.lista li.fora .nome,.lista li.fora .barra{opacity:.45}
+.lista summary{list-style:none;cursor:pointer;align-items:center;padding-block:.85rem;transition:background-color .3s}
+.lista summary::-webkit-details-marker{display:none}
+.lista summary:hover{background:color-mix(in srgb,var(--papel) 70%,transparent)}
+.nome{grid-column:1/5;font-weight:800;font-stretch:75%;font-size:var(--t-35);line-height:1;letter-spacing:-.005em;min-width:0;overflow-wrap:anywhere}
+.barra{grid-column:5/10;display:grid;grid-template-columns:repeat(12,1fr);gap:3px;height:1.1rem}
+.barra i{display:block;border:1px solid color-mix(in srgb,var(--carvao) 35%,transparent)}
+.barra i.on{background:var(--carvao);border-color:var(--carvao)}
+.barra i.sel{box-shadow:0 0 0 2px var(--kraft),0 0 0 4px var(--rosa)}
+.status{grid-column:10/13;font-size:var(--t-17);display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.status::after{content:"+";font-size:var(--t-24);line-height:1;transition:transform .5s var(--expo)}
+details[open] .status::after{transform:rotate(45deg)}
+.dica{padding-bottom:1.5rem}
+.dica p{margin:0}
+.dica .mao{grid-column:5/11;font:400 var(--t-29)/1.15 var(--mao);text-wrap:pretty}
+.dica .epoca{grid-column:1/5;grid-row:1;font-size:var(--t-14);opacity:.75;padding-top:.5rem}
+.vazio{padding:2rem var(--margem);font-size:var(--t-20)}
+.vazio button{font:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;color:inherit}
+
+/* por quê */
+.porque{padding-block:var(--secao)}
+.porque .texto{grid-column:6/12;margin-top:2.5rem;font-size:var(--t-20);line-height:1.5;text-wrap:pretty}
+.porque .texto p{margin:0 0 1.2em;max-width:36em}
+.porque .texto strong{font-weight:700}
+
+/* rodapé */
+.rodape{padding-top:2rem;border-top:1px solid var(--carvao);font-size:var(--t-14)}
+.rodape .fonte{grid-column:1/6;margin:0;opacity:.8;max-width:34em}
+.rodape .topo-link{grid-column:11/13;justify-self:end;white-space:nowrap}
+.palavra{
+  grid-column:1/-1;margin:clamp(2rem,6vw,5rem) 0 0;font-weight:800;font-stretch:75%;
+  font-size:24vw;line-height:.74;letter-spacing:-.01em;white-space:nowrap;
+  padding-bottom:.02em;user-select:none;
+}
+.palavra span{display:inline-block}
+
+/* movimento: um easing, uma entrada orquestrada */
+.js .mascara>span,.js .frase .p>span{transform:translateY(110%)}
+.js .etiqueta{opacity:0;transform:translateY(-35%) rotate(7deg) scale(1.25)}
+.js .nota-heroi{opacity:0}
+.entrou .mascara>span,.entrou .frase .p>span{transform:none;transition:transform 1.1s var(--expo) var(--d,0s)}
+.entrou .etiqueta{opacity:1;transform:translateY(-35%) rotate(7deg);transition:opacity .3s var(--expo) var(--d,0s),transform .9s var(--expo) var(--d,0s)}
+.entrou .nota-heroi{opacity:.85;transition:opacity 1s var(--expo) var(--d,0s)}
+.lista.trocou li{animation:sobe .9s var(--expo) both;animation-delay:calc(var(--i,0) * 30ms)}
+@keyframes sobe{from{opacity:0;transform:translateY(.6rem)}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:0s!important;animation:none!important}
+  .js .mascara>span,.js .frase .p>span{transform:none}
+  .js .etiqueta{opacity:1;transform:translateY(-35%) rotate(7deg)}
+  .js .nota-heroi{opacity:1}
+}
+
+/* celular */
+@media (max-width:760px){
+  .hoje{display:none}
+  .marca{grid-column:1/7}
+  .topo nav{grid-column:7/13;gap:1rem}
+  .topo nav a.longo{display:none}
+  .frase,.nota-heroi{grid-column:1/-1}
+  .etiqueta{font-size:var(--t-20);right:-.25rem}
+  .regua-in{grid-template-columns:repeat(6,1fr)}
+  .regua button{min-height:2.75rem}
+  .tabela h2,.porque h2,.busca{grid-column:1/-1}
+  .busca{margin-top:1.5rem}
+  .colunas .cn{display:none}
+  .colunas .cm{grid-column:1/9}
+  .colunas .cs{grid-column:9/13;text-align:right}
+  .nome{grid-column:1/8;font-size:var(--t-29)}
+  .status{grid-column:8/13;justify-content:flex-end;font-size:var(--t-14);white-space:nowrap}
+  .barra{grid-column:1/-1;grid-row:2;margin-top:.65rem;height:.85rem}
+  .colunas .cm{grid-column:1/-1}
+  .colunas .cs{display:none}
+  .dica .epoca,.dica .mao{grid-column:1/-1;grid-row:auto}
+  .dica .mao{margin-top:.5rem}
+  .porque .texto{grid-column:1/-1}
+  .rodape .fonte{grid-column:1/10}
+  .rodape .topo-link{grid-column:10/13}
+}
+</style>
+</head>
+<body>
+<a class="pular" href="#principal">Pular para o calendário</a>
+
+<header class="topo grid">
+  <a class="marca" href="./" translate="no">tutifruti</a>
+  <p class="hoje" id="hoje" style="margin:0"></p>
+  <nav aria-label="Seções">
+    <a href="#tabela">Todas as frutas</a>
+    <a href="#porque" class="longo">Por que na época</a>
+  </nav>
+</header>
+
+<main id="principal">
+  <section class="heroi grid" aria-labelledby="mes-titulo" aria-live="polite">
+    <div class="mes-caixa">
+      <h1 class="mes-grande" id="mes-titulo"><span class="so-leitor">Frutas da época em </span><span class="mascara"><span id="mes-nome">outubro</span></span></h1>
+      <p class="etiqueta" id="conta"></p>
+    </div>
+    <p class="frase" id="frase"></p>
+    <p class="nota-heroi" id="nota"></p>
+  </section>
+
+  <nav class="regua" aria-label="Escolher mês">
+    <div class="regua-in" id="regua"></div>
+  </nav>
+
+  <section class="tabela" id="tabela" aria-labelledby="tabela-titulo">
+    <div class="tabela-cab grid">
+      <h2 id="tabela-titulo">Fruta por fruta, o ano inteiro</h2>
+      <label class="busca" for="busca">
+        Procurar uma fruta
+        <input id="busca" name="fruta" type="search" placeholder="Ex.: jabuticaba…" autocomplete="off" spellcheck="false">
+      </label>
+    </div>
+    <div class="colunas grid" aria-hidden="true">
+      <span class="cn">Fruta</span>
+      <span class="cm meses-mini" id="meses-mini"></span>
+      <span class="cs">Agora</span>
+    </div>
+    <ul class="lista" id="lista"></ul>
+    <p class="vazio" id="vazio" hidden>Nenhuma fruta com esse nome. <button type="button" id="limpar">Mostrar todas</button></p>
+  </section>
+
+  <section class="porque grid" id="porque" aria-labelledby="porque-titulo">
+    <h2 id="porque-titulo">Por que comprar na época</h2>
+    <div class="texto">
+      <p><strong>Custa menos.</strong> Na safra, chega muita fruta ao mesmo tempo na Ceagesp e nas feiras, e o preço cai. No fim de feira, cai mais ainda.</p>
+      <p><strong>Tem mais gosto.</strong> Fruta da época é colhida mais perto do ponto e passa menos tempo em câmara fria. Dá para sentir no cheiro antes de provar.</p>
+      <p><strong>Viaja menos.</strong> Fora da safra, muita coisa vem de longe ou de fora do país. Na época, vem de perto.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape grid">
+  <p class="fonte">Datas aproximadas para o Sudeste, a partir do calendário de sazonalidade da Ceagesp. Cada região e cada ano têm o seu ritmo: na dúvida, pergunte ao feirante.</p>
+  <a class="topo-link" href="#principal">Voltar ao topo ↑</a>
+  <p class="palavra" aria-hidden="true" translate="no"><span id="palavra">tutifruti</span></p>
+</footer>
+
+<script>
+document.documentElement.classList.add("js");
+
+// meses em que a fruta está boa na feira (1 = janeiro), dica de como escolher
+const FRUTAS = [
+  ["Abacate",[2,3,4,5,6,7,8],"Segure na palma da mão e aperte de leve: se ceder um pouco, está bom para amanhã."],
+  ["Abacaxi",[10,11,12,1,2],"Puxe uma folha do meio da coroa. Se sair fácil e a base cheirar doce, está maduro."],
+  ["Acerola",[11,12,1,2,3,4],"Bem vermelha e firme. Estraga rápido: compre para usar no mesmo dia ou congele."],
+  ["Ameixa",[11,12,1],"Casca com aquele pó branco por cima é sinal de que foi pouco mexida."],
+  ["Atemoia",[3,4,5,6,7],"Os gomos se abrem e ficam amarelados quando está pronta. Firme demais, deixe na fruteira."],
+  ["Banana",[1,2,3,4,5,6,7,8,9,10,11,12],"Tem o ano todo. Compre em pencas de pontos diferentes: umas para hoje, outras para o fim da semana."],
+  ["Cajá",[1,2,3,4,5],"Amarelo vivo e perfumado. Melhor em suco, que a polpa é pouca."],
+  ["Caju",[9,10,11,12],"Cheiro forte e casca sem manchas moles. A castanha vem junto: não coma crua."],
+  ["Caqui",[3,4,5,6],"O chocolate pode ser comido firme; os outros só quando estiverem moles como gelatina."],
+  ["Carambola",[1,2,3,4],"Amarela com as quinas levemente escurecidas. Toda verde, ainda está azeda."],
+  ["Coco-verde",[9,10,11,12,1,2,3],"Balance perto do ouvido: quanto mais água balança, mais novo e doce."],
+  ["Cupuaçu",[1,2,3,4],"O cheiro denuncia de longe. Casca inteira, sem rachaduras."],
+  ["Figo",[1,2,3,4],"Muito delicado: escolha os que estão macios, mas sem escorrer. Use em dois dias."],
+  ["Goiaba",[1,2,3,4],"Cede ao toque e perfuma a sacola. Verde por fora pode estar boa por dentro."],
+  ["Graviola",[1,2,3,4,5],"Os espinhos ficam mais espaçados e moles quando está madura."],
+  ["Jabuticaba",[8,9,10,11],"Brilhante e bem preta, sem rachar. Dura pouco: dois ou três dias na geladeira."],
+  ["Jaca",[12,1,2,3,4],"Cheiro doce e espinhos que cedem ao apertar. Peça para o feirante abrir um pedaço."],
+  ["Kiwi",[5,6,7,8],"Ceda leve ao toque, como um pêssego. Duro, amadurece junto de uma maçã."],
+  ["Laranja-pera",[6,7,8,9,10],"Pesada para o tamanho é sinal de muito suco. Casca fina e lisa ajuda."],
+  ["Lichia",[12,1],"Casca vermelha e firme. Quando escurece, a fruta já está passando."],
+  ["Maçã",[2,3,4,5],"Firme, sem partes moles. A nacional chega fresca da colheita nesses meses."],
+  ["Mamão",[1,2,3,4,5,6,7,8,9,10,11,12],"Tem o ano todo. Riscas amarelas na casca e um leve ceder perto do cabo."],
+  ["Manga",[10,11,12,1],"Aperte de leve perto do cabo e cheire ali: doce e perfumada, está pronta."],
+  ["Maracujá",[11,12,1,2],"O enrugado é o mais doce. Pesado para o tamanho tem mais polpa."],
+  ["Melancia",[10,11,12,1],"Bata com os dedos: som oco. A mancha amarela de onde ela encostou no chão é bom sinal."],
+  ["Melão",[9,10,11,12],"A ponta oposta ao cabo cede um pouco e cheira a melão."],
+  ["Morango",[6,7,8,9,10],"Vermelho até perto das folhas. Vire a caixinha e confira os de baixo."],
+  ["Nectarina",[10,11,12],"Perfumada e cedendo pouco. Deixe um dia fora da geladeira para amolecer."],
+  ["Pera",[1,2,3],"Amadurece de dentro para fora: aperte perto do cabo, não no corpo."],
+  ["Pêssego",[10,11,12,1],"Fundo amarelado, sem verde perto do cabo. O cheiro tem que aparecer."],
+  ["Pitanga",[10,11,12,1],"Quanto mais escura, mais doce. Vermelho-alaranjada ainda é azedinha."],
+  ["Pitaya",[12,1,2,3,4,5],"Cor forte e as escamas começando a secar nas pontas."],
+  ["Ponkan",[4,5,6,7],"Casca solta, quase folgada na fruta. Pesada para o tamanho."],
+  ["Tangerina murcote",[7,8,9,10],"Casca bem presa e brilhante; ela é mais suculenta que a ponkan."],
+  ["Uva niágara",[12,1,2],"Cacho firme no cabo, bagos que não soltam ao chacoalhar de leve."],
+  ["Uva itália",[12,1,2,3],"Bagos amarelados e translúcidos são os mais doces."]
+];
+
+const MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const CURTO = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const INICIAL = "jfmamjjasond";
+const slug = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g,"-");
+const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const hoje = new Date();
+const mesHoje = hoje.getMonth() + 1;
+document.getElementById("hoje").textContent = "Hoje é " +
+  new Intl.DateTimeFormat("pt-BR",{weekday:"long",day:"numeric",month:"long"}).format(hoje);
+
+// situação da fruta no mês m
+function situacao(meses, m) {
+  if (meses.length === 12) return {em:true, txt:"O ano todo", ordem:50};
+  const tem = x => meses.includes(((x - 1 + 12) % 12) + 1);
+  if (tem(m)) {
+    if (!tem(m - 1)) return {em:true, txt:"Acabou de chegar", ordem:0};
+    if (!tem(m + 1)) return {em:true, txt:"Últimas semanas", ordem:2};
+    return {em:true, txt:"Na época", ordem:1};
+  }
+  for (let k = 1; k < 12; k++) if (tem(m + k)) {
+    return {em:false, txt:(k === 1 ? "Chega em " : "Volta em ") + CURTO[(m + k - 1) % 12], ordem:100 + k};
+  }
+}
+
+function lista(nomes) {
+  return nomes.length < 2 ? nomes.join("") : nomes.slice(0,-1).join(", ") + " e " + nomes.at(-1);
+}
+
+function periodo(meses) {
+  if (meses.length === 12) return "Época: o ano todo.";
+  // começo = mês em que o anterior não tem
+  const ini = meses.find(m => !meses.includes(m === 1 ? 12 : m - 1));
+  const fim = meses.find(m => !meses.includes(m === 12 ? 1 : m + 1));
+  return `Época: de ${MESES[ini-1]} a ${MESES[fim-1]}.`;
+}
+
+// régua
+const regua = document.getElementById("regua");
+CURTO.forEach((c, i) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = c;
+  b.setAttribute("aria-label", MESES[i]);
+  b.dataset.m = i + 1;
+  if (i + 1 === mesHoje) { b.classList.add("agora"); b.title = "Mês atual"; }
+  b.addEventListener("click", () => escolher(i + 1, true));
+  regua.appendChild(b);
+});
+document.getElementById("meses-mini").innerHTML = [...INICIAL].map((l,i) => `<span data-m="${i+1}">${l}</span>`).join("");
+
+const ul = document.getElementById("lista");
+const busca = document.getElementById("busca");
+const vazio = document.getElementById("vazio");
+let mesAtual = 0;
+
+// o mês e a marca do rodapé ocupam a largura toda; uma leitura e uma escrita por elemento
+function ajustar(el, max) {
+  const caixa = el.parentElement.closest(".grid");
+  const larg = caixa.clientWidth - parseFloat(getComputedStyle(caixa).paddingLeft) * 2;
+  const alvo = el.closest(".mes-grande, .palavra");
+  alvo.style.fontSize = "100px";
+  const w = el.getBoundingClientRect().width;
+  alvo.style.fontSize = Math.min(max, 100 * larg / w).toFixed(1) + "px";
+}
+function caber() {
+  ajustar(document.getElementById("mes-nome"), innerHeight * .5);
+  ajustar(document.getElementById("palavra"), 9999);
+}
+let espera;
+addEventListener("resize", () => { clearTimeout(espera); espera = setTimeout(caber, 120); });
+document.fonts.ready.then(caber);
+
+function montarHeroi(m, animar) {
+  const heroi = document.querySelector(".heroi");
+  document.getElementById("mes-nome").textContent = MESES[m-1];
+  document.title = `Frutas de ${MESES[m-1]} — Tutifruti`;
+
+  const daVez = FRUTAS.map(([n, ms]) => ({n, s:situacao(ms, m)}))
+    .filter(f => f.s.em && f.s.ordem < 50)
+    .sort((a, b) => a.n.localeCompare(b.n, "pt-BR"));
+  const grupo = o => daVez.filter(f => f.s.ordem === o).map(f => f.n);
+  document.getElementById("conta").textContent = `${daVez.length} frutas na época`;
+
+  // três frases, como o feirante anunciando: chegou, segue, está indo embora
+  const palavra = (t, cls = "") => `<span class="p${cls}"><span>${t}</span></span>`;
+  const frases = [
+    [grupo(0), "Chegou agora", "Chegaram agora"],
+    [grupo(1), "Segue firme", "Seguem firmes"],
+    [grupo(2), "Últimas semanas de", "Últimas semanas de"]
+  ].filter(([ns]) => ns.length).map(([ns, um, varios]) => {
+    const lead = (ns.length > 1 ? varios : um).split(" ").map(w => palavra(w, " lead"));
+    const nomes = ns.map((n, i) => {
+      const fim = i === ns.length - 1 ? "." : i === ns.length - 2 ? "" : ",";
+      const e = i === ns.length - 1 && i > 0 ? palavra("e", " lead") + " " : "";
+      return e + palavra(`<a href="#fruta-${slug(n)}">${n.toLowerCase()}</a>${fim}`);
+    });
+    return [...lead, ...nomes].join(" ");
+  });
+  const frase = document.getElementById("frase");
+  frase.innerHTML = frases.join(" ");
+
+  const chegam = FRUTAS.filter(([, ms]) => situacao(ms, m).txt.startsWith("Chega")).map(([n]) => n.toLowerCase());
+  document.getElementById("nota").textContent = chegam.length
+    ? `Mês que vem chega${chegam.length > 1 ? "m" : ""} ${lista(chegam)}.`
+    : "Banana e mamão aparecem o ano todo.";
+
+  // atrasos em escada: mês, depois cada palavra, depois a etiqueta
+  let d = animar === "entrada" ? .15 : 0;
+  heroi.querySelector(".mascara").style.setProperty("--d", d + "s");
+  const passo = animar === "entrada" ? .06 : .025;
+  d += animar === "entrada" ? .35 : .1;
+  frase.querySelectorAll(".p").forEach(p => { p.style.setProperty("--d", d.toFixed(2) + "s"); d += passo; });
+  document.getElementById("conta").style.setProperty("--d", (d + .1).toFixed(2) + "s");
+  document.getElementById("nota").style.setProperty("--d", (d + .2).toFixed(2) + "s");
+
+  caber();
+  if (!reduz && animar) {
+    heroi.classList.remove("entrou");
+    void heroi.offsetWidth; // reinicia a entrada
+    requestAnimationFrame(() => heroi.classList.add("entrou"));
+  } else heroi.classList.add("entrou");
+}
+
+function montarLista(m, animar) {
+  const abertos = new Set([...ul.querySelectorAll("details[open]")].map(d => d.parentElement.id));
+  const itens = FRUTAS.map(([n, ms, dica]) => ({n, ms, dica, s:situacao(ms, m)}))
+    .sort((a, b) => (a.s.em === b.s.em ? 0 : a.s.em ? -1 : 1) || a.s.ordem - b.s.ordem || a.n.localeCompare(b.n, "pt-BR"));
+  ul.innerHTML = itens.map((f, i) => {
+    const id = "fruta-" + slug(f.n);
+    const cel = Array.from({length:12}, (_, k) =>
+      `<i class="${f.ms.includes(k+1) ? "on" : ""}${k+1 === m ? " sel" : ""}"></i>`).join("");
+    return `<li id="${id}" class="${f.s.em ? "" : "fora"}" style="--i:${Math.min(i,16)}" data-nome="${slug(f.n)}">
+      <details${abertos.has(id) ? " open" : ""}>
+        <summary class="grid">
+          <span class="nome">${f.n}</span>
+          <span class="barra" role="img" aria-label="${periodo(f.ms)}">${cel}</span>
+          <span class="status">${f.s.txt}</span>
+        </summary>
+        <div class="dica grid">
+          <p class="epoca">${periodo(f.ms)}</p>
+          <p class="mao">${f.dica}</p>
+        </div>
+      </details>
+    </li>`;
+  }).join("");
+  filtrar();
+  document.querySelectorAll("#meses-mini span").forEach(s => s.classList.toggle("sel", +s.dataset.m === m));
+  if (animar && !reduz) {
+    ul.classList.remove("trocou"); void ul.offsetWidth; ul.classList.add("trocou");
+  }
+}
+
+function filtrar() {
+  const q = slug(busca.value.trim());
+  let n = 0;
+  ul.querySelectorAll("li").forEach(li => {
+    const ok = !q || li.dataset.nome.includes(q);
+    li.hidden = !ok; if (ok) n++;
+  });
+  vazio.hidden = n > 0;
+}
+
+function escolher(m, doUsuario) {
+  if (m === mesAtual) return;
+  mesAtual = m;
+  regua.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.m === m));
+  montarHeroi(m, doUsuario ? "troca" : "entrada");
+  montarLista(m, doUsuario);
+  const url = new URL(location);
+  if (m === mesHoje) url.searchParams.delete("mes"); else url.searchParams.set("mes", CURTO[m-1]);
+  history.replaceState(null, "", url);
+}
+
+busca.addEventListener("input", filtrar);
+document.getElementById("limpar").addEventListener("click", () => { busca.value = ""; filtrar(); busca.focus(); });
+
+// links da frase abrem a fruta na tabela
+document.getElementById("frase").addEventListener("click", e => {
+  const a = e.target.closest("a"); if (!a) return;
+  const li = document.querySelector(a.getAttribute("href"));
+  if (li) { li.hidden = false; li.querySelector("details").open = true; }
+});
+
+// teclado: setas trocam o mês quando a régua está em foco
+regua.addEventListener("keydown", e => {
+  const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+  if (!d) return;
+  e.preventDefault();
+  const m = ((mesAtual - 1 + d + 12) % 12) + 1;
+  escolher(m, true);
+  regua.querySelector(`[data-m="${m}"]`).focus();
+});
+
+const pedido = new URLSearchParams(location.search).get("mes");
+const mesUrl = CURTO.indexOf(pedido) + 1;
+escolher(mesUrl || mesHoje, false);
+</script>
+</body>
+</html>

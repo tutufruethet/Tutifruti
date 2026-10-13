@@ -31,7 +31,9 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Instrument](referencias/instrument.md): sistema de design, escala fixa, conteúdo primeiro.
 - [Resn](referencias/resn.md): conceito antes do código, duas direções, tipografia própria.
 - [Active Theory](referencias/active-theory.md): mundos 3D, navegação por público, motor próprio.
+- [Skills de design no GitHub](referencias/skills-do-github.md): frontend-design, web-design-guidelines, ui-skills; os sinais de página gerada.
 
 ## Prática
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
+- [Feira](feira.md): calendário de frutas da época, feito com as skills do GitHub.
