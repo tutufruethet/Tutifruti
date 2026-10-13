@@ -16,5 +16,9 @@ tags: [regra, motion]
 8. Gravar a **direção do scroll** numa variável CSS para o layout reagir (menu some ao descer, aparece ao subir).
 9. **Texto que embaralha:** letras aleatórias que se resolvem na palavra certa, para UI em fonte mono (Active Theory).
 10. Sempre respeitar `prefers-reduced-motion`.
+11. **Independente da taxa de quadros:** `damp(a, b, λ, dt) = a + (b − a)(1 − e^(−λ·dt))`; nunca `lerp` com fator fixo por quadro.
+12. **Peso com mola:** `F = k·x − c·v` com sub-passos fixos e `dt` limitado a 1/30 (Ecctrl).
+13. **O loop dorme** quando tudo assenta; acorda com a próxima ação (`frameloop="demand"` do r3f).
+14. **Um momento orquestrado** por página; o resto é resposta a ações.
 
-Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [React Three Fiber](../referencias/react-three-fiber.md) · [Ecctrl](../referencias/ecctrl.md) · [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)

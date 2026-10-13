@@ -19,5 +19,6 @@ tags: [regra, 3d, webgl]
 7. **Campos infinitos:** muitas instâncias simples que se repetem com `mod` em volta da câmera.
 8. **Stack:** Three.js (WebGPU + TSL com fallback WebGL), Rapier para física, Blender para modelar, KTX2/Draco para comprimir.
 9. **Prontos para usar:** React Bits (MIT) para backgrounds animados.
+10. **Produto 3D:** ambiente de estúdio (`RoomEnvironment` ou `Lightformer`s) + uma luz-chave + `NeutralToneMapping` + sombra blob; câmera teleobjetiva (fov 15–35) que enquadra o conteúdo.
 
-Related: [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [pmndrs/examples](../referencias/pmndrs-examples.md) · [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)

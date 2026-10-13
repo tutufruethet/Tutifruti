@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tutifruti Gelateria: monte a sua casquinha</title>
+<meta name="description" content="Escolha até três bolas, a base e a cobertura, e reserve a retirada no balcão.">
+<meta name="theme-color" content="#f6d5cd">
+<link rel="preload" href="fonts/shrikhand.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/atkinson-hyperlegible-next.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/estilo.css">
+<script type="importmap">
+{ "imports": { "three": "../mundo/vendor/three/build/three.module.min.js", "three/addons/": "../mundo/vendor/three/examples/jsm/" } }
+</script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+
+<header class="topo">
+  <a class="marca" href="./">Tutifruti</a>
+  <p class="aberto">Gelateria de bairro, aberta das 12h às 22h</p>
+  <a class="link-fav" href="#favoritos">Favoritos<span id="qtd-fav"></span></a>
+</header>
+
+<main class="vitrine">
+  <div class="palco-wrap">
+    <h1 class="titulo" id="titulo">
+      <span class="linha"><span id="titulo-verbo">Monte a sua</span></span>
+      <span class="linha"><span id="titulo-base">casquinha.</span></span>
+    </h1>
+    <div class="palco" id="palco">
+      <p class="dica" id="dica" aria-hidden="true">Arraste para girar</p>
+    </div>
+  </div>
+
+  <div class="quadro">
+    <fieldset class="grupo">
+      <legend>Base</legend>
+      <div class="opcoes" id="opcoes-base"></div>
+    </fieldset>
+
+    <section class="grupo" aria-labelledby="t-sabores">
+      <div class="cabeca">
+        <h2 id="t-sabores">Sabores</h2>
+        <p class="regra" id="regra-bolas">Toque num sabor para pôr uma bola. Até 3.</p>
+      </div>
+      <dl class="precos" id="precos"></dl>
+      <ul class="lista-sabores" id="lista-sabores"></ul>
+    </section>
+
+    <section class="grupo" aria-labelledby="t-montagem">
+      <h2 id="t-montagem">Sua casquinha</h2>
+      <ol class="pilha" id="pilha"></ol>
+      <p class="vazio" id="pilha-vazia" hidden>Nenhuma bola ainda. Escolha um sabor acima.</p>
+    </section>
+
+    <fieldset class="grupo">
+      <legend>Cobertura</legend>
+      <div class="opcoes" id="opcoes-cobertura"></div>
+    </fieldset>
+
+    <div class="conta">
+      <dl class="resumo" id="resumo"></dl>
+      <p class="total"><span>Total</span><output id="total" for="lista-sabores opcoes-base opcoes-cobertura"></output></p>
+      <button type="button" class="cta" id="reservar">Reservar retirada</button>
+      <div class="secundarias">
+        <button type="button" class="secundario" id="copiar">Copiar link</button>
+        <button type="button" class="secundario" id="salvar">Salvar nos favoritos</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</main>
+
+<section class="favoritos" id="favoritos" aria-labelledby="t-fav">
+  <h2 id="t-fav" tabindex="-1">Seus favoritos</h2>
+  <p class="vazio" id="fav-vazio">Salve uma montagem para pedir de novo com um toque.</p>
+  <ul class="lista-fav" id="lista-fav"></ul>
+</section>
+
+<footer class="rodape">
+  <p class="wordmark" aria-hidden="true">Tutifruti</p>
+  <div class="rodape-texto">
+    <p>Aberta todos os dias, das 12h às 22h. Retirada no balcão.</p>
+    <p>Demonstração: a reserva não chega a uma loja real. O link, os favoritos e o arquivo de agenda funcionam de verdade.</p>
+    <p>Letras: Shrikhand e Atkinson Hyperlegible Next, licença OFL.</p>
+  </div>
+</footer>
+
+<dialog class="dialogo" id="dialogo" aria-labelledby="t-reserva">
+  <form id="form-reserva" novalidate>
+    <h2 id="t-reserva">Reservar retirada</h2>
+    <p class="pedido" id="pedido"></p>
+    <div class="campo">
+      <label for="nome">Seu nome</label>
+      <input id="nome" name="nome" autocomplete="given-name" required aria-describedby="erro-nome">
+      <p class="erro" id="erro-nome"></p>
+    </div>
+    <div class="campo">
+      <label for="horario">Horário de retirada</label>
+      <select id="horario" name="horario" aria-describedby="erro-horario"></select>
+      <p class="erro" id="erro-horario"></p>
+    </div>
+    <p class="erro" id="erro-bolas" tabindex="-1"></p>
+    <div class="botoes">
+      <button type="submit" class="cta">Confirmar reserva</button>
+      <button type="button" class="secundario" id="voltar">Voltar</button>
+    </div>
+  </form>
+  <div class="feito" id="feito" hidden>
+    <h2 id="t-feito" tabindex="-1">Retirada reservada</h2>
+    <p>Mostre este código no balcão:</p>
+    <p class="codigo" id="codigo"></p>
+    <p id="feito-detalhe"></p>
+    <div class="botoes">
+      <a class="cta" id="baixar-ics" href="#" download="tutifruti-retirada.ics">Adicionar à agenda</a>
+      <button type="button" class="secundario" id="fechar">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+</body>
+</html>

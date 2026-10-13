@@ -17,5 +17,10 @@ tags: [regra, checklist]
 - [ ] Funciona bem em 375px, sem scroll horizontal?
 - [ ] Nenhum item da lista de [erros que eu cometia](regras/erros-que-eu-cometia.md)?
 - [ ] Testei com screenshot (desktop e celular) antes de entregar?
+- [ ] Olhei o print de **cada estado** (vazio, cheio, erro, diálogo aberto, outra opção)?
+- [ ] Nenhum sinal de página genérica sem motivo? → [Frontend Design](referencias/frontend-design.md)
+- [ ] axe sem violações, só teclado funciona, alvos ≥ 44px?
+- [ ] Loop 3D dorme em repouso e o título não espera o 3D? → [Performance](regras/performance.md)
+- [ ] Rodei as camadas da skill `planejar-depurar-revisar` e relatei o que não testei?
 
-Related: [Erros que eu cometia](regras/erros-que-eu-cometia.md) · [Demo Tutifruti](demo-tutifruti.md)
+Related: [Gelateria](gelateria.md) · [Erros que eu cometia](regras/erros-que-eu-cometia.md) · [Demo Tutifruti](demo-tutifruti.md)

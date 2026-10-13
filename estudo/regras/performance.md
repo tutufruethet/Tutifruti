@@ -17,5 +17,8 @@ Performance faz parte do design.
 7. Trabalho pesado fora da thread principal (Web Worker) e WebGL2 com fallback para WebGL1 (Active Theory).
 8. **Níveis de qualidade:** detectar o celular e desligar os efeitos caros (profundidade de campo, passes de bloom) (Bruno Simon).
 9. Zero bibliotecas quando o efeito cabe em poucas linhas.
+10. **Renderizar sob demanda:** zero quadros em repouso (medir com um contador exposto para teste).
+11. **O texto principal não espera o 3D:** `import()` dinâmico da cena; LCP é o título.
+12. Compartilhar geometria e material; instanciar repetições; alternar `visible` em vez de montar/desmontar; pré-compilar materiais (`renderer.compile`).
 
-Related: [Bruno Simon](../referencias/bruno-simon.md) · [Active Theory](../referencias/active-theory.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Movimento](movimento.md)
+Related: [React Three Fiber](../referencias/react-three-fiber.md) · [pmndrs/examples](../referencias/pmndrs-examples.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Active Theory](../referencias/active-theory.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Movimento](movimento.md)

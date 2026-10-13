@@ -11,5 +11,8 @@ tags: [regra, design, cor]
 3. Neutros quentes em vez de preto e branco puros. Paleta da demo: tinta `#0b0b0c`, papel `#edebe6`, cinza `#8a8883`, acento `#ff4d1f`.
 4. Hierarquia por **opacidade e cinza**, não por cores novas (ex.: lista com itens apagados e o item em hover aceso).
 5. Nada de gradiente genérico roxo→azul.
+6. **A paleta vem do assunto, não do hábito.** A paleta da demo (quase preto + laranja) é um dos padrões de página gerada; use só quando o assunto pedir. Na [Gelateria](../gelateria.md): cacau, morango-leite, caramelo e pistache.
+7. **Cor de produto é conteúdo.** Sabores, fotos e modelos 3D têm as cores deles; a paleta de UI continua com 3 + 1.
+8. **Meça o contraste:** texto ≥ 4,5:1; texto grande, ícone e borda de controle ≥ 3:1.
 
-Related: [Lusion](../referencias/lusion.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Erros que eu cometia](erros-que-eu-cometia.md)
+Related: [Frontend Design](../referencias/frontend-design.md) · [Lusion](../referencias/lusion.md) · [Fundo vivo e 3D](fundo-vivo-e-3d.md) · [Erros que eu cometia](erros-que-eu-cometia.md)
