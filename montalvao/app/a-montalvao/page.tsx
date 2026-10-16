@@ -75,11 +75,6 @@ export default function PaginaMontalvao() {
                 </li>
               ))}
             </ol>
-            <div className="col-span-4 lg:col-span-5 lg:col-start-3" data-revelar>
-              <div className="foto-moldura aspect-[4/5]">
-                <Foto id="creta" sizes="(min-width: 64rem) 40vw, 100vw" />
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -91,7 +86,7 @@ export default function PaginaMontalvao() {
               (02) O atendimento
             </p>
             <h2 id="titulo-atendimento" className="titulo mt-6 text-[clamp(2.5rem,4.6vw,4rem)]" data-revelar>
-              Tudo começa numa conversa.
+              Atendimento direto com a equipe.
             </h2>
             <div className="mt-8 grid gap-5 text-[1.125rem] text-tx-2" data-revelar>
               <p className="texto-longo">

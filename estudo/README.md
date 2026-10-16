@@ -21,6 +21,7 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Mundos e navegação](regras/mundos-e-navegacao.md): sites imersivos, cenas, dois caminhos de navegação.
 - [Detalhes de acabamento](regras/detalhes-de-acabamento.md): loader, cursor, marquee, wordmark.
 - [Erros que eu cometia](regras/erros-que-eu-cometia.md): o que evitar.
+- [Site de cliente com material real](regras/site-de-cliente.md): não inventar dados, prévia × público, nenhum botão falso.
 - [Checklist de entrega](checklist-de-entrega.md): conferir antes de entregar.
 
 ## Referências (o porquê)
@@ -35,3 +36,4 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 ## Prática
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
+- [Montalvão Motors](montalvao-motors.md): site de loja de veículos com material real do cliente e vídeo vertical na abertura.

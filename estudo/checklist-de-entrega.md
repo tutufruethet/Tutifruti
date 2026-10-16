@@ -16,6 +16,7 @@ tags: [regra, checklist]
 - [ ] Funciona com `reduced-motion`, no toque e sem WebGL? → [Performance](regras/performance.md)
 - [ ] Funciona bem em 375px, sem scroll horizontal?
 - [ ] Nenhum item da lista de [erros que eu cometia](regras/erros-que-eu-cometia.md)?
-- [ ] Testei com screenshot (desktop e celular) antes de entregar?
+- [ ] Testei com screenshot (desktop e celular) antes de entregar? No print de página inteira, desligue as animações antes (senão o título some no print).
+- [ ] Site de cliente: nada inventado, prévia marcada, nenhum botão com destino falso? → [Site de cliente](regras/site-de-cliente.md)
 
-Related: [Erros que eu cometia](regras/erros-que-eu-cometia.md) · [Demo Tutifruti](demo-tutifruti.md)
+Related: [Erros que eu cometia](regras/erros-que-eu-cometia.md) · [Demo Tutifruti](demo-tutifruti.md) · [Site de cliente](regras/site-de-cliente.md)
