@@ -36,3 +36,4 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
 - [Showreel em código](showreel.md): vídeo de 15 s com trilha sintetizada.
+- [Conceito roxo](conceito-roxo.md): site de fintech guiado pela rolagem.

@@ -1,0 +1,91 @@
+<!doctype html><html><head><meta charset="utf-8">
+<script type="importmap">{"imports":{"three":"../../../mundo/vendor/three/build/three.module.min.js"}}</script>
+<style>html,body{margin:0;background:transparent}</style></head><body>
+<script type="module">
+import * as THREE from 'three';
+const P = new URLSearchParams(location.search);
+const W = +(P.get('w') || 2400), H = +(P.get('h') || 1800);
+const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+r.setSize(W, H); r.setClearColor(0, 0);
+r.toneMapping = THREE.NeutralToneMapping; r.toneMappingExposure = 1.0;
+r.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(r.domElement);
+const scene = new THREE.Scene();
+const pm = new THREE.PMREMGenerator(r);
+// estúdio escuro com softboxes (reflexos discretos)
+const studio = new THREE.Scene(); studio.background = new THREE.Color('#050407');
+const box = (w, h, x, y, z, ry, rx, inten, col = '#ffffff') => {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(col).multiplyScalar(inten), side: THREE.DoubleSide }));
+  m.position.set(x, y, z); m.rotation.set(rx, ry, 0); m.lookAt(0, 0, 0); studio.add(m);
+};
+const L = (P.get('L') ? JSON.parse(P.get('L')) : [[7, 6, 3, 9, -2, 2.7], [5, 5, 6, 6, 5, 0.8], [16, 4, 0, -8, 5, 0.2], [2, 8, -9, 3, -4, 1.2]]);
+L.forEach(([w, h, x, y, z, i]) => box(w, h, x, y, z, 0, 0, i));
+scene.environment = pm.fromScene(studio, 0.02).texture;
+scene.environmentIntensity = 1.0;
+
+// cartão ISO ID-1 (mm)
+const CW = 85.6, CH = 53.98, CR = 3.18, T = 0.76, BV = 0.12;
+function rrect(w, h, rad) {
+  const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
+  s.moveTo(x + rad, y); s.lineTo(x + w - rad, y); s.quadraticCurveTo(x + w, y, x + w, y + rad);
+  s.lineTo(x + w, y + h - rad); s.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
+  s.lineTo(x + rad, y + h); s.quadraticCurveTo(x, y + h, x, y + h - rad);
+  s.lineTo(x, y + rad); s.quadraticCurveTo(x, y, x + rad, y); return s;
+}
+// microtextura acetinada (normal suave)
+const nc = document.createElement('canvas'); nc.width = nc.height = 512;
+const nx = nc.getContext('2d'), im = nx.createImageData(512, 512);
+for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (Math.random() - .5) * 14; im.data[i] = v; im.data[i + 1] = 128 + (Math.random() - .5) * 14; im.data[i + 2] = 255; im.data[i + 3] = 255; }
+nx.putImageData(im, 0, 0);
+const ntex = new THREE.CanvasTexture(nc); ntex.wrapS = ntex.wrapT = THREE.RepeatWrapping; ntex.repeat.set(0.25, 0.25);
+
+const face = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#6e0bd0'), roughness: 0.4, metalness: 0.0,
+  clearcoat: 0.5, clearcoatRoughness: 0.32, sheen: 0.25, sheenColor: new THREE.Color('#8f45e6'), sheenRoughness: 0.7,
+  normalMap: ntex, normalScale: new THREE.Vector2(0.15, 0.15) });
+const edge = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#3a0868'), roughness: 0.45, clearcoat: 0.2, clearcoatRoughness: 0.5 });
+const g = new THREE.ExtrudeGeometry(rrect(CW - 2 * BV, CH - 2 * BV, CR - BV), { depth: T - 2 * BV, bevelEnabled: true, bevelThickness: BV, bevelSize: BV, bevelSegments: 5, curveSegments: 48 });
+g.translate(0, 0, -(T - 2 * BV) / 2);
+const card = new THREE.Group();
+card.add(new THREE.Mesh(g, [face, edge]));
+
+// chip: placa metálica com divisões de contato
+const cc = document.createElement('canvas'); cc.width = 460; cc.height = 360;
+const cx = cc.getContext('2d');
+const grd = cx.createLinearGradient(0, 0, 460, 360); grd.addColorStop(0, '#e9d7a8'); grd.addColorStop(.5, '#c7aa6c'); grd.addColorStop(1, '#a8884f');
+cx.fillStyle = grd; cx.fillRect(0, 0, 460, 360);
+cx.strokeStyle = 'rgba(70,52,20,.85)'; cx.lineWidth = 5; cx.lineJoin = 'round';
+cx.beginPath();
+cx.moveTo(0, 120); cx.lineTo(150, 120); cx.moveTo(0, 240); cx.lineTo(150, 240);
+cx.moveTo(460, 120); cx.lineTo(310, 120); cx.moveTo(460, 240); cx.lineTo(310, 240);
+cx.moveTo(150, 0); cx.lineTo(150, 95); cx.moveTo(310, 0); cx.lineTo(310, 95);
+cx.moveTo(150, 360); cx.lineTo(150, 265); cx.moveTo(310, 360); cx.lineTo(310, 265);
+cx.roundRect(150, 95, 160, 170, 26); cx.moveTo(230, 95); cx.lineTo(230, 0);
+cx.stroke();
+const ctex = new THREE.CanvasTexture(cc); ctex.colorSpace = THREE.SRGBColorSpace; ctex.anisotropy = 8;
+const chipMat = new THREE.MeshPhysicalMaterial({ map: ctex, metalness: 1, roughness: 0.32, bumpMap: ctex, bumpScale: -0.6, clearcoat: 0.2 });
+const chipSide = new THREE.MeshStandardMaterial({ color: '#8a6d3a', metalness: 1, roughness: 0.4 });
+const cg = new THREE.ExtrudeGeometry(rrect(11.6, 9.0, 1.3), { depth: 0.04, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.05, bevelSegments: 2, curveSegments: 16 });
+// UV da face: mapear para 0..1
+const uv = cg.attributes.uv, pos = cg.attributes.position;
+for (let i = 0; i < uv.count; i++) uv.setXY(i, (pos.getX(i) + 5.8) / 11.6, (pos.getY(i) + 4.5) / 9.0);
+const chip = new THREE.Mesh(cg, [chipMat, chipSide]);
+chip.position.set(-CW / 2 + 10.3 + 5.8, CH / 2 - 19.2 - 4.5 + 2, T / 2 - 0.02);
+card.add(chip);
+scene.add(card);
+
+// luz de estúdio suave
+const key = new THREE.DirectionalLight('#ffffff', 1.1); key.position.set(-60, 90, 120); scene.add(key);
+const fill = new THREE.DirectionalLight('#e9ddff', 0.25); fill.position.set(90, -20, 60); scene.add(fill);
+const rim = new THREE.DirectionalLight('#ffffff', 0.9); rim.position.set(40, 60, -80); scene.add(rim);
+
+const cam = new THREE.PerspectiveCamera(24, W / H, 1, 2000);
+cam.position.set(0, 0, 260); cam.lookAt(0, 0, 0);
+const rx = +(P.get('rx') ?? -0.62), ry = +(P.get('ry') ?? 0.5), rz = +(P.get('rz') ?? 0.32);
+card.rotation.set(rx, ry, rz, 'YXZ');
+// encaixa com margem: mede a silhueta projetada
+card.updateMatrixWorld(true);
+const bb = new THREE.Box3().setFromObject(card); const c = bb.getCenter(new THREE.Vector3());
+card.position.sub(c);
+r.render(scene, cam);
+window.done = true;
+</script></body></html>
