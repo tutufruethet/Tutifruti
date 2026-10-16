@@ -1,0 +1,114 @@
+{
+  "salao": {
+    "largura": 948,
+    "altura": 935,
+    "larguras": [
+      480,
+      800,
+      948
+    ],
+    "cor": "#484848",
+    "alt": "Salão da Montalvão com fileiras de carros e iluminação linear no teto; um homem de camiseta clara em primeiro plano",
+    "foco": "50% 40%"
+  },
+  "creta": {
+    "largura": 950,
+    "altura": 1180,
+    "larguras": [
+      480,
+      800,
+      950
+    ],
+    "cor": "#282828",
+    "alt": "Hyundai Creta prata sob a luminária hexagonal do showroom, com um homem ao lado",
+    "foco": "45% 70%"
+  },
+  "hexagonos": {
+    "largura": 950,
+    "altura": 520,
+    "larguras": [
+      480,
+      800,
+      950
+    ],
+    "cor": "#b8b8b8",
+    "alt": "Luminária de LED em formato de colmeia no teto do showroom",
+    "foco": "50% 50%"
+  },
+  "laco": {
+    "largura": 919,
+    "altura": 1157,
+    "larguras": [
+      480,
+      800,
+      919
+    ],
+    "cor": "#080808",
+    "alt": "Carro branco com um grande laço vermelho no capô e um homem sorrindo ao lado",
+    "foco": "50% 60%"
+  },
+  "renault": {
+    "largura": 934,
+    "altura": 1060,
+    "larguras": [
+      480,
+      800,
+      934
+    ],
+    "cor": "#989898",
+    "alt": "Renault branco no showroom, com um homem ao lado",
+    "foco": "40% 70%"
+  },
+  "hyundai": {
+    "largura": 1154,
+    "altura": 1363,
+    "larguras": [
+      480,
+      800,
+      1154
+    ],
+    "cor": "#c8c8c8",
+    "alt": "Hyundai prata no showroom, com um homem de camiseta verde apoiado no carro",
+    "foco": "45% 70%"
+  },
+  "march-1": {
+    "largura": 1080,
+    "altura": 860,
+    "larguras": [
+      480,
+      800,
+      1080
+    ],
+    "cor": "#181818",
+    "alt": "Nissan March prata visto de frente, com um homem ao fundo ao lado de um carro vermelho",
+    "foco": "38% 55%"
+  },
+  "march-2": {
+    "largura": 1080,
+    "altura": 820,
+    "larguras": [
+      480,
+      800,
+      1080
+    ],
+    "cor": "#b8b8a8",
+    "alt": "Nissan March prata de frente, com um homem ao lado",
+    "foco": "55% 55%"
+  },
+  "abertura-poster": {
+    "largura": 760,
+    "altura": 1460,
+    "larguras": [
+      480,
+      760
+    ],
+    "cor": "#483838",
+    "alt": "",
+    "foco": "50% 35%"
+  },
+  "abertura-video": {
+    "largura": 760,
+    "altura": 1460,
+    "duracao": 6.1
+  }
+}
