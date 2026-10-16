@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { mensagens } from "@/content/loja";
 import { PREVIA } from "@/lib/modo";
 import { veiculosVisiveis, contarPor, nomeVeiculo, rotuloCarroceria, ano } from "@/lib/veiculos";
@@ -92,17 +91,7 @@ export default function PaginaVeiculos() {
       <section aria-label="Lista de veículos" className="claro pb-24 pt-10 lg:pb-32 lg:pt-14">
         <div className="envelope">
           {lista.length ? (
-            <Suspense
-              fallback={
-                <ul className="grid gap-x-5 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
-                  {lista.map((v) => (
-                    <li key={v.slug}>{cards[v.slug]}</li>
-                  ))}
-                </ul>
-              }
-            >
-              <Catalogo itens={itens} cards={cards} marcas={marcas} carrocerias={carrocerias} ordenacoes={ordenacoes} vazio={vazio} />
-            </Suspense>
+            <Catalogo itens={itens} cards={cards} marcas={marcas} carrocerias={carrocerias} ordenacoes={ordenacoes} vazio={vazio} />
           ) : (
             <div className="max-w-2xl py-10">
               <p className="titulo text-[2rem]">O catálogo está sendo atualizado.</p>

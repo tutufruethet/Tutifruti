@@ -87,6 +87,7 @@ export function Abertura({ ctaSecundario }: Props) {
           <div ref={midia} className="relative h-full w-full will-change-transform lg:aspect-[760/1460] lg:h-[min(82svh,54rem)] lg:w-auto">
             <video
               ref={video}
+              data-abertura-video
               className="absolute inset-0 h-full w-full object-cover object-[50%_80%] lg:object-[50%_35%]"
               poster="/midia/abertura-poster-760.webp"
               muted
@@ -148,16 +149,16 @@ export function Abertura({ ctaSecundario }: Props) {
           </div>
         </div>
 
-        {podeTocar && (
-          <button
+        <button
             type="button"
+            hidden={!podeTocar}
+            data-abertura-pausa
             onClick={alternar}
             aria-label={tocando ? "Pausar vídeo de fundo" : "Reproduzir vídeo de fundo"}
             className="absolute right-[var(--margem)] top-[calc(var(--altura-cabecalho)+0.75rem)] z-10 inline-flex size-11 items-center justify-center rounded-full border border-white/25 bg-preto/50 text-papel transition-colors duration-300 hover:bg-preto/80 lg:bottom-12 lg:top-auto"
           >
             {tocando ? <IconePausar /> : <IconeTocar />}
           </button>
-        )}
       </div>
     </section>
   );

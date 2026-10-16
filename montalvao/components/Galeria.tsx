@@ -21,7 +21,7 @@ export function Galeria({ fotos, nome }: { fotos: Foto[]; nome: string }) {
   }
 
   return (
-    <figure aria-roledescription={varias ? "galeria" : undefined} aria-label={varias ? `Fotos do ${nome}` : undefined}>
+    <figure aria-roledescription={varias ? "galeria" : undefined} aria-label={varias ? `Fotos do ${nome}` : undefined} data-galeria>
       <div className="relative overflow-hidden bg-black/30" style={{ aspectRatio: `${f.largura} / ${f.altura}`, maxHeight: "78svh" }}>
         <picture key={f.id}>
           <source type="image/avif" srcSet={f.avif} sizes="(min-width: 64rem) 56vw, 100vw" />
@@ -38,7 +38,7 @@ export function Galeria({ fotos, nome }: { fotos: Foto[]; nome: string }) {
           />
         </picture>
         {varias && (
-          <p className="rotulo absolute bottom-3 right-3 bg-preto/80 px-2.5 py-1.5 text-papel" aria-live="polite">
+          <p className="rotulo absolute bottom-3 right-3 bg-preto/80 px-2.5 py-1.5 text-papel" aria-live="polite" data-galeria-contador>
             Foto {atual + 1} de {fotos.length}
           </p>
         )}
@@ -62,6 +62,10 @@ export function Galeria({ fotos, nome }: { fotos: Foto[]; nome: string }) {
               onClick={() => setAtual(i)}
               aria-label={`Ver foto ${i + 1} de ${fotos.length}`}
               aria-current={i === atual ? "true" : undefined}
+              data-miniatura={i}
+              data-alt={m.alt}
+              data-largura={m.largura}
+              data-altura={m.altura}
               className="relative size-20 overflow-hidden opacity-60 transition-opacity duration-300 hover:opacity-100 aria-[current=true]:opacity-100 aria-[current=true]:outline aria-[current=true]:outline-1 aria-[current=true]:outline-offset-2 aria-[current=true]:outline-papel sm:size-24"
             >
               <picture>
