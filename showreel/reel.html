@@ -1,0 +1,528 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Showreel</title>
+<style>
+@font-face{font-family:ISans;src:url(fonts/InstrumentSans-600-normal.woff2) format('woff2');font-weight:400 700}
+@font-face{font-family:ISerif;font-style:italic;src:url(fonts/InstrumentSerif-400-italic.woff2) format('woff2')}
+html,body{margin:0;background:#0b0b0c}
+canvas{display:block;width:960px;height:540px}
+</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, M = 64, FPS = 60;
+const B = 60 / 128, BAR = 4 * B, DUR = 15;
+const C = { ink: '#0b0b0c', paper: '#edebe6', grey: '#8a8883', acc: '#ff4d1f' };
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const eo = x => { x = clamp(x); return x === 1 ? 1 : 1 - Math.pow(2, -10 * x); }; // expo-out, a assinatura
+const ei = x => { x = clamp(x); return x * x * x; };                              // só para "puxar" cortes
+const E = (t, s, d = 1) => eo((t - s) / d);
+const lerp = (a, b, k) => a + (b - a) * k;
+const hash = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+
+const main = document.getElementById('c');
+const mctx = main.getContext('2d');
+const off = document.createElement('canvas'); off.width = W; off.height = H;
+const ctx = off.getContext('2d');
+
+function setFont(c, px, kind, track) {
+  c.font = kind === 'serif' ? `italic 400 ${px}px ISerif` : kind === 'label' ? `500 ${px}px ISans` : `600 ${px}px ISans`;
+  c.letterSpacing = (track ?? (kind === 'label' ? 0.08 : kind === 'serif' ? -0.02 : -0.045)) * px + 'px';
+}
+function text(c, s, x, y, px, kind, color, align = 'left', track) {
+  setFont(c, px, kind, track); c.fillStyle = color; c.textAlign = align; c.textBaseline = 'alphabetic';
+  c.fillText(s, x, y);
+}
+function width(c, s, px, kind, track) { setFont(c, px, kind, track); return c.measureText(s).width; }
+function label(c, s, x, y, color = C.grey, align = 'left', px = 22) { text(c, s.toUpperCase(), x, y, px, 'label', color, align); }
+
+// linha revelada por máscara: k=0 escondida embaixo, k=1 no lugar, k>1 saindo por cima
+function maskLine(c, x, y, px, k, draw, w = W) {
+  c.save();
+  c.beginPath(); c.rect(x - 40, y - px * 1.0, w, px * 1.26); c.clip();
+  const off = k <= 1 ? (1 - k) * px * 1.25 : -(k - 1) * px * 1.25;
+  c.translate(0, off); draw(); c.restore();
+}
+// texto letra a letra
+function letters(c, s, x, y, px, kind, color, fn) {
+  setFont(c, px, kind);
+  const pos = [];
+  for (let i = 0; i < s.length; i++) pos.push(c.measureText(s.slice(0, i)).width);
+  for (let i = 0; i < s.length; i++) {
+    const o = fn(i, s[i]) || {};
+    c.save();
+    c.globalAlpha *= o.a ?? 1;
+    c.translate(x + pos[i] + (o.dx || 0), y + (o.dy || 0));
+    if (o.s) c.scale(o.s, o.s);
+    if (o.r) c.rotate(o.r);
+    setFont(c, px, kind); c.fillStyle = o.color || color; c.textAlign = 'left';
+    c.fillText(s[i], 0, 0); c.restore();
+  }
+}
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/—+*';
+function scramble(s, p, t) {
+  let o = '';
+  for (let i = 0; i < s.length; i++) {
+    const th = (i / s.length) * 0.75;
+    if (s[i] === ' ' || p > th + 0.25) o += s[i];
+    else if (p > th) o += GLYPHS[Math.floor(hash(i * 13 + Math.floor(t * 24)) * GLYPHS.length)];
+    else o += '';
+  }
+  return o;
+}
+// cubic-bezier(.16,1,.3,1)
+function bez(p1x, p1y, p2x, p2y) {
+  const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
+  const cy = 3 * p1y, by = 3 * (p2y - p1y) - cy, ay = 1 - cy - by;
+  const X = s => ((ax * s + bx) * s + cx) * s, Y = s => ((ay * s + by) * s + cy) * s;
+  const dX = s => (3 * ax * s + 2 * bx) * s + cx;
+  return u => { let s = u; for (let i = 0; i < 8; i++) { const d = dX(s); if (Math.abs(d) < 1e-6) break; s -= (X(s) - u) / d; } return Y(clamp(s)); };
+}
+const sig = bez(.16, 1, .3, 1);
+
+// ---------------- HUD ----------------
+const SCENES = ['Intro', 'Movimento', 'Timing', 'Tipografia', 'Profundidade', 'Easing', 'Ritmo', 'Contato'];
+function hud(c, t) {
+  const si = Math.min(7, Math.floor(t / BAR));
+  const a = E(t, 0.15, 0.9);
+  c.save();
+  c.globalCompositeOperation = 'difference';
+  c.globalAlpha = a;
+  const col = '#9a9893';
+  const name = `(0${si + 1}) — ${SCENES[si]}`;
+  label(c, scramble(name, clamp((t - si * BAR) / 0.35), t), M, M + 16, col);
+  label(c, scramble('Showreel ’26', clamp(t / 0.9), t), W - M, M + 16, col, 'right');
+  label(c, 'Claude — Motion design', M, H - M, col);
+  const sec = Math.floor(t), fr = Math.floor((t - sec) * FPS);
+  label(c, `${String(sec).padStart(2, '0')}:${String(fr).padStart(2, '0')} / 15:00`, W - M, H - M, col, 'right');
+  // barra de progresso fininha
+  c.fillStyle = col; c.fillRect(M, H - M + 16, (W - 2 * M) * (t / DUR), 1);
+  c.restore();
+}
+
+// ---------------- Cena 1: intro / contador ----------------
+function s1(c, t) {
+  c.fillStyle = C.ink; c.fillRect(0, 0, W, H);
+  const step = Math.min(15, Math.floor(t / (B / 4)));
+  const val = Math.round(step * 100 / 15);
+  // contador com dígitos rolando
+  const px = 340, cw = 200, y = H - 150;
+  const prevVal = Math.round(Math.max(0, step - 1) * 100 / 15);
+  const k = E(t, step * B / 4, 0.12);
+  const cur = String(val).padStart(3, '0'), prv = String(prevVal).padStart(3, '0');
+  for (let i = 0; i < 3; i++) {
+    const x = M - 10 + i * cw;
+    c.save(); c.beginPath(); c.rect(x - 20, y - px * 0.8, cw + 10, px * 0.86); c.clip();
+    if (cur[i] !== prv[i] && step > 0) {
+      text(c, prv[i], x, y - k * px * 0.85, px, 'sans', C.paper);
+      text(c, cur[i], x, y + (1 - k) * px * 0.85, px, 'sans', C.paper);
+    } else text(c, cur[i], x, y, px, 'sans', C.paper);
+    c.restore();
+  }
+  text(c, '%', M + 3 * cw + 10, y - px * 0.5, 120, 'serif', C.acc);
+  // linha de progresso no acento
+  const p = lerp(prevVal, val, k) / 100;
+  c.fillStyle = C.grey; c.fillRect(M, 520, W - 2 * M, 1);
+  c.fillStyle = C.acc; c.fillRect(M, 519, (W - 2 * M) * p, 3);
+  // título que embaralha
+  maskLine(c, M, 440, 150, E(t, 0.1, 0.9), () => {
+    text(c, 'Showreel', M - 6, 440, 150, 'sans', C.paper);
+    text(c, '2026', M + width(c, 'Showreel ', 150, 'sans'), 440, 150, 'serif', C.grey);
+  });
+  // lista à direita (coluna 9), item aceso conforme o contador
+  const items = ['Movimento', 'Timing', 'Tipografia', 'Profundidade', 'Easing', 'Ritmo'];
+  const x0 = M + (W - 2 * M) * 8 / 12;
+  items.forEach((s, i) => {
+    const yy = 620 + i * 52;
+    const a = E(t, 0.2 + i * 0.075, 0.9);
+    c.globalAlpha = a;
+    c.fillStyle = '#2a2a2a'; c.fillRect(x0, yy + 16, (W - M - x0) * a, 1);
+    const lit = p * items.length > i;
+    label(c, `0${i + 2}`, x0, yy, lit ? C.acc : '#4a4946', 'left', 20);
+    text(c, s, x0 + 70, yy + 4, 34, 'sans', lit ? C.paper : '#4a4946', 'left', -0.01);
+    c.globalAlpha = 1;
+  });
+}
+
+// ---------------- Cena 2: "Movimento é a minha língua." ----------------
+function s2(c, t) {
+  c.fillStyle = C.paper; c.fillRect(0, 0, W, H);
+  const px = 270, lines = [330, 575, 820];
+  const out = lt => lt > BAR - B * 0.75 ? 1 + E(lt, BAR - B * 0.75 + 0, 0.5) : null;
+  // linha 1, com onda nas letras no 2º tempo
+  const k1 = out(t + 0.0) ?? E(t, 0.0, 1.0);
+  maskLine(c, M, lines[0], px, k1, () => {
+    letters(c, 'Movimento', M - 12, lines[0], px, 'sans', C.ink, (i) => {
+      const a = t - B - i * 0.03;
+      return { dy: a > 0 ? -60 * Math.sin(Math.PI * clamp(a / 0.28)) * (1 - clamp(a / 0.28)) * 2 : 0 };
+    });
+  });
+  const k2 = out(t - 0.06) ?? E(t, 0.08, 1.0);
+  maskLine(c, M, lines[1], px, k2, () => text(c, 'é a minha', M - 8, lines[1], px, 'sans', C.ink));
+  const k3 = out(t - 0.12) ?? E(t, 0.16, 1.0);
+  const x3 = M + (W - 2 * M) * 3 / 12;
+  maskLine(c, x3, lines[2], px * 1.12, k3, () => {
+    // a palavra em serifa itálica troca no 3º tempo
+    const words = ['língua.', 'ofício.'];
+    const sw = t > 2 * B && t < 3 * B ? 1 : 0;
+    text(c, words[sw], x3, lines[2], px * 1.12, 'serif', C.acc);
+  });
+  // texto pequeno à direita
+  const x9 = M + (W - 2 * M) * 9 / 12;
+  ['15 segundos feitos só', 'com código: sem vídeo,', 'sem imagem, sem samples.'].forEach((s, i) => {
+    const k = out(t - 0.03 * i) ?? E(t, 0.35 + i * 0.07, 1.0);
+    maskLine(c, x9, 470 + i * 34, 26, k, () => text(c, s, x9, 470 + i * 34, 26, 'sans', '#55534f', 'left', -0.01), 500);
+  });
+  label(c, '↓ Role', x9, 590, C.grey);
+}
+
+// ---------------- Cena 3: timing & spacing (bola) ----------------
+const FLOOR = 880, R = 54, X0 = 300, X1 = W - 340;
+const HGT = [430, 330, 245, 175];
+function ball(lt) {
+  const k = clamp(Math.floor(lt / B), 0, 3), u = clamp((lt - k * B) / B);
+  const x = lerp(X0, X1, clamp(lt / BAR));
+  const y = FLOOR - R - HGT[k] * 4 * u * (1 - u);
+  const dc = Math.min(u, 1 - u) * B;
+  let sx = 1, sy = 1;
+  if (dc < 0.045) { const s = 1 - dc / 0.045; sx = 1 + 0.45 * s; sy = 1 - 0.38 * s; }
+  else { const v = Math.abs(1 - 2 * u); sy = 1 + 0.32 * v * v; sx = 1 / Math.sqrt(sy); }
+  return { x, y: FLOOR - R * sy - (y < FLOOR - R ? FLOOR - R - y : 0), sx, sy };
+}
+function s3(c, t) {
+  c.fillStyle = C.ink; c.fillRect(0, 0, W, H);
+  // título
+  maskLine(c, M, 300, 170, E(t, 0, 1), () => {
+    text(c, 'Timing', M - 6, 300, 170, 'sans', C.paper);
+    text(c, '& espaçamento', M + width(c, 'Timing ', 170, 'sans'), 300, 170, 'serif', C.grey);
+  });
+  // chão
+  c.fillStyle = '#3a3936'; c.fillRect(M, FLOOR, (W - 2 * M) * E(t, 0, 1.2), 1);
+  // casca de cebola + gráfico de espaçamento
+  for (let j = 12; j >= 1; j--) {
+    const tj = t - j / 30;
+    if (tj < 0) continue;
+    const b = ball(tj);
+    c.globalAlpha = (1 - j / 13) * 0.9;
+    c.strokeStyle = C.grey; c.lineWidth = 1.5;
+    c.beginPath(); c.ellipse(b.x, b.y, R * 0.55 * b.sx, R * 0.55 * b.sy, 0, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = C.grey; c.fillRect(b.x, FLOOR + 22, 1, 18);
+    c.globalAlpha = 1;
+  }
+  // ondas de impacto
+  for (let k = 0; k < 4; k++) {
+    const a = t - k * B;
+    if (a < 0 || a > 0.7) continue;
+    const bx = lerp(X0, X1, k * B / BAR);
+    const r = R + 240 * eo(a / 0.7);
+    c.globalAlpha = 1 - a / 0.7; c.strokeStyle = C.acc; c.lineWidth = 2;
+    c.beginPath(); c.ellipse(bx, FLOOR, r, r * 0.22, 0, 0, Math.PI * 2); c.stroke(); c.globalAlpha = 1;
+    label(c, `${String(k * 12).padStart(2, '0')}f`, bx, FLOOR + 76, C.grey, 'center', 18);
+  }
+  // a bola
+  const b = ball(t);
+  // sombra
+  const hgt = FLOOR - (b.y + R * b.sy);
+  c.fillStyle = 'rgba(255,255,255,0.06)';
+  c.beginPath(); c.ellipse(b.x, FLOOR + 4, R * (1.2 - hgt / 900), 7, 0, 0, Math.PI * 2); c.fill();
+  // match cut: a bola cresce e vira o fundo da próxima cena
+  const g = ei((t - (BAR - 0.28)) / 0.28);
+  const rr = lerp(R, Math.hypot(W, H), g);
+  c.fillStyle = C.acc;
+  c.beginPath(); c.ellipse(lerp(b.x, W / 2, g), lerp(b.y, H / 2, g), rr * lerp(b.sx, 1, g), rr * lerp(b.sy, 1, g), 0, 0, Math.PI * 2); c.fill();
+  label(c, 'Squash & stretch', W - M, 300 - 110, C.grey, 'right');
+  label(c, '4 batidas — 4 quiques', W - M, 300 - 76, '#4a4946', 'right');
+}
+
+// ---------------- Cena 4: tipografia cinética (uma palavra a cada meio tempo) ----------------
+function s4(c, t) {
+  const h = B / 2, k = Math.min(7, Math.floor(t / h)), lt = t - k * h;
+  const bgs = [C.acc, C.ink, C.paper, C.ink, C.paper, C.ink, C.paper, C.ink];
+  c.fillStyle = bgs[k]; c.fillRect(0, 0, W, H);
+  const p = eo(lt / 0.32);
+  const fg = bgs[k] === C.paper ? C.ink : bgs[k] === C.acc ? C.ink : C.paper;
+  if (k === 0) {
+    maskLine(c, M, H - 150, 560, p, () => text(c, 'Ritmo', M - 30, H - 150, 560, 'sans', C.ink));
+  } else if (k === 1) {
+    c.save(); c.translate(W * 0.58, H * 0.62); c.scale(lerp(1.35, 1, p), lerp(1.35, 1, p));
+    c.globalAlpha = p; text(c, 'peso', 0, 0, 640, 'serif', C.paper, 'center'); c.restore();
+    c.globalAlpha = 1;
+  } else if (k === 2) {
+    c.globalAlpha = p; text(c, 'Pausa.', W / 2, H / 2 + 14, 44, 'sans', C.ink, 'center', -0.01);
+    label(c, '(silêncio também é movimento)', W / 2, H / 2 + 70, C.grey, 'center', 18); c.globalAlpha = 1;
+  } else if (k === 3) {
+    const s = 'CURVA', px = 380;
+    const tw = width(c, s, px, 'sans');
+    letters(c, s, (W - tw) / 2, H / 2 + 140, px, 'sans', C.paper, (i) => {
+      const q = eo((lt - i * 0.022) / 0.3);
+      return { dy: (1 - q) * (i % 2 ? -700 : 700) + Math.sin(i / 4 * Math.PI) * -60 * q, r: (1 - q) * (i % 2 ? -0.4 : 0.4) };
+    });
+  } else if (k === 4) {
+    const px = 330, s = 'Contraste', tw = width(c, s, px, 'sans'), x = (W - tw) / 2 - lerp(120, 0, p), y = H / 2 + 115;
+    c.save(); c.beginPath(); c.rect(0, 0, W / 2, H); c.clip(); text(c, s, x, y, px, 'sans', C.ink); c.restore();
+    c.save(); c.beginPath(); c.rect(W / 2, 0, W / 2, H); c.clip();
+    c.fillStyle = C.ink; c.fillRect(W / 2, 0, W / 2, H); text(c, s, x, y, px, 'sans', C.paper); c.restore();
+    c.fillStyle = C.ink; c.fillRect(W / 2, (1 - p) * H, 1, H);
+  } else if (k === 5) {
+    const px = lerp(60, 1300, Math.pow(lt / h, 1.6));
+    c.save(); c.translate(W / 2, H / 2 + px * 0.35);
+    text(c, 'Escala', 0, 0, px, 'sans', C.paper, 'center'); c.restore();
+  } else if (k === 6) {
+    const px = 300, s = 'Detalhe', tw = width(c, s, px, 'serif'), x = (W - tw) / 2, y = H / 2 + 100;
+    maskLine(c, x, y, px, p, () => text(c, s, x, y, px, 'serif', C.ink));
+    // linhas de construção tipográfica
+    c.fillStyle = C.acc;
+    const gl = [y, y - px * 0.47, y - px * 0.7];
+    gl.forEach((g, i) => c.fillRect(M, g, (W - 2 * M) * eo((lt - i * 0.03) / 0.3), 1));
+    ['Linha de base', 'Altura-x', 'Ascendente'].forEach((s, i) => label(c, s, W - M, gl[i] - 10, C.acc, 'right', 16));
+  } else {
+    const px = 300, y = H / 2 + 100;
+    maskLine(c, M, y, px, p, () => {
+      text(c, 'Intenção', M - 10, y, px, 'sans', C.paper);
+      text(c, '.', M - 10 + width(c, 'Intenção', px, 'sans'), y, px, 'sans', C.acc);
+    });
+  }
+  // contador de palavras
+  c.save(); c.globalCompositeOperation = 'difference';
+  label(c, `${k + 1} / 8`, W - M, H / 2 - 300 + 400 * 0, '#9a9893', 'right'); c.restore();
+}
+
+// ---------------- Cena 5: profundidade (nuvem 3D) ----------------
+const NP = 2400;
+const P = { sph: [], tor: [], rnd: [], line: [], acc: [] };
+(function () {
+  const ga = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < NP; i++) {
+    const y = 1 - (i / (NP - 1)) * 2, r = Math.sqrt(1 - y * y), th = ga * i;
+    P.sph.push([Math.cos(th) * r, y, Math.sin(th) * r]);
+    const u = 2 * Math.PI * ((i * 0.6180339) % 1), v = 2 * Math.PI * (i / NP) * 40;
+    const RR = 1.05, rr = 0.42;
+    P.tor.push([(RR + rr * Math.cos(v)) * Math.cos(u), rr * Math.sin(v), (RR + rr * Math.cos(v)) * Math.sin(u)]);
+    const a = hash(i) * Math.PI * 2, b = Math.acos(2 * hash(i + 999) - 1), d = 4 + hash(i + 77) * 5;
+    P.rnd.push([Math.sin(b) * Math.cos(a) * d, Math.cos(b) * d, Math.sin(b) * Math.sin(a) * d]);
+    P.line.push([lerp(-3.2, 3.2, hash(i + 5)), 0, 0]);
+    P.acc.push(i % 29 === 0);
+  }
+})();
+function s5(c, t) {
+  c.fillStyle = C.ink; c.fillRect(0, 0, W, H);
+  const a = E(t, 0, 1.1), b = E(t, 2 * B, 0.9), l = ei((t - (BAR - B * 0.7)) / (B * 0.7));
+  const ry = t * 1.1 + 0.4, rx = 0.45 + Math.sin(t * 1.3) * 0.12;
+  const cy = Math.cos(ry), sy = Math.sin(ry), cx = Math.cos(rx), sx = Math.sin(rx);
+  const camZ = lerp(4.0, 3.0, eo(t / BAR)), f = 820;
+  const ox = W * 0.66, oy = H * 0.47;
+  const pts = [];
+  for (let i = 0; i < NP; i++) {
+    const s = P.sph[i], o = P.tor[i], r = P.rnd[i], q = P.line[i];
+    let x = lerp(r[0], lerp(s[0], o[0], b), a), y = lerp(r[1], lerp(s[1], o[1], b), a), z = lerp(r[2], lerp(s[2], o[2], b), a);
+    // onda que percorre a forma
+    const w = 1 + 0.06 * Math.sin(y * 6 - t * 6) * a;
+    x *= w; y *= w; z *= w;
+    let X = x * cy - z * sy, Z = x * sy + z * cy, Y = y * cx - Z * sx; Z = y * sx + Z * cx;
+    X = lerp(X, q[0], l); Y = lerp(Y, q[1], l); Z = lerp(Z, q[2], l);
+    const zz = camZ + Z;
+    if (zz < 0.3) continue;
+    pts.push([ox + X * f / zz * lerp(1, 1.4, l), oy + Y * f / zz, zz, P.acc[i]]);
+  }
+  pts.sort((p, q) => q[2] - p[2]);
+  for (const p of pts) {
+    const s = 3.4 / p[2] * 2.6, al = clamp(1.6 - (p[2] - camZ) * 0.9, 0.12, 1);
+    c.globalAlpha = al; c.fillStyle = p[3] ? C.acc : C.paper;
+    c.fillRect(p[0] - s / 2, p[1] - s / 2, s, s);
+  }
+  c.globalAlpha = 1;
+  // eixos finos
+  c.fillStyle = '#2a2a2a'; c.fillRect(ox - 600 * a, oy, 1200 * a, 1); c.fillRect(ox, oy - 420 * a, 1, 840 * a);
+  // texto
+  const k = t > BAR - B * 0.6 ? 1 + E(t, BAR - B * 0.6, 0.4) : E(t, 0.1, 1);
+  maskLine(c, M, 760, 150, k, () => text(c, 'Profundidade', M - 6, 760, 150, 'sans', C.paper), 1100);
+  const k2 = t > BAR - B * 0.6 ? 1 + E(t, BAR - B * 0.55, 0.4) : E(t, 0.18, 1);
+  maskLine(c, M, 880, 110, k2, () => text(c, 'em três eixos', M, 880, 110, 'serif', C.grey), 1100);
+  label(c, `${NP} pontos — ${b > 0.5 ? 'toro' : 'esfera'}`, M, 420, C.grey);
+  label(c, `rotY ${(ry % (Math.PI * 2)).toFixed(2)} rad`, M, 454, '#4a4946');
+}
+
+// ---------------- Cena 6: easing ----------------
+function s6(c, t) {
+  c.fillStyle = C.ink; c.fillRect(0, 0, W, H);
+  // mosaico entrando em onda diagonal
+  const TS = 120;
+  const tiles = (start, color, lt) => {
+    for (let i = 0; i < 16; i++) for (let j = 0; j < 9; j++) {
+      const d = (i + j) / 24 * 0.32, p = eo((lt - start - d) / 0.32), s = TS * p;
+      if (s <= 0) continue;
+      c.fillStyle = color; c.fillRect(i * TS + (TS - s) / 2, j * TS + (TS - s) / 2, s + 0.5, s + 0.5);
+    }
+  };
+  tiles(0, C.paper, t);
+  const ox = M + 80, oy = 900, S = 600;
+  const P_ = (u, v) => [ox + u * S, oy - v * S];
+  const ga = E(t, 0.25, 1);
+  // grade
+  c.strokeStyle = '#d6d3cc'; c.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    c.beginPath(); c.moveTo(...P_(i / 4, 0)); c.lineTo(...P_(i / 4, ga)); c.stroke();
+    c.beginPath(); c.moveTo(...P_(0, i / 4)); c.lineTo(...P_(ga, i / 4)); c.stroke();
+  }
+  c.strokeStyle = C.ink; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(...P_(0, 0)); c.lineTo(...P_(ga, 0)); c.stroke();
+  c.beginPath(); c.moveTo(...P_(0, 0)); c.lineTo(...P_(0, ga)); c.stroke();
+  // alças da curva
+  const hp = E(t, 0.45, 0.9);
+  c.globalAlpha = hp; c.strokeStyle = C.grey; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(...P_(0, 0)); c.lineTo(...P_(.16, 1)); c.stroke();
+  c.beginPath(); c.moveTo(...P_(1, 1)); c.lineTo(...P_(.3, 1)); c.stroke();
+  c.fillStyle = C.ink;
+  for (const [u, v] of [[.16, 1], [.3, 1]]) { const [x, y] = P_(u, v); c.fillRect(x - 7, y - 7, 14, 14); }
+  c.globalAlpha = 1;
+  // curva desenhada
+  const cp = E(t, 0.4, 1.0);
+  c.strokeStyle = C.acc; c.lineWidth = 6; c.lineCap = 'round';
+  c.beginPath();
+  for (let i = 0; i <= 120 * cp; i++) { const u = i / 120; const [x, y] = P_(u, sig(u)); i ? c.lineTo(x, y) : c.moveTo(x, y); }
+  c.stroke();
+  label(c, 'cubic-bezier(.16, 1, .3, 1)', ox, oy + 56, C.grey);
+  label(c, 'Tempo →', ox + S, oy + 56, '#b5b2ab', 'right');
+  // títulos
+  const xr = M + (W - 2 * M) * 6 / 12 + 40;
+  maskLine(c, xr, 360, 210, E(t, 0.3, 1), () => text(c, 'Easing', xr - 8, 360, 210, 'sans', C.ink), 900);
+  maskLine(c, xr, 520, 150, E(t, 0.38, 1), () => text(c, 'é assinatura.', xr, 520, 150, 'serif', C.ink), 900);
+  // pistas: linear × expo-out, um ciclo por tempo
+  const tx0 = xr, tx1 = W - M - 30;
+  const lp = t - B, cyc = lp >= 0 && lp < 3 * B ? (lp % B) / B : (lp >= 3 * B ? 1 : 0);
+  [['Linear', u => u, C.grey], ['Expo-out', u => sig(u), C.acc]].forEach(([n, fn, col], i) => {
+    const y = 700 + i * 110, a = E(t, 0.5 + i * 0.07, 0.9);
+    c.globalAlpha = a;
+    c.fillStyle = '#cfccc5'; c.fillRect(tx0, y, (tx1 - tx0) * a, 1);
+    label(c, n, tx0, y - 30, C.grey, 'left', 18);
+    const x = lerp(tx0 + 16, tx1 - 16, fn(cyc));
+    c.fillStyle = col; c.beginPath(); c.arc(x, y, 16, 0, Math.PI * 2); c.fill();
+    c.globalAlpha = 1;
+  });
+  // ponto andando na curva, junto com a pista expo-out
+  if (lp >= 0) { const [x, y] = P_(cyc, sig(cyc)); c.fillStyle = C.ink; c.beginPath(); c.arc(x, y, 12, 0, Math.PI * 2); c.fill(); }
+  // saída: mosaico escuro
+  tiles(BAR - B * 0.85, C.ink, t);
+}
+
+// ---------------- Cena 7: marquee em aceleração ----------------
+function s7(c, t) {
+  c.fillStyle = C.ink; c.fillRect(0, 0, W, H);
+  const px = 190, words = ['Movimento', 'Ritmo', 'Forma', 'Código', 'Tempo'];
+  const dist = 320 * t + 3200 * Math.pow(t, 3) / (3 * BAR * BAR); // velocidade cresce com o riser
+  const col = clamp((t - 2 * B) / (2 * B)), sq = 1 - Math.pow(col, 2.2);
+  c.save();
+  c.translate(W / 2, H / 2); c.rotate(-0.05 * eo(t / BAR)); c.scale(1 + 0.12 * t / BAR, Math.max(0.002, sq)); c.translate(-W / 2, -H / 2);
+  for (let r = 0; r < 6; r++) {
+    const y = H / 2 + (r - 2.5) * 205 + 70;
+    const serif = r % 2 === 1, dir = r % 2 ? 1 : -1;
+    const k = E(t, r * 0.06, 0.9);
+    const seq = [];
+    for (let j = 0; j < words.length; j++) seq.push(words[(j + r) % words.length]);
+    const seg = seq.map(w => [w, width(c, w + ' — ', px, serif ? 'serif' : 'sans')]);
+    const segW = seg.reduce((s, x) => s + x[1], 0);
+    let x = ((dir * dist * (1 + r * 0.08)) % segW + segW) % segW - segW;
+    maskLine(c, -100, y, px, k, () => {
+      for (let rep = 0; rep < 4; rep++) for (const [w, ww] of seg) {
+        if (x < W + 50 && x + ww > -50) {
+          const color = w === 'Código' && r === 2 ? C.acc : serif ? C.grey : C.paper;
+          text(c, w + ' — ', x, y, px, serif ? 'serif' : 'sans', color);
+        }
+        x += ww;
+      }
+    }, W + 400);
+  }
+  c.restore();
+  // a linha do colapso
+  if (col > 0.6) { c.fillStyle = C.acc; const hh = 2 + 10 * clamp((col - 0.6) / 0.4); c.fillRect(0, H / 2 - hh / 2, W, hh); }
+}
+
+// ---------------- Cena 8: assinatura final ----------------
+function s8(c, t) {
+  c.fillStyle = C.ink; c.fillRect(0, 0, W, H);
+  // wordmark ocupando a largura
+  const w100 = width(c, 'Claude.', 100, 'sans');
+  const px = (W - 2 * M + 30) / w100 * 100, y = H - 130;
+  letters(c, 'Claude', M - px * 0.06, y, px, 'sans', C.paper, (i) => {
+    const q = E(t, 0.12 + i * 0.06, 1.1);
+    return { dy: (1 - q) * px * 0.9 };
+  });
+  // o ponto no acento pulsa no último tick
+  const dx = M - px * 0.06 + width(c, 'Claude', px, 'sans');
+  const pulse = 1 + 0.25 * Math.exp(-Math.max(0, t - (DUR - B / 2 - 7 * BAR)) * 8) * (t > DUR - B / 2 - 7 * BAR ? 1 : 0);
+  const dq = E(t, 0.5, 1);
+  c.save(); c.translate(dx + px * 0.13, y - px * 0.08); c.scale(dq * pulse, dq * pulse);
+  c.fillStyle = C.acc; c.beginPath(); c.arc(0, 0, px * 0.085, 0, Math.PI * 2); c.fill(); c.restore();
+  // máscara inferior das letras
+  c.fillStyle = C.ink; c.fillRect(0, y + px * 0.04, W, H);
+  c.fillStyle = '#2a2a2a'; c.fillRect(M, y - px * 0.82, (W - 2 * M) * E(t, 0.05, 1.2), 1);
+  // linha de apoio
+  maskLine(c, M, 250, 96, E(t, 0.3, 1), () => {
+    text(c, 'Motion', M - 4, 250, 96, 'sans', C.paper);
+    text(c, 'designer', M + width(c, 'Motion ', 96, 'sans'), 250, 96, 'serif', C.grey);
+  }, 900);
+  const x9 = M + (W - 2 * M) * 8 / 12;
+  [['Showreel', '2026'], ['Feito em', 'código puro'], ['Trilha', 'sintetizada do zero'], ['Tempo', '15 s — 128 BPM']].forEach(([a, b], i) => {
+    const yy = 150 + i * 56, k = E(t, 0.4 + i * 0.075, 1);
+    c.globalAlpha = k;
+    c.fillStyle = '#2a2a2a'; c.fillRect(x9, yy + 20, (W - M - x9) * k, 1);
+    label(c, a, x9, yy, C.grey, 'left', 20);
+    text(c, b, W - M, yy + 2, 30, 'sans', C.paper, 'right', -0.01);
+    c.globalAlpha = 1;
+  });
+  label(c, 'Disponível para projetos ↗', M, 330, C.acc, 'left', 20);
+  // cortina no acento subindo no impacto
+  const cu = E(t, 0.0, 0.7);
+  c.fillStyle = C.acc; c.fillRect(0, -cu * H * 1.02, W, H);
+}
+
+// ---------------- composição ----------------
+const SC = [s1, s2, s3, s4, s5, s6, s7, s8];
+let grain = [];
+(function () {
+  for (let g = 0; g < 6; g++) {
+    const cv = document.createElement('canvas'); cv.width = 480; cv.height = 270;
+    const x = cv.getContext('2d'), im = x.createImageData(480, 270);
+    for (let i = 0; i < im.data.length; i += 4) { const v = Math.random() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
+    x.putImageData(im, 0, 0); grain.push(cv);
+  }
+})();
+function frame(c, t) {
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  const si = Math.min(7, Math.floor(t / BAR)), lt = t - si * BAR;
+  SC[si](c, lt);
+  // cortina da intro subindo na entrada do drop
+  if (si === 1 && lt < 0.75) {
+    const k = eo(lt / 0.7);
+    c.save(); c.translate(0, -k * H); c.beginPath(); c.rect(0, 0, W, H); c.clip();
+    s1(c, BAR - 0.0001); c.fillStyle = C.acc; c.fillRect(0, H - 4, W, 4); c.restore();
+  }
+  hud(c, t);
+}
+function renderAt(t) {
+  // motion blur: média de sub-quadros dentro de um obturador de 180°
+  const N = 4, shutter = 0.5 / FPS;
+  mctx.globalCompositeOperation = 'source-over';
+  for (let i = 0; i < N; i++) {
+    frame(ctx, Math.min(DUR - 1e-4, t + shutter * i / N));
+    mctx.globalAlpha = 1 / (i + 1);
+    mctx.drawImage(off, 0, 0);
+  }
+  mctx.globalAlpha = 0.045;
+  mctx.globalCompositeOperation = 'overlay';
+  mctx.drawImage(grain[Math.floor(t * FPS) % grain.length], 0, 0, W, H);
+  mctx.globalCompositeOperation = 'source-over';
+  // vinheta e fade final
+  const end = clamp((t - (DUR - 0.25)) / 0.25);
+  if (end > 0) { mctx.globalAlpha = end; mctx.fillStyle = C.ink; mctx.fillRect(0, 0, W, H); }
+  mctx.globalAlpha = 1;
+}
+window.ready = Promise.all([document.fonts.load('600 100px ISans'), document.fonts.load('500 100px ISans'), document.fonts.load('italic 400 100px ISerif')]);
+window.renderAt = renderAt;
+window.grab = (t, q) => { renderAt(t); return main.toDataURL('image/jpeg', q ?? 0.95); };
+// pré-visualização em tempo real ao abrir no navegador
+if (!navigator.webdriver) window.ready.then(() => {
+  const st = performance.now();
+  const loop = () => { renderAt(((performance.now() - st) / 1000) % DUR); requestAnimationFrame(loop); }; loop();
+});
+</script></body></html>
