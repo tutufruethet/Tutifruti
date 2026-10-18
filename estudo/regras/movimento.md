@@ -17,4 +17,4 @@ tags: [regra, motion]
 9. **Texto que embaralha:** letras aleatórias que se resolvem na palavra certa, para UI em fonte mono (Active Theory).
 10. Sempre respeitar `prefers-reduced-motion`.
 
-Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Zensu Visuals](../referencias/zensu-visuals.md) · [Performance](performance.md)
