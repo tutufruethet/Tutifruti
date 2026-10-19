@@ -16,5 +16,7 @@ tags: [regra, motion]
 8. Gravar a **direção do scroll** numa variável CSS para o layout reagir (menu some ao descer, aparece ao subir).
 9. **Texto que embaralha:** letras aleatórias que se resolvem na palavra certa, para UI em fonte mono (Active Theory).
 10. Sempre respeitar `prefers-reduced-motion`.
+11. **Vídeo que anda com o scroll (sequência de quadros):** seção alta com um canvas sticky; o scroll escolhe o quadro, o canvas persegue com lerp e mistura o quadro seguinte pela fração, então nunca "pula". Carregue do grosso ao fino (de 16 em 16, depois 8, 4, 2, 1) e desenhe o quadro mais próximo que já chegou. Um conjunto em pé para o celular ([Não Codei](../referencias/nao-codei.md), [Vilubre ton de](../vilubre.md)).
+12. **Odômetro para números:** fita de dígitos 0–9 duas vezes, rolando até `10 + dígito` com stagger por casa.
 
-Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md) · [Não Codei](../referencias/nao-codei.md)

@@ -12,6 +12,7 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 > A rede do ambiente bloqueou o acesso direto aos 5 sites. As notas vêm de case studies, do repositório aberto do Bruno Simon e de análises tipográficas (Awwwards, Fonts In Use, Refero). Pontos marcados *(fonte antiga/terceiros)* podem estar desatualizados.
 
 ## Regras (use antes de desenhar)
+- [Processo](regras/processo.md): referências em 3 sites, copy com a skill, conceito, só construir quando pedirem.
 - [Tipografia](regras/tipografia.md): famílias, escala, contraste serifa × grotesca.
 - [Cor e paleta](regras/cor-e-paleta.md): 3 neutros + 1 acento.
 - [Grid e espaço](regras/grid-e-espaco.md): 12 colunas, assimetria, metadados nos cantos.
@@ -31,7 +32,11 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Instrument](referencias/instrument.md): sistema de design, escala fixa, conteúdo primeiro.
 - [Resn](referencias/resn.md): conceito antes do código, duas direções, tipografia própria.
 - [Active Theory](referencias/active-theory.md): mundos 3D, navegação por público, motor próprio.
+- [Dribbble: perfume](referencias/dribbble-perfume.md): frasco no pedestal, serifa clássica, paleta do líquido.
+- [Motionsites](referencias/motionsites.md): objeto herói na frente do texto gigante.
+- [Não Codei](referencias/nao-codei.md): 36 efeitos em JS puro (sequência de quadros, odômetro, embaralhar).
 
 ## Prática
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
+- [Vilubre ton de](vilubre.md): perfume com palco 3D e nome gravado no vidro (rascunho).

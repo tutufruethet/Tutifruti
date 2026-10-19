@@ -19,5 +19,7 @@ tags: [regra, 3d, webgl]
 7. **Campos infinitos:** muitas instâncias simples que se repetem com `mod` em volta da câmera.
 8. **Stack:** Three.js (WebGPU + TSL com fallback WebGL), Rapier para física, Blender para modelar, KTX2/Draco para comprimir.
 9. **Prontos para usar:** React Bits (MIT) para backgrounds animados.
+10. **Sem vídeo de IA? Renderize o seu.** A cena 3D vira quadros offline: cada quadro é a média de 16 a 24 renders com o sol tremendo um pouco (sombra suave), uma luz de céu em direção aleatória com sombra (oclusão de céu) e a câmera deslocada menos de um pixel (antisserrilhado). Fica com cara de render de arquitetura, roda em qualquer celular e não precisa de WebGL ([Vilubre ton de](../vilubre.md)).
+11. **Texto gigante em anel 3D:** um cilindro aberto com o título por dentro, em volta do objeto. A câmera gira e o texto fica sempre atrás, refratado pelo vidro ([Motionsites](../referencias/motionsites.md)).
 
-Related: [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Mundos e navegação](mundos-e-navegacao.md) · [Lusion](../referencias/lusion.md) · [Bruno Simon](../referencias/bruno-simon.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md) · [Motionsites](../referencias/motionsites.md)
