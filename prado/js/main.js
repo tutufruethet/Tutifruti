@@ -23,6 +23,7 @@ const setAccent = id => root.style.setProperty('--acc', SEASONS[id].acc);
 /* ---------- frames: load coarse to fine, draw with cross-fade ---------- */
 const M = await fetch('frames/manifest.json').then(r => r.json()).catch(() => null);
 // Desktop gets the AI-upscaled 1920 px set (Real-ESRGAN); phones keep the light 960 px one.
+const LIGHT = M && { dir: M.dir, w: M.w, h: M.h };
 if (M?.hd && innerWidth >= 1024) Object.assign(M, M.hd);
 const frames = [];
 let loaded = 0;
@@ -37,8 +38,10 @@ function loadFrames() {
       active++;
       img.decoding = 'async';
       img.onload = () => { frames[i] = img; loaded++; active--; listeners.forEach(f => f(i)); pump(); };
-      img.onerror = () => { active--; pump(); };
-      img.src = `${M.dir}${String(i).padStart(4, '0')}.${M.ext}`;
+      const file = `${String(i).padStart(4, '0')}.${M.ext}`;
+      // A missing HD frame falls back to the light set, so a partial copy still plays.
+      img.onerror = () => { if (M.dir !== LIGHT.dir && !img.dataset.light) { img.dataset.light = 1; img.src = LIGHT.dir + file; } else { active--; pump(); } };
+      img.src = M.dir + file;
     }
   };
   pump();
@@ -51,11 +54,12 @@ const kOf = (src, act) => { const [a, b] = actRange(act); let best = a; for (let
 const edgeCache = new Map(), probe = document.createElement('canvas');
 probe.width = 16; probe.height = 1;
 const pg = probe.getContext('2d', { willReadFrequently: true });
-const CUT = M ? Math.round(M.h * 0.0905) : 0; // the source frames darken toward their top edge; tall screens skip that strip
+const CUT = 0.0905; // share of frame height: the source frames darken toward their top edge, tall screens skip that strip
 function edge(img, i, bottom) {
   const key = i * 2 + (bottom ? 1 : 0);
   if (edgeCache.has(key)) return edgeCache.get(key);
-  pg.drawImage(img, 0, bottom ? M.h - 24 : CUT, M.w, 24, 0, 0, 16, 1);
+  const iw = img.naturalWidth, ih = img.naturalHeight, strip = Math.round(ih * 0.034);
+  pg.drawImage(img, 0, bottom ? ih - strip : Math.round(ih * CUT), iw, strip, 0, 0, 16, 1);
   const d = pg.getImageData(0, 0, 16, 1).data;
   let r = 0, gg = 0, b = 0;
   for (let k = 0; k < 64; k += 4) { r += d[k]; gg += d[k + 1]; b += d[k + 2]; }
@@ -80,7 +84,7 @@ function painter(canvas, { fit = 'stage' } = {}) {
     if (fit === 'stage' && w / h < 1.05) {
       // Portrait: frame in the upper part, sky and hill extended from its edge rows.
       const dh = h * 0.6, dw = dh * iw / ih;
-      return { dx: w / 2 - 0.53 * dw, dy: h * 0.11, dw, dh: dh * (ih - CUT) / ih, extend: true };
+      return { dx: w / 2 - 0.53 * dw, dy: h * 0.11, dw, dh: dh * (1 - CUT), extend: true };
     }
     if (fit === 'stage') {
       // Wide screens: zoom a little and crop from the right so the chair sits clear of the copy column.
@@ -97,7 +101,8 @@ function painter(canvas, { fit = 'stage' } = {}) {
       const top = edge(img, i, false), bot = edge(img, i, true), fade = p.dh * 0.3, y1 = p.dy + p.dh;
       g.fillStyle = top; g.fillRect(0, 0, w, p.dy + 1);
       g.fillStyle = bot; g.fillRect(0, y1 - 1, w, h - y1 + 1);
-      g.drawImage(img, 0, CUT, M.w, M.h - CUT, p.dx, p.dy, p.dw, p.dh);
+      const sy = Math.round(img.naturalHeight * CUT);
+      g.drawImage(img, 0, sy, img.naturalWidth, img.naturalHeight - sy, p.dx, p.dy, p.dw, p.dh);
       let gr = g.createLinearGradient(0, p.dy, 0, p.dy + fade);
       // Fade to the same colour at zero alpha: fading to transparent black leaves a grey band.
       gr.addColorStop(0, top); gr.addColorStop(1, top.replace('rgb', 'rgba').replace(')', ',0)'));
