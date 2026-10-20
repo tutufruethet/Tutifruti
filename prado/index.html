@@ -11,7 +11,8 @@
 <meta property="og:image" content="media/og.jpg">
 <meta property="og:type" content="website">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preload" href="frames/0000.webp" as="image">
+<link rel="preload" href="frames/0000.webp" as="image" media="(max-width: 1023px)">
+<link rel="preload" href="frames/hd/0000.webp" as="image" media="(min-width: 1024px)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Geist:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -106,14 +107,14 @@ em,.it{font-family:var(--serif);font-style:italic;font-weight:300}
 .season__dot{width:2.6rem;height:2.6rem;border-radius:12px;background:var(--acc);transition:background 1s var(--ease)}
 .season b{display:block;font:400 1.35rem/1.1 var(--serif);font-style:italic}
 .season small{font-size:var(--t-xs);color:var(--mute)}
-.index{position:absolute;right:var(--pad);bottom:clamp(1.25rem,4vh,2.5rem);list-style:none;display:grid;gap:.35rem;text-align:right}
-.index li{display:flex;justify-content:flex-end;align-items:center;gap:.7rem;font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;color:rgba(29,27,22,.42);transition:color .6s var(--ease)}
+.index{position:absolute;right:var(--pad);bottom:clamp(1.25rem,4vh,2.5rem);list-style:none;display:grid;gap:.35rem;text-align:right;padding:.9rem 1rem;border-radius:16px;background:rgba(243,239,230,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.index li{display:flex;justify-content:flex-end;align-items:center;gap:.7rem;font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;color:var(--mute);transition:color .6s var(--ease)}
 .index li::after{content:"";width:1.6rem;height:1px;background:currentColor;transform-origin:right;transform:scaleX(.4);transition:transform .8s var(--ease)}
 .index li.on{color:var(--ink)}
 .index li.on::after{transform:none;background:var(--acc)}
-.cue{position:absolute;left:50%;bottom:clamp(1.25rem,4vh,2.5rem);transform:translateX(-50%);font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;transition:opacity .6s var(--ease)}
-.cue::after{content:"";display:block;width:1px;height:2.4rem;margin:.6rem auto 0;background:var(--ink);transform-origin:top;animation:cue 2.4s var(--ease) infinite}
-@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.cue{position:absolute;left:50%;bottom:clamp(1.25rem,4vh,2.5rem);transform:translateX(-50%);padding:.55rem 1rem;border-radius:999px;background:rgba(243,239,230,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;transition:opacity .6s var(--ease)}
+.cue span{display:inline-block;margin-left:.35rem;animation:cue 2.4s var(--ease) infinite}
+@keyframes cue{0%,100%{transform:none}50%{transform:translateY(3px)}}
 
 @media (max-width:860px){
   .act{top:auto;bottom:7.5rem;width:auto;right:var(--pad)}
@@ -307,7 +308,7 @@ em,.it{font-family:var(--serif);font-style:italic;font-weight:300}
 
     <div class="season" aria-live="polite"><span class="season__dot" aria-hidden="true"></span><span><small>Sua Prado</small><b class="season__name">Musgo</b><small>almofada de linho</small></span></div>
     <ol class="index" aria-hidden="true"><li data-i="musgo">01 Musgo</li><li data-i="agua">02 Água</li><li data-i="papoula">03 Papoula</li><li data-i="lavanda">04 Lavanda</li></ol>
-    <span class="cue" aria-hidden="true">Role</span>
+    <span class="cue" aria-hidden="true">Role<span>↓</span></span>
   </div>
 </section>
 
@@ -341,6 +342,7 @@ em,.it{font-family:var(--serif);font-style:italic;font-weight:300}
   <div class="trama__pin">
     <div class="trama__media" data-cursor>
       <video muted playsinline loop preload="none" poster="media/trama-poster.webp" aria-label="Cadeira de trama azul vista de perto, em movimento lento">
+        <source src="media/trama-sm.mp4" type="video/mp4" media="(max-width: 860px)">
         <source src="media/trama.mp4" type="video/mp4">
       </video>
     </div>

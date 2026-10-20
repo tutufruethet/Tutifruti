@@ -24,6 +24,8 @@ Site de uma marca fictícia de móveis em [prado/index.html](../prado/index.html
 - **LCP depende de quando o hero fica visível:** se o texto do hero só aparece depois do JS, o LCP sobe para 6 s no celular. Deixar o hero pintado desde o início, embaixo da cortina da intro, derrubou para 2 s (Lighthouse 99).
 - **Fonte não bloqueia:** Google Fonts com `preload` e `onload` em vez de `<link rel=stylesheet>`. E a intro não espera `document.fonts.ready`.
 - **Palavras apagadas do efeito de preencher precisam de 3:1** (texto grande) já no estado inicial, porque o Lighthouse mede antes da rolagem.
+- **Correção do usuário: "melhore a qualidade".** Quadros de 960 px ficam moles numa tela de 1920 px (esticados mais de 2x). A solução foi ampliar com Real-ESRGAN (`realesr-general-x4v3`, PyTorch na CPU, cerca de 11 s por quadro) e servir 1920 px só no desktop; o celular continua com 960 px. Também ajudam `imageSmoothingQuality = 'high'` (reaplicado a cada resize do canvas) e DPR até 2.
+- **Internet lenta não borra, faz pular:** com carga do grosso ao fino, quem ainda não baixou vê o quadro vizinho. A nitidez de cada quadro só depende da resolução.
 - **Fontes que travaram:** o Motionsites não mostra os prompts sem login. Unsplash, Pexels, Pixabay e Wikimedia bloqueiam o navegador automático. O Openverse responde, mas com limite.
 
 Related: [Processo](regras/processo.md) · [Movimento](regras/movimento.md) · [Checklist de entrega](checklist-de-entrega.md) · [Vilubre ton de](vilubre.md)

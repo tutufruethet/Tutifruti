@@ -22,6 +22,8 @@ const setAccent = id => root.style.setProperty('--acc', SEASONS[id].acc);
 
 /* ---------- frames: load coarse to fine, draw with cross-fade ---------- */
 const M = await fetch('frames/manifest.json').then(r => r.json()).catch(() => null);
+// Desktop gets the AI-upscaled 1920 px set (Real-ESRGAN); phones keep the light 960 px one.
+if (M?.hd && innerWidth >= 1024) Object.assign(M, M.hd);
 const frames = [];
 let loaded = 0;
 const listeners = new Set();
@@ -49,7 +51,7 @@ const kOf = (src, act) => { const [a, b] = actRange(act); let best = a; for (let
 const edgeCache = new Map(), probe = document.createElement('canvas');
 probe.width = 16; probe.height = 1;
 const pg = probe.getContext('2d', { willReadFrequently: true });
-const CUT = 64; // the source frames darken toward their top edge; tall screens skip that strip
+const CUT = M ? Math.round(M.h * 0.0905) : 0; // the source frames darken toward their top edge; tall screens skip that strip
 function edge(img, i, bottom) {
   const key = i * 2 + (bottom ? 1 : 0);
   if (edgeCache.has(key)) return edgeCache.get(key);
@@ -66,9 +68,10 @@ function painter(canvas, { fit = 'stage' } = {}) {
   const g = canvas.getContext('2d', { alpha: false });
   let w = 0, h = 0;
   const size = () => {
-    const dpr = Math.min(devicePixelRatio, 1.5);
+    const dpr = Math.min(devicePixelRatio, 2);
     w = canvas.width = Math.round(canvas.clientWidth * dpr);
     h = canvas.height = Math.round(canvas.clientHeight * dpr);
+    g.imageSmoothingQuality = 'high'; // resizing the canvas resets this
   };
   size();
   addEventListener('resize', size);
