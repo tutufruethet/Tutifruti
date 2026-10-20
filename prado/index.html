@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prado — Uma cadeira. Quatro estações.</title>
+<meta name="description" content="Cadeira de madeira com almofada de linho trocável em quatro cores: Musgo, Água, Papoula e Lavanda. A cadeira fica; a cor muda quando você mudar.">
+<meta name="theme-color" content="#f3efe6">
+<meta property="og:title" content="Prado — Uma cadeira. Quatro estações.">
+<meta property="og:description" content="A cadeira fica. A cor muda.">
+<meta property="og:image" content="media/og.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="frames/0000.webp" as="image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Geist:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Geist:wght@400;500&display=swap"></noscript>
+<style>
+/* A scroll-scrubbed meadow carries the opening acts; the page repaints itself in each season's accent.
+   Below it, an editorial 12-column grid on warm paper. */
+:root{
+  --ink:#1d1b16; --paper:#f3efe6; --mute:#6e6a60; --line:rgba(29,27,22,.14);
+  --acc:#61702c;
+  --serif:"Fraunces",ui-serif,Georgia,serif;
+  --sans:"Geist",ui-sans-serif,system-ui,sans-serif;
+  --pad:clamp(1rem,3vw,2.5rem); --gap:1.25rem;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --t-xs:.75rem; --t-s:.875rem; --t-m:1.05rem; --t-l:1.26rem;
+  --t-xl:clamp(2rem,4.2vw,4rem);
+  --t-d:clamp(3rem,7.4vw,7.6rem);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+body{font:400 var(--t-m)/1.55 var(--sans);overflow-x:clip;background:var(--paper)}
+body.lock{overflow:hidden}
+a,button{color:inherit;font:inherit;text-decoration:none;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+img,video{display:block;max-width:100%}
+::selection{background:var(--acc);color:#fff}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);padding-inline:var(--pad)}
+.label{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;color:var(--mute)}
+em,.it{font-family:var(--serif);font-style:italic;font-weight:300}
+.acc{color:var(--acc);transition:color 1s var(--ease)}
+.u{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s var(--ease)}
+.u:hover{background-size:100% 1px}
+
+.btn{display:inline-flex;align-items:center;gap:.7rem;padding:1.05rem 1.6rem;border-radius:999px;background:var(--acc);color:#fff;font-weight:500;font-size:var(--t-s);letter-spacing:.01em;transition:background 1s var(--ease),transform .6s var(--ease)}
+.btn:hover{background:var(--ink)}
+.btn .arr{transition:transform .6s var(--ease)}
+.btn:hover .arr{transform:translateX(4px)}
+.btn--line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.btn--line:hover{background:var(--ink);color:var(--paper)}
+.micro{font-size:var(--t-xs);color:var(--mute);letter-spacing:.03em;margin-top:.9rem}
+
+/* reveal by line */
+.line{display:block;overflow:hidden;padding-bottom:.14em;margin-bottom:-.14em}
+.line>span{display:block;transform:translateY(110%);transition:transform 1.1s var(--ease)}
+.in .line>span{transform:none}
+.in .line:nth-child(2)>span{transition-delay:.08s}
+.in .line:nth-child(3)>span{transition-delay:.16s}
+[data-fade]{opacity:0;transform:translateY(16px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.in [data-fade],[data-fade].in{opacity:1;transform:none}
+.in [data-fade]:nth-of-type(2){transition-delay:.12s}
+
+/* intro */
+.intro{position:fixed;inset:0;z-index:100;background:var(--paper);display:grid;place-items:center;transition:clip-path 1.2s var(--ease)}
+.intro.done{clip-path:inset(0 0 100% 0)}
+.intro__word{font:300 clamp(4rem,16vw,14rem)/.9 var(--serif);font-style:italic;letter-spacing:-.04em;display:flex;overflow:hidden;padding-bottom:.1em}
+.intro__word span{display:block;transform:translateY(105%);animation:rise 1s var(--ease) forwards}
+.intro__word span:nth-child(2){animation-delay:.05s}.intro__word span:nth-child(3){animation-delay:.1s}.intro__word span:nth-child(4){animation-delay:.15s}.intro__word span:nth-child(5){animation-delay:.2s}
+@keyframes rise{to{transform:none}}
+.intro__bar{position:absolute;left:var(--pad);right:var(--pad);bottom:var(--pad);display:flex;justify-content:space-between;align-items:flex-end}
+.intro__bar i{position:absolute;left:0;bottom:-.6rem;height:1px;width:calc(var(--p,0) * 100%);background:var(--ink);transition:width .4s var(--ease)}
+
+/* nav */
+.nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem var(--pad);transition:transform .8s var(--ease)}
+.nav.hide{transform:translateY(-110%)}
+.nav__brand{font:400 1.6rem/1 var(--serif);font-style:italic;letter-spacing:-.02em}
+.nav__links{display:flex;gap:2rem;font-size:var(--t-s)}
+.nav__cta{padding:.7rem 1.1rem;font-size:var(--t-xs)}
+.nav.dark{color:var(--paper)}
+.nav.dark .nav__cta{background:var(--paper);color:var(--ink)}
+.nav{transition:transform .8s var(--ease),color .6s var(--ease)}
+@media (max-width:860px){.nav__links{display:none}}
+
+/* ---------- stage: scrubbed meadow ---------- */
+.stage{position:relative;height:720vh}
+.stage__pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--sky,#e9e8e3)}
+#scrub{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage__poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.no-canvas .stage__poster{display:block}.no-canvas #scrub{display:none}
+
+.act{position:absolute;left:var(--pad);top:clamp(5.5rem,13vh,8.5rem);width:min(31rem,34vw);opacity:0;visibility:hidden;transition:opacity .7s var(--ease),visibility 0s .7s}
+.act.on{opacity:1;visibility:visible;transition:opacity .7s var(--ease)}
+.act h1,.act h2{font:300 var(--t-d)/.92 var(--serif);letter-spacing:-.035em;margin:1rem 0 1.2rem}
+.act h1{font-size:clamp(3.2rem,6.6vw,7rem)}
+.act p{max-width:24rem;font-size:var(--t-m)}
+.act .btn{margin-top:1.6rem}
+.act .on-hit{pointer-events:none}.act.on .on-hit{pointer-events:auto}
+
+.season{position:absolute;left:var(--pad);bottom:clamp(1.25rem,4vh,2.5rem);display:flex;align-items:center;gap:1rem;padding:.75rem 1.1rem .75rem .8rem;border-radius:16px;background:rgba(243,239,230,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 1px 0 rgba(255,255,255,.6) inset;transition:opacity .6s var(--ease)}
+.season__dot{width:2.6rem;height:2.6rem;border-radius:12px;background:var(--acc);transition:background 1s var(--ease)}
+.season b{display:block;font:400 1.35rem/1.1 var(--serif);font-style:italic}
+.season small{font-size:var(--t-xs);color:var(--mute)}
+.index{position:absolute;right:var(--pad);bottom:clamp(1.25rem,4vh,2.5rem);list-style:none;display:grid;gap:.35rem;text-align:right}
+.index li{display:flex;justify-content:flex-end;align-items:center;gap:.7rem;font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;color:rgba(29,27,22,.42);transition:color .6s var(--ease)}
+.index li::after{content:"";width:1.6rem;height:1px;background:currentColor;transform-origin:right;transform:scaleX(.4);transition:transform .8s var(--ease)}
+.index li.on{color:var(--ink)}
+.index li.on::after{transform:none;background:var(--acc)}
+.cue{position:absolute;left:50%;bottom:clamp(1.25rem,4vh,2.5rem);transform:translateX(-50%);font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;font-weight:500;transition:opacity .6s var(--ease)}
+.cue::after{content:"";display:block;width:1px;height:2.4rem;margin:.6rem auto 0;background:var(--ink);transform-origin:top;animation:cue 2.4s var(--ease) infinite}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+@media (max-width:860px){
+  .act{top:auto;bottom:7.5rem;width:auto;right:var(--pad)}
+  .act h1,.act h2{font-size:clamp(2.6rem,11.5vw,3.6rem);margin:.6rem 0 .8rem}
+  .act p{font-size:var(--t-s)}
+  .act .btn{margin-top:1.1rem}
+  .act .micro{display:none}
+  .index{display:none}
+  .cue{display:none}
+  .season{right:var(--pad);bottom:1rem}
+  .stage__shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(243,239,230,.95) 0%,rgba(243,239,230,.84) 40%,rgba(243,239,230,0) 64%);pointer-events:none}
+}
+
+/* ---------- editorial sections ---------- */
+.sec{padding-block:clamp(6rem,13vw,11rem);border-top:1px solid var(--line)}
+.head{grid-column:1/-1;display:flex;justify-content:space-between;gap:1rem;margin-bottom:clamp(2.5rem,6vw,5rem)}
+.big{font:300 var(--t-xl)/1.03 var(--serif);letter-spacing:-.03em}
+
+.pain{grid-column:1/11;font:300 clamp(1.9rem,4.4vw,4.3rem)/1.06 var(--serif);letter-spacing:-.03em}
+.pain .w{color:rgba(29,27,22,.5);transition:color .5s var(--ease)}
+.pain .w.lit{color:var(--ink)}
+.pain .w.lit.hl{color:var(--acc)}
+.rows{grid-column:5/13;list-style:none;margin-top:clamp(3rem,7vw,6rem);border-top:1px solid var(--line)}
+.rows li{display:grid;grid-template-columns:3.5rem 1fr;gap:1rem;padding:1.25rem 0;border-bottom:1px solid var(--line);font-size:var(--t-l);color:var(--mute);transition:color .5s var(--ease)}
+.rows li:hover{color:var(--ink)}
+.rows li span:first-child{font-size:var(--t-xs);letter-spacing:.08em;padding-top:.4rem}
+
+.ben{grid-column:1/-1;list-style:none;border-top:1px solid var(--line)}
+.ben li{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);align-items:baseline;padding:clamp(1.1rem,2.2vw,1.8rem) 0;border-bottom:1px solid var(--line);color:rgba(29,27,22,.5);transition:color .6s var(--ease)}
+.ben li.lit,.ben li:hover{color:var(--ink)}
+.ben .n{grid-column:1/2;font-size:var(--t-xs);letter-spacing:.08em;color:var(--mute)}
+.ben .t{grid-column:2/10;font:300 clamp(1.5rem,3vw,2.8rem)/1.06 var(--serif);letter-spacing:-.025em}
+.ben .x{grid-column:10/13;font-size:var(--t-s);color:var(--mute)}
+
+/* trama: circle reveal */
+.trama{position:relative;height:240vh;border-top:1px solid var(--line)}
+.trama__pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:grid;place-items:center}
+.trama__media{position:absolute;inset:0;clip-path:circle(var(--r,6%) at 50% 50%);will-change:clip-path}
+.trama__media video,.trama__media img{width:100%;height:100%;object-fit:cover}
+.trama__words{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding-inline:var(--pad);pointer-events:none;font:300 var(--t-d)/.9 var(--serif);letter-spacing:-.04em;mix-blend-mode:difference;color:#fff}
+.trama__words span:last-child{font-style:italic}
+.trama__cap{position:absolute;left:var(--pad);right:var(--pad);bottom:clamp(1.25rem,4vh,2.5rem);display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;padding:1rem 1.2rem;border-radius:16px;background:rgba(243,239,230,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);opacity:var(--capo,0)}
+.trama__cap p{max-width:24rem;font-size:var(--t-s)}
+
+/* spec + order */
+.spec__word{grid-column:1/-1;position:relative;z-index:0;font:300 clamp(5rem,22vw,22rem)/.78 var(--serif);letter-spacing:-.06em;white-space:nowrap}
+.spec__word em{color:var(--acc)}
+.order__view{grid-column:1/8;position:relative;z-index:1;margin-top:-7vw;aspect-ratio:960/707;border-radius:18px;overflow:hidden;background:var(--sky,#e9e8e3)}
+.order__form{margin-top:clamp(1rem,3vw,2.5rem)}
+.order__view canvas{position:absolute;inset:0;width:100%;height:100%}
+.order__view .tag{position:absolute;left:1rem;top:1rem;padding:.45rem .8rem;border-radius:999px;background:rgba(243,239,230,.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.order__form{grid-column:8/13;display:flex;flex-direction:column;gap:1.8rem}
+.swatches{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+.sw{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:6.2rem;padding:.9rem 1rem;border-radius:14px;color:#fff;text-align:left;background:var(--c);transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
+.sw:hover{transform:translateY(-2px)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.sw b{font:400 1.4rem/1 var(--serif);font-style:italic}
+.sw small{font-size:var(--t-xs)}
+.opt{display:flex;border:1px solid var(--line);border-radius:999px;padding:.25rem}
+.opt button{flex:1;padding:.7rem .8rem;border-radius:999px;font-size:var(--t-s);color:var(--mute);transition:background .5s var(--ease),color .5s var(--ease)}
+.opt button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.qty{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.8rem 0}
+.qty div{display:flex;align-items:center;gap:1rem}
+.qty button{width:2.4rem;height:2.4rem;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line);font-size:1.2rem}
+.qty output{min-width:1.5rem;text-align:center;font:400 1.3rem/1 var(--serif)}
+.specs{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-top:clamp(3rem,6vw,5rem);border-top:1px solid var(--line);padding-top:1.4rem}
+.specs dt{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:500;margin-bottom:.4rem}
+.specs dd{font-size:var(--t-s)}
+.ph{color:var(--mute);font-style:italic}
+
+/* objections + faq + proof */
+.obj{grid-column:1/-1;list-style:none;border-top:1px solid var(--line)}
+.obj li{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);padding:clamp(1.3rem,2.4vw,2rem) 0;border-bottom:1px solid var(--line)}
+.obj q{grid-column:1/7;font:300 clamp(1.4rem,2.5vw,2.2rem)/1.1 var(--serif);font-style:italic;letter-spacing:-.02em;quotes:none}
+.obj p{grid-column:8/13;color:var(--mute)}
+.faq__t{grid-column:1/5}
+.faq{grid-column:6/13;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:1rem;padding:1.2rem 0;font-size:var(--t-l)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary span:last-child{color:var(--acc);transition:transform .6s var(--ease),color 1s var(--ease)}
+.faq details[open] summary span:last-child{transform:rotate(45deg)}
+.faq p{padding-bottom:1.3rem;max-width:38rem;color:var(--mute)}
+.proof{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);margin-top:clamp(3rem,6vw,5rem)}
+.proof div{border:1px dashed rgba(29,27,22,.3);border-radius:14px;padding:1.3rem;min-height:9rem;display:flex;flex-direction:column;justify-content:space-between;font-size:var(--t-s);color:var(--mute)}
+.proof b{font:300 1.4rem/1.15 var(--serif);font-style:italic;color:var(--ink)}
+
+/* final */
+.final{padding-top:clamp(6rem,13vw,11rem);border-top:1px solid var(--line);overflow:hidden}
+.final h2{grid-column:1/11;font:300 var(--t-d)/.94 var(--serif);letter-spacing:-.035em}
+.rot{display:inline-flex;height:1.02em;overflow:hidden;vertical-align:bottom}
+.rot span{display:block;transition:transform .9s var(--ease)}
+.rot span i{display:block;height:1.02em;font-style:italic}
+.final__cta{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:1.2rem;margin-top:2.4rem}
+.ps{grid-column:7/13;margin-top:clamp(3rem,6vw,5rem);color:var(--mute)}
+.ps b{color:var(--ink);font-weight:500}
+.marquee{margin-top:clamp(4rem,8vw,7rem);border-block:1px solid var(--line);overflow:hidden;white-space:nowrap;padding:1.1rem 0}
+.marquee div{display:inline-flex;gap:2.4rem;padding-right:2.4rem;font:300 clamp(2rem,5vw,4.4rem)/1 var(--serif);font-style:italic;animation:mq 26s linear infinite}
+.marquee div span::after{content:"·";margin-left:2.4rem;color:var(--mute);font-style:normal}
+@keyframes mq{to{transform:translateX(-100%)}}
+.wordmark{display:block;padding-inline:var(--pad);margin-top:clamp(3rem,7vw,6rem);font:300 26vw/.78 var(--serif);font-style:italic;letter-spacing:-.06em;text-align:center}
+.foot{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);padding:1.6rem var(--pad) 2rem;border-top:1px solid var(--line);margin-top:1.5rem}
+.foot>*{grid-column:span 4}
+.foot p{font-size:var(--t-xs);color:var(--mute);line-height:1.6}
+.foot a{text-decoration:underline;text-underline-offset:2px}
+
+@media (max-width:860px){
+  .pain,.rows{grid-column:1/-1}
+  .ben .n{grid-column:1/3}.ben .t{grid-column:3/13}.ben .x{grid-column:3/13}
+  .order__view,.order__form{grid-column:1/-1}
+  .specs{grid-template-columns:repeat(2,1fr)}
+  .obj q,.obj p{grid-column:1/-1}
+  .faq,.faq__t{grid-column:1/-1}
+  .faq__t{margin-bottom:2rem}
+  .proof{grid-template-columns:1fr}
+  .final h2,.ps{grid-column:1/-1}
+  .foot>*{grid-column:1/-1}
+  .trama__words{flex-direction:column;justify-content:center;gap:40vh}
+  .trama__cap{flex-direction:column;align-items:flex-start}
+}
+
+/* cursor (mouse only) */
+.cursor{position:fixed;left:0;top:0;z-index:90;pointer-events:none;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--ink);display:none;place-items:center;transition:width .5s var(--ease),height .5s var(--ease),margin .5s var(--ease),background 1s var(--ease)}
+.cursor span{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--paper);opacity:0;transition:opacity .3s}
+.cursor.big{width:72px;height:72px;margin:-36px 0 0 -36px;background:var(--acc)}
+.cursor.big span{opacity:1}
+@media (hover:hover) and (pointer:fine){.cursor{display:grid}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation:none!important}
+  .line>span,[data-fade]{transform:none!important;opacity:1!important}
+  .intro__word span{transform:none}
+  .trama__media{clip-path:none}
+}
+</style>
+</head>
+<body class="lock">
+
+<div class="intro" aria-hidden="true">
+  <div class="intro__word"><span>P</span><span>r</span><span>a</span><span>d</span><span>o</span></div>
+  <div class="intro__bar"><span class="label">Uma cadeira. Quatro estações.</span><span class="label intro__n">0%</span><i></i></div>
+</div>
+<div class="cursor" aria-hidden="true"><span>Ver</span></div>
+
+<header class="nav">
+  <a class="nav__brand" href="#topo" aria-label="Prado, início">Prado</a>
+  <nav class="nav__links" aria-label="Seções">
+    <a class="u" href="#estacoes">Estações</a>
+    <a class="u" href="#trama">Trama</a>
+    <a class="u" href="#pedido">Ficha e pedido</a>
+    <a class="u" href="#duvidas">Dúvidas</a>
+  </nav>
+  <a class="btn nav__cta" href="#pedido">Pedir no WhatsApp</a>
+</header>
+
+<main id="topo">
+
+<!-- Acts 1–5: the meadow, scrubbed by scroll -->
+<section class="stage" id="estacoes" aria-label="Quatro estações">
+  <div class="stage__pin">
+    <canvas id="scrub" aria-hidden="true"></canvas>
+    <img class="stage__poster" src="media/poster.webp" alt="Cadeira de madeira clara sobre um morro coberto de folhas, contra um céu claro">
+    <div class="stage__shade" aria-hidden="true"></div>
+
+    <div class="act on in" data-act="musgo"><!-- painted at first load under the intro curtain, which reveals it -->
+      <span class="label" data-fade>(01) Musgo · a estação de hoje</span>
+      <h1><span class="line"><span>Uma cadeira.</span></span><span class="line"><span>Quatro <em class="acc">estações.</em></span></span></h1>
+      <p data-fade>Cadeira de madeira com almofada de linho trocável em quatro cores. A peça fica com você; a cor muda quando você mudar.</p>
+      <a class="btn on-hit" href="#pedido" data-fade>Pedir a minha Prado <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+    <div class="act" data-act="agua">
+      <span class="label" data-fade>(02) Água</span>
+      <h2><span class="line"><span>Enjoou da sala?</span></span><span class="line"><span>Troque a <em class="acc">estação.</em></span></span></h2>
+      <p data-fade>Não a cadeira. Todo móvel parece certo na loja; seis meses depois, a sala já cansou dele.</p>
+    </div>
+    <div class="act" data-act="papoula">
+      <span class="label" data-fade>(03) Papoula</span>
+      <h2><span class="line"><span>A cadeira <em class="acc">fica.</em></span></span><span class="line"><span>A cor muda.</span></span></h2>
+      <p data-fade>Quando a casa pedir outra cor, você pede só a almofada nova. Ela encaixa em segundos.</p>
+    </div>
+    <div class="act" data-act="lavanda">
+      <span class="label" data-fade>(04) Lavanda</span>
+      <h2><span class="line"><span>Hoje Musgo.</span></span><span class="line"><span>No inverno, <em class="acc">Lavanda.</em></span></span></h2>
+      <p data-fade>A estrutura é uma só, feita para durar. É a parte que cansa que você troca.</p>
+    </div>
+    <div class="act" data-act="fim">
+      <span class="label" data-fade>(05) De volta ao Musgo</span>
+      <h2><span class="line"><span>Escolha a sua</span></span><span class="line"><span><em class="acc">estação.</em></span></span></h2>
+      <a class="btn on-hit" href="#pedido" data-fade>Escolher minha estação <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+
+    <div class="season" aria-live="polite"><span class="season__dot" aria-hidden="true"></span><span><small>Sua Prado</small><b class="season__name">Musgo</b><small>almofada de linho</small></span></div>
+    <ol class="index" aria-hidden="true"><li data-i="musgo">01 Musgo</li><li data-i="agua">02 Água</li><li data-i="papoula">03 Papoula</li><li data-i="lavanda">04 Lavanda</li></ol>
+    <span class="cue" aria-hidden="true">Role</span>
+  </div>
+</section>
+
+<!-- pain -->
+<section class="sec grid" aria-labelledby="dor-t">
+  <div class="head"><span class="label">(06) Montar a casa sem pressa</span><span class="label">Role ↓</span></div>
+  <h2 id="dor-t" class="pain" data-words>Montar a casa é bom até o terceiro móvel que não combina com nada. <span class="hl">E trocar tudo só porque enjoou da cor parece desperdício.</span></h2>
+  <ol class="rows">
+    <li><span>01</span><span>A cadeira linda do anúncio chegou bamba.</span></li>
+    <li><span>02</span><span>A cor que era tendência no ano passado hoje parece velha.</span></li>
+    <li><span>03</span><span>Na loja tudo é cinza, bege ou cinza-bege.</span></li>
+    <li><span>04</span><span>Você não sabe se a cor vai funcionar na luz da sua sala.</span></li>
+  </ol>
+</section>
+
+<!-- benefits -->
+<section class="sec grid" aria-labelledby="ben-t">
+  <div class="head"><span class="label">(07) Quatro Estações</span><span class="label">O que muda</span></div>
+  <h2 id="ben-t" class="sr">Benefícios</h2>
+  <ol class="ben">
+    <li><span class="n">01</span><span class="t">A sala muda de clima sem móvel novo.</span><span class="x">Troque só a almofada</span></li>
+    <li><span class="n">02</span><span class="t">Você escolhe a cor sem medo.</span><span class="x">Se enjoar, troca</span></li>
+    <li><span class="n">03</span><span class="t">Uma peça que você não esconde da visita.</span><span class="x">Madeira e linho</span></li>
+    <li><span class="n">04</span><span class="t">À mesa, em dupla ou sozinha num canto.</span><span class="x">Funciona em todo lugar</span></li>
+    <li><span class="n">05</span><span class="t">Compra uma vez a parte que dura.</span><span class="x">E troca a parte que cansa</span></li>
+  </ol>
+</section>
+
+<!-- trama: the second piece, revealed through a growing circle -->
+<section class="trama" id="trama" aria-labelledby="trama-t">
+  <div class="trama__pin">
+    <div class="trama__media" data-cursor>
+      <video muted playsinline loop preload="none" poster="media/trama-poster.webp" aria-label="Cadeira de trama azul vista de perto, em movimento lento">
+        <source src="media/trama.mp4" type="video/mp4">
+      </video>
+    </div>
+    <h2 id="trama-t" class="trama__words"><span>Uma outra</span><span>trama.</span></h2>
+    <div class="trama__cap"><span class="label">(08) Também na Prado</span><p>A mesma ideia, em fio: a Trama tem estrutura metálica e assento tecido à mão. [INSERIR DISPONIBILIDADE]</p></div>
+  </div>
+</section>
+
+<!-- spec + order -->
+<section class="sec grid" id="pedido" aria-labelledby="pedido-t">
+  <div class="head"><span class="label">(09) Ficha e pedido</span><span class="label">Cadeira Prado</span></div>
+  <p class="spec__word" aria-hidden="true">Pra<em>do</em></p>
+  <div class="order__view" data-cursor>
+    <canvas id="preview" aria-hidden="true"></canvas>
+    <span class="tag label" style="color:var(--ink)">Prado · <span class="order__name">Musgo</span></span>
+  </div>
+  <div class="order__form">
+    <h2 id="pedido-t" class="big">Escolha a <em class="acc">estação.</em></h2>
+    <div class="swatches" role="group" aria-label="Cor da almofada">
+      <button type="button" class="sw" style="--c:#61702c" data-color="musgo" aria-pressed="true"><small>01</small><b>Musgo</b></button>
+      <button type="button" class="sw" style="--c:#287c78" data-color="agua" aria-pressed="false"><small>02</small><b>Água</b></button>
+      <button type="button" class="sw" style="--c:#c63a31" data-color="papoula" aria-pressed="false"><small>03</small><b>Papoula</b></button>
+      <button type="button" class="sw" style="--c:#7d5cc2" data-color="lavanda" aria-pressed="false"><small>04</small><b>Lavanda</b></button>
+    </div>
+    <div class="opt" role="group" aria-label="O que você quer">
+      <button type="button" aria-pressed="true" data-kind="cadeira">Cadeira + almofada</button>
+      <button type="button" aria-pressed="false" data-kind="almofada">Só a almofada</button>
+    </div>
+    <div class="qty"><span class="label">Quantidade</span><div><button type="button" data-q="-1" aria-label="Diminuir">−</button><output aria-live="polite">1</output><button type="button" data-q="1" aria-label="Aumentar">+</button></div></div>
+    <div>
+      <a class="btn wa" href="#" target="_blank" rel="noopener">Pedir no WhatsApp <span class="arr" aria-hidden="true">→</span></a>
+      <p class="micro">O WhatsApp abre com o pedido escrito. A gente confirma medidas, frete e pagamento antes de qualquer cobrança.</p>
+    </div>
+  </div>
+  <dl class="specs">
+    <div><dt>Preço</dt><dd class="ph">[INSERIR PREÇO] · almofada avulsa [INSERIR]</dd></div>
+    <div><dt>Medidas</dt><dd class="ph">[INSERIR A × L × P]</dd></div>
+    <div><dt>Materiais</dt><dd>Madeira <span class="ph">[INSERIR ESPÉCIE E ACABAMENTO]</span> · almofada de linho</dd></div>
+    <div><dt>Prazo</dt><dd class="ph">[INSERIR PRODUÇÃO + ENTREGA]</dd></div>
+  </dl>
+</section>
+
+<!-- objections + proof -->
+<section class="sec grid" aria-labelledby="obj-t">
+  <div class="head"><span class="label">(10) Mas…</span><span class="label">Dúvidas honestas</span></div>
+  <h2 id="obj-t" class="sr">Objeções</h2>
+  <ul class="obj">
+    <li><q>Mas e se a cor não ficar boa na minha sala?</q><p>Você troca só a almofada. A estrutura não muda.</p></li>
+    <li><q>Mas comprar móvel pelo WhatsApp dá medo…</q><p>Você conversa com uma pessoa, recebe fotos e confirma tudo antes de pagar.</p></li>
+    <li><q>Mas cadeira de madeira é dura…</q><p>A almofada de linho existe para isso. <span class="ph">[INSERIR ESPESSURA/ENCHIMENTO]</span></p></li>
+    <li><q>Mas e se chegar com defeito?</q><p class="ph">[INSERIR POLÍTICA DE TROCA E GARANTIA]</p></li>
+  </ul>
+  <div class="proof" aria-label="Espaço para depoimentos reais">
+    <div><b>[Inserir depoimento]</b><span>Qualidade da madeira · nome e cidade</span></div>
+    <div><b>[Inserir depoimento]</b><span>Trocou a cor · nome e cidade</span></div>
+    <div><b>[Inserir depoimento]</b><span>Entrega · nome e cidade</span></div>
+  </div>
+</section>
+
+<!-- faq -->
+<section class="sec grid" id="duvidas" aria-labelledby="faq-t">
+  <div class="head"><span class="label">(11) Perguntas</span><span class="label">FAQ</span></div>
+  <h2 id="faq-t" class="big faq__t">Antes de <em class="acc">pedir.</em></h2>
+  <div class="faq">
+    <details><summary><span>Posso comprar só a almofada depois?</span><span aria-hidden="true">+</span></summary><p>Pode. É a ideia da Prado: a cadeira fica, a cor muda.</p></details>
+    <details><summary><span>Quanto tempo leva para chegar?</span><span aria-hidden="true">+</span></summary><p class="ph">[INSERIR PRAZO]</p></details>
+    <details><summary><span>A almofada é lavável?</span><span aria-hidden="true">+</span></summary><p class="ph">[INSERIR CUIDADOS DO LINHO]</p></details>
+    <details><summary><span>Entregam na minha cidade?</span><span aria-hidden="true">+</span></summary><p class="ph">[INSERIR REGIÕES]</p></details>
+    <details><summary><span>Quais as formas de pagamento?</span><span aria-hidden="true">+</span></summary><p class="ph">[INSERIR]</p></details>
+    <details><summary><span>Dá para ver a cor antes?</span><span aria-hidden="true">+</span></summary><p class="ph">[INSERIR — ex.: amostra de tecido]</p></details>
+  </div>
+</section>
+
+<!-- final -->
+<section class="final grid" aria-labelledby="fim-t">
+  <h2 id="fim-t"><span class="line"><span>A cadeira é para sempre.</span></span><span class="line"><span>A cor é para <span class="rot" aria-hidden="true"><span><i class="acc">agora.</i><i style="color:#61702c">Musgo.</i><i style="color:#287c78">Água.</i><i style="color:#c63a31">Papoula.</i><i style="color:#7d5cc2">Lavanda.</i></span></span><span class="sr">agora.</span></span></span></h2>
+  <div class="final__cta"><a class="btn" href="#pedido">Pedir a minha Prado <span class="arr" aria-hidden="true">→</span></a><span class="micro" style="margin:0">Pedido pelo WhatsApp • Sem compromisso</span></div>
+  <p class="ps"><b>PS:</b> escolha a estação de hoje sem medo. Quando a casa pedir outra, você troca só a almofada.</p>
+</section>
+<div class="marquee" aria-hidden="true"><div><span>Musgo</span><span>Água</span><span>Papoula</span><span>Lavanda</span><span>Musgo</span><span>Água</span><span>Papoula</span><span>Lavanda</span></div><div><span>Musgo</span><span>Água</span><span>Papoula</span><span>Lavanda</span><span>Musgo</span><span>Água</span><span>Papoula</span><span>Lavanda</span></div></div>
+<span class="wordmark" aria-hidden="true">Prado</span>
+<footer class="foot">
+  <p>© 2026 Prado · marca fictícia, estudo de design.</p>
+  <p>Animação do prado: <a href="https://dribbble.com/shots/27169747-Chair-Concept-Floral-3d-Animation" target="_blank" rel="noopener">“Chair Concept – Floral” de Lucca Frame</a>. Trama: <a href="https://dribbble.com/shots/27657037-Realistic-Animation-of-chair" target="_blank" rel="noopener">“Realistic Animation of chair” de Hunart</a>.</p>
+  <p><a href="#" class="ph">[INSERIR POLÍTICA DE PRIVACIDADE]</a> · <span class="ph">[INSERIR CNPJ E ENDEREÇO]</span></p>
+</footer>
+
+</main>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

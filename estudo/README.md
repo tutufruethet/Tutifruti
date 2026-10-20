@@ -40,3 +40,4 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
 - [Vilubre ton de](vilubre.md): perfume com palco 3D e nome gravado no vidro (rascunho).
+- [Prado](prado.md): cadeira com quatro estações; vídeo controlado pela rolagem e pedido pelo WhatsApp.
