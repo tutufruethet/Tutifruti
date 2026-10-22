@@ -16,5 +16,6 @@ tags: [regra, motion]
 8. Gravar a **direção do scroll** numa variável CSS para o layout reagir (menu some ao descer, aparece ao subir).
 9. **Texto que embaralha:** letras aleatórias que se resolvem na palavra certa, para UI em fonte mono (Active Theory).
 10. Sempre respeitar `prefers-reduced-motion`.
+11. **Vídeo tocado pela rolagem:** quadros WebP num canvas dentro de uma seção sticky; a rolagem escolhe o quadro e um `lerp` suaviza. É o efeito que o usuário mais pede ([Maison Odile](../referencias/maison-odile.md)).
 
-Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Maison Odile](../referencias/maison-odile.md) · [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)

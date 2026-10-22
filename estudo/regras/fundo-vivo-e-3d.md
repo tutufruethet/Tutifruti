@@ -8,7 +8,7 @@ tags: [regra, 3d, webgl]
 
 1. **Dois estados:** o fundo se mexe sozinho e reage ao cursor (e ao scroll) de outro jeito.
 2. **Contido:** o texto continua legível; usar overlay em gradiente e vinheta.
-3. **3D é herói ou não entra.** Se é decoração, um shader 2D resolve.
+3. **3D é herói ou não entra.** Se é decoração, um shader 2D resolve. Em site de cliente, só com pedido explícito: o usuário prefere foto/vídeo real com efeito de rolagem ([Site Módulo](../modulo-condominios.md)).
 4. **Truques baratos que parecem caros:**
    - shader de tela cheia com um único triângulo (fbm + domain warping + grão);
    - vídeo pré-renderizado + luz que segue o cursor (Lusion);

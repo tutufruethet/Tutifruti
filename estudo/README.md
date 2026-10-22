@@ -31,7 +31,9 @@ Mapa das notas. Comece pelas **regras** quando for desenhar algo; volte às **re
 - [Instrument](referencias/instrument.md): sistema de design, escala fixa, conteúdo primeiro.
 - [Resn](referencias/resn.md): conceito antes do código, duas direções, tipografia própria.
 - [Active Theory](referencias/active-theory.md): mundos 3D, navegação por público, motor próprio.
+- [Maison Odile](referencias/maison-odile.md): vídeo tocado pela rolagem, capítulos curtos, fachada em vários horários.
 
 ## Prática
 - [Demo Tutifruti](demo-tutifruti.md): landing page que aplica todas as regras.
 - [Ilha 3D](mundo-3d.md): portfólio em dois níveis com mundo 3D dirigível (a prova real).
+- [Site Módulo](modulo-condominios.md): administradora de condomínios, drone na fachada pela rolagem (cliente real).
