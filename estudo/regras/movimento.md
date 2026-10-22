@@ -16,5 +16,7 @@ tags: [regra, motion]
 8. Gravar a **direção do scroll** numa variável CSS para o layout reagir (menu some ao descer, aparece ao subir).
 9. **Texto que embaralha:** letras aleatórias que se resolvem na palavra certa, para UI em fonte mono (Active Theory).
 10. Sempre respeitar `prefers-reduced-motion`.
+11. **Um número conta a história:** o scroll vira um valor só (S), com chaves no topo de cada seção e no fim de cada trecho preso. Câmera 3D, painéis de texto, luzes e fundo leem o mesmo S. O 3D usa o S suavizado (lerp); o texto troca no S cru, para não atrasar (Módulo).
+12. **Seção presa = palco:** um contêiner alto (300–800vh) com um filho `sticky` de `100svh`. O texto fica parado enquanto a cena muda por baixo; cada trecho de ~110vh é um "ato" (Nike conceito, Módulo).
 
-Related: [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)
+Related: [Nike SP (conceito)](../referencias/nike-conceito.md) · [Locomotive](../referencias/locomotive.md) · [Bolt: backgrounds interativos](../referencias/bolt-backgrounds-interativos.md) · [Performance](performance.md)

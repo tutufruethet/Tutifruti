@@ -12,7 +12,7 @@ Para sites onde a experiência é imersiva (cenas 3D, mundos, jogos).
 2. **Conteúdo dentro do mundo:** projetos aparecem em objetos da cena (uma tela, um lugar, uma placa), não em cima dela (Active Theory, Bruno Simon).
 3. **Várias cenas curtas** em vez de uma cena gigante; a **transição** entre elas é parte do design.
 4. **Cenas vindas da marca:** lugares, objetos e cores reais do cliente (Active Theory).
-5. **Conceito primeiro:** duas direções criativas, uma escolhida, decidida antes do código (Resn).
+5. **Conceito primeiro:** duas direções criativas, uma escolhida, decidida antes do código (Resn). O usuário quer **aprovar a direção antes de eu codar**: mostrar as opções (com prévia) e esperar o "sim".
 6. **Navegação inusitada, saída óbvia:** se o menu for experimental, mantenha um jeito simples de chegar ao conteúdo e ao contato.
 7. **Transição como efeito:** renderize cada cena numa textura e misture as duas num shader (corte diagonal, dissolve com ruído, distorção de vidro). A transição reage à **velocidade do scroll** (Active Theory).
 8. **Um shader final para tudo:** a imagem passa por uma composição global (RGB, contraste, bloom, brilhos de canto, grão). É o que dá unidade às cenas.
