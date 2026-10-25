@@ -3,11 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Forja Suplementos</title>
-<meta name="description" content="Conceito de loja de suplementos: whey, creatina e pré-treino com laudo aberto em cada lote.">
+<title>Forja Whey · Refil 450g, preço por sabor</title>
+<meta name="description" content="Whey Forja em refil de 450g, 5 sabores de R$ 35 a R$ 69,99. Você escolhe o sabor e vê o preço na hora.">
+<meta property="og:title" content="Forja Whey · Whey sem letra miúda">
+<meta property="og:description" content="Refil de 450g em 5 sabores, de R$ 35 a R$ 69,99.">
+<meta property="og:image" content="img/hero-3.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0b0c'/%3E%3Ctext x='16' y='24' font-family='Arial Black,sans-serif' font-size='22' font-weight='900' text-anchor='middle' fill='%23c8ff2e'%3EF%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/hero-3.webp">
 <style>
 :root{
   --ink:#0b0b0c; --paper:#edebe6; --mute:#8a8883; --accent:#c8ff2e;
@@ -19,21 +24,25 @@
   --t-xs:.75rem; --t-s:.875rem; --t-m:1.05rem; --t-l:clamp(1.6rem,3.6vw,3.2rem);
   --t-xl:clamp(3.2rem,13vw,13rem);
   --sec:clamp(6rem,14vw,12rem);
+  --lb:clamp(1.6rem,5.5vh,3.4rem);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased}
+html{background:var(--ink);color:var(--paper);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
 body{font:400 var(--t-m)/1.5 var(--sans);overflow-x:clip}
 body.loading{overflow:hidden}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 ::selection{background:var(--accent);color:var(--ink)}
-svg{display:block}
 
 .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);padding-inline:var(--pad)}
 .label{font-size:var(--t-xs);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .serif{font-family:var(--serif);font-weight:400;font-style:italic;text-transform:none;letter-spacing:-.02em;font-stretch:100%}
 .display{font-weight:800;font-stretch:68%;text-transform:uppercase;letter-spacing:-.02em;line-height:.88}
 .hi{color:var(--accent)}
+/* placeholder honesto: dado real que falta */
+.ph{display:inline;border:1px dashed currentColor;border-radius:.3em;padding:0 .35em;font-size:.86em;opacity:.75}
 
 /* ---------- loader ---------- */
 .loader{position:fixed;inset:0;z-index:100;background:var(--accent);color:var(--ink);display:flex;align-items:flex-end;justify-content:space-between;padding:var(--pad);transition:transform 1.1s var(--ease)}
@@ -46,36 +55,37 @@ svg{display:block}
 .nav.hide{transform:translateY(-120%)}
 .nav__logo{grid-column:1/4;font-weight:800;font-stretch:68%;font-size:1.5rem;letter-spacing:.02em;text-transform:uppercase;mix-blend-mode:difference;color:#fff}
 .nav__pill{grid-column:4/10;justify-self:center;display:flex;gap:.25rem;padding:.3rem;border-radius:999px;background:rgba(11,11,12,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line)}
-.nav__pill a{font-size:var(--t-s);padding:.45rem .95rem;border-radius:999px;color:rgba(237,235,230,.6);transition:color .5s var(--ease),background .5s var(--ease)}
+.nav__pill a{font-size:var(--t-s);padding:.45rem .95rem;border-radius:999px;color:rgba(237,235,230,.65);transition:color .5s var(--ease),background .5s var(--ease)}
 .nav__pill a:hover{color:var(--paper);background:rgba(237,235,230,.08)}
-.nav__cart{grid-column:10/13;justify-self:end;display:flex;align-items:center;gap:.6rem;font-size:var(--t-s);font-weight:500;padding:.55rem .6rem .55rem 1rem;border-radius:999px;background:var(--paper);color:var(--ink)}
-.nav__cart .odo{display:inline-flex;background:var(--ink);color:var(--accent);border-radius:999px;padding:0 .5rem;font-variant-numeric:tabular-nums;font-weight:700}
+.nav__cart{grid-column:10/13;justify-self:end;display:flex;align-items:center;gap:.6rem;font-size:var(--t-s);font-weight:500;padding:.55rem .6rem .55rem 1rem;border-radius:999px;background:var(--paper);color:var(--ink);will-change:transform}
+.nav__cart .odo{background:var(--ink);color:var(--accent);border-radius:999px;padding:0 .5rem;font-variant-numeric:tabular-nums;font-weight:700}
 
 /* odômetro */
+.odo{display:inline-flex}
 .odo .dig{display:inline-block;height:1.15em;line-height:1.15;overflow:hidden}
 .odo .tape{display:flex;flex-direction:column;transition:transform 1s var(--ease)}
+.odo .sep{display:inline-block;line-height:1.15}
 
 /* ---------- hero cinematográfico ---------- */
-.hero{position:relative;height:100svh;min-height:620px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;background:#000}
+.hero{position:relative;height:100svh;min-height:640px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;background:#000}
 .shots{position:absolute;inset:0;will-change:transform}
 .shot{position:absolute;inset:0;clip-path:inset(100% 0 0 0);transition:clip-path 1.6s var(--ease)}
-.shot.on{clip-path:inset(0 0 0 0)}
-.shot.past{clip-path:inset(0 0 0 0)}
+.shot.on,.shot.past{clip-path:inset(0 0 0 0)}
 .shot img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.22) brightness(.95);transform:scale(1.2);transition:transform 7.5s cubic-bezier(.25,.6,.3,1)}
 .shot.on img{transform:scale(1.04)}
 .shot:nth-child(1) img{object-position:50% 60%}
 .shot:nth-child(2) img{object-position:50% 50%;filter:grayscale(1) contrast(1.3) brightness(1.25)}
 .shot:nth-child(3) img{object-position:50% 20%}
 .hero__light{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;background:radial-gradient(38vmax 38vmax at var(--gx,62%) var(--gy,42%),rgba(200,255,46,.55),transparent 62%)}
-.hero__vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 60% 40%,transparent 45%,rgba(0,0,0,.6) 100%),linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.3) 40%,transparent 62%),linear-gradient(to right,rgba(0,0,0,.55) 0%,transparent 55%)}
+.hero__vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 60% 40%,transparent 45%,rgba(0,0,0,.6) 100%),linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.35) 42%,transparent 64%),linear-gradient(to right,rgba(0,0,0,.55) 0%,transparent 55%)}
 .grain{position:absolute;inset:-50%;width:200%;height:200%;pointer-events:none;opacity:.13;mix-blend-mode:overlay;animation:grain .9s steps(6) infinite}
 @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-5%)}60%{transform:translate(-6%,-2%)}80%{transform:translate(5%,4%)}100%{transform:translate(0,0)}}
 .bar{position:absolute;left:0;right:0;height:50.5%;background:#000;z-index:3;transition:height 1.8s var(--ease)}
 .bar--t{top:0}.bar--b{bottom:0}
-.hero.open .bar{height:clamp(1.6rem,5.5vh,3.4rem)}
+.hero.open .bar{height:var(--lb)}
 .hud{position:absolute;left:0;right:0;z-index:4;font-size:var(--t-xs);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:rgba(237,235,230,.75);font-variant-numeric:tabular-nums;opacity:0;transition:opacity 1s var(--ease) 1.2s}
 .hero.open .hud{opacity:1}
-.hud--t{top:clamp(1.6rem,5.5vh,3.4rem);padding-top:.9rem}
+.hud--t{top:var(--lb);padding-top:.9rem}
 .hud--t>*:nth-child(1){grid-column:1/5}
 .hud--t>*:nth-child(2){grid-column:5/9;justify-self:center}
 .hud--t>*:nth-child(3){grid-column:9/13;justify-self:end}
@@ -84,12 +94,10 @@ svg{display:block}
 @keyframes blink{50%{opacity:0}}
 .hero__title{position:relative;z-index:2;font-size:var(--t-xl);padding-inline:var(--pad);pointer-events:none;will-change:transform}
 .hero__title .serif{font-size:1.02em;letter-spacing:-.035em;line-height:.8}
-.hero__meta{position:relative;z-index:2;padding-block:2rem calc(clamp(1.6rem,5.5vh,3.4rem) + 1.2rem);align-items:end}
-.hero__meta .swap-wrap{grid-column:1/6;font-size:var(--t-l);line-height:1.1;letter-spacing:-.02em;font-weight:500;font-stretch:90%}
-.swap{display:inline-block;vertical-align:bottom;height:1.15em;overflow:hidden}
-.swap__tape{display:flex;flex-direction:column}
-.swap__tape span{display:block;height:1.15em;color:var(--accent)}
-.hero__meta p{grid-column:7/10;font-size:var(--t-s);color:rgba(237,235,230,.7)}
+.hero__meta{position:relative;z-index:2;padding-block:2rem calc(var(--lb) + 1.2rem);align-items:end;row-gap:1.5rem}
+.hero__sub{grid-column:1/6;font-size:clamp(1.25rem,2.2vw,1.9rem);line-height:1.15;letter-spacing:-.015em;font-weight:500;font-stretch:90%}
+.hero__cta{grid-column:7/10;display:flex;flex-direction:column;gap:.7rem;align-items:flex-start}
+.hero__cta small{font-size:var(--t-xs);color:rgba(237,235,230,.75);letter-spacing:.02em}
 .reel{grid-column:10/13;justify-self:end;display:flex;gap:.4rem;width:100%;max-width:220px}
 .reel button{flex:1;height:calc(2px + 1rem);padding:.5rem 0;position:relative;overflow:hidden;background:linear-gradient(rgba(237,235,230,.3),rgba(237,235,230,.3)) 0 50%/100% 2px no-repeat}
 .reel button i{position:absolute;left:0;top:calc(50% - 1px);height:2px;width:100%;background:var(--paper);transform:scaleX(0);transform-origin:0 50%}
@@ -97,9 +105,10 @@ svg{display:block}
 .reel button.on i{animation:reel var(--shot,6s) linear forwards}
 @keyframes reel{to{transform:scaleX(1)}}
 
-/* CTA magnético */
-.btn{position:relative;display:inline-flex;align-items:center;gap:.6rem;padding:1rem 1.5rem;border-radius:999px;background:var(--accent);color:var(--ink);font-weight:600;font-size:var(--t-s);letter-spacing:.01em;will-change:transform}
-.btn--ghost{background:transparent;color:inherit;border:1px solid currentColor}
+/* botões */
+.btn{position:relative;display:inline-flex;align-items:center;gap:.6rem;padding:1rem 1.5rem;border-radius:999px;background:var(--accent);color:var(--ink);font-weight:600;font-size:var(--t-s);letter-spacing:.01em;will-change:transform;white-space:nowrap}
+.btn--ink{background:var(--ink);color:var(--accent)}
+.btn--line{background:transparent;color:inherit;border:1px solid currentColor}
 
 /* reveal por linha */
 .line{display:block;overflow:hidden;padding-bottom:.16em;margin-bottom:-.16em}
@@ -110,7 +119,7 @@ svg{display:block}
 
 /* ---------- marquee ---------- */
 .marquee{overflow:hidden;border-block:1px solid var(--line);padding-block:1.1rem;white-space:nowrap}
-.marquee__track{display:inline-flex;gap:3rem;animation:mq 28s linear infinite;font-weight:700;font-stretch:75%;text-transform:uppercase;font-size:clamp(1.1rem,2.2vw,1.8rem);letter-spacing:.01em}
+.marquee__track{display:inline-flex;gap:3rem;animation:mq 30s linear infinite;font-weight:700;font-stretch:75%;text-transform:uppercase;font-size:clamp(1.1rem,2.2vw,1.8rem);letter-spacing:.01em}
 .marquee__track span{display:inline-flex;gap:3rem;align-items:center}
 .marquee__track i{font-style:normal;color:var(--accent)}
 @keyframes mq{to{transform:translateX(-50%)}}
@@ -121,121 +130,172 @@ svg{display:block}
 .sec__head .label{grid-column:1/4;align-self:start}
 .sec__head h2{grid-column:4/13;font-size:clamp(2.8rem,8vw,7.5rem)}
 .paper{background:var(--paper);color:var(--ink)}
-.paper .label{color:#6e6c68}
+.paper .label{color:#5f5d59}
 
-/* manifesto: texto que se preenche */
-.manifesto{position:relative;height:260vh}
+/* ato 2: dor */
+.manifesto{position:relative;height:240vh}
 .manifesto__sticky{position:sticky;top:0;height:100svh;display:flex;align-items:center}
 .manifesto__sticky .label{grid-column:1/4;align-self:start;padding-top:.6em}
 .manifesto p{grid-column:4/13;font-size:clamp(1.7rem,4.4vw,4.2rem);line-height:1.08;letter-spacing:-.025em;font-weight:500;font-stretch:88%}
 .manifesto p span{color:rgba(237,235,230,.13)}
 .manifesto p .serif{font-size:1.08em}
+.pains{border-top:1px solid var(--line)}
+.pains li{list-style:none;grid-column:span 12;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);padding-block:1.4rem;border-bottom:1px solid var(--line);color:rgba(237,235,230,.5);transition:color .6s var(--ease)}
+.pains li:hover{color:var(--paper)}
+.pains li span:first-child{grid-column:1/4}
+.pains li span:last-child{grid-column:4/13;font-size:clamp(1.15rem,2.2vw,1.8rem);font-weight:500;font-stretch:90%;letter-spacing:-.01em;line-height:1.2}
+.pains__intro{grid-column:4/11;font-size:var(--t-m);color:rgba(237,235,230,.72);margin-bottom:2rem;max-width:52ch}
 
-/* catálogo */
-.filters{grid-column:4/13;display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem}
-.filters button{font-size:var(--t-s);font-weight:500;padding:.55rem 1.05rem;border-radius:999px;border:1px solid var(--line-ink);color:#55534f;transition:background .6s var(--ease),color .6s var(--ease),border-color .6s var(--ease)}
-.filters button:hover{border-color:var(--ink);color:var(--ink)}
-.filters button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.count{grid-column:1/4;padding-top:.6rem}
-.cat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line-ink);border-left:1px solid var(--line-ink);margin-inline:var(--pad)}
-.prod{position:relative;display:flex;flex-direction:column;border-right:1px solid var(--line-ink);border-bottom:1px solid var(--line-ink);padding:1.1rem;overflow:hidden;will-change:transform}
-.prod.out{display:none}
-.prod::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s var(--ease);background:radial-gradient(260px circle at var(--x,50%) var(--y,50%),rgba(200,255,46,.55),transparent 70%)}
-.prod:hover::before{opacity:1}
-.prod__top{position:relative;display:flex;justify-content:space-between;align-items:baseline}
-.prod__fig{position:relative;aspect-ratio:4/5;overflow:hidden;margin:.9rem 0 1rem;background:#d9d6cf}
-.prod__fig img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.05);transform:scale(1.06);transition:transform 1.4s var(--ease),filter 1.4s var(--ease)}
-.prod:hover .prod__fig img{transform:scale(1);filter:saturate(1) contrast(1.05)}
-.prod__name{position:relative;font-weight:700;font-stretch:80%;font-size:1.25rem;line-height:1.05;letter-spacing:-.01em;text-transform:uppercase}
-.prod__sub{position:relative;font-size:var(--t-s);color:#6e6c68;margin-top:.25rem}
-.prod__foot{position:relative;display:flex;justify-content:space-between;align-items:center;margin-top:1.1rem;gap:.5rem}
-.prod__price{font-weight:600;font-variant-numeric:tabular-nums}
-.prod__price s{display:block;font-weight:400;font-size:var(--t-xs);color:#8a8883}
-.add{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem .95rem;border-radius:999px;background:var(--ink);color:var(--paper);font-size:var(--t-s);font-weight:500;white-space:nowrap;will-change:transform}
-.add.ok{background:var(--accent);color:var(--ink)}
-.tag{font-size:var(--t-xs);font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:999px;background:var(--accent);color:var(--ink)}
+/* ato 3: seletor de sabor (assinatura) */
+.sabor{position:relative;overflow:hidden}
+.sabor__wrap{align-items:stretch;row-gap:2rem}
+.sabor__info{grid-column:1/6;display:flex;flex-direction:column;gap:1.6rem}
+.sabor__info h2{font-size:clamp(2.4rem,5vw,4.8rem)}
+.sabor__info>p{max-width:42ch;color:#4c4a47}
+.flist{border-top:1px solid var(--line-ink)}
+.flist button{width:100%;display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--line-ink);text-align:left;color:rgba(11,11,12,.45);transition:color .6s var(--ease),padding .6s var(--ease)}
+.flist button:hover{color:var(--ink)}
+.flist button[aria-pressed="true"]{color:var(--ink);padding-left:.8rem}
+.flist b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(1.8rem,3vw,2.6rem);line-height:1;letter-spacing:-.02em}
+.flist span{font-weight:600;font-variant-numeric:tabular-nums}
+.flist button[aria-pressed="true"] b::before{content:"→ ";font-family:var(--sans);font-style:normal;font-size:.6em;vertical-align:middle}
+.sabor__stage{grid-column:6/13;position:relative;min-height:min(calc(100svh - 7rem),760px);display:flex;flex-direction:column;justify-content:flex-end}
+.stage__photo{position:absolute;inset:0;overflow:hidden;background:#1a1a1b}
+.stage__photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;clip-path:inset(0 0 100% 0);transform:scale(1.1);transition:clip-path 1.1s var(--ease),transform 1.6s var(--ease)}
+.stage__photo img.on{clip-path:inset(0 0 0 0);transform:scale(1);z-index:1}
+.stage__photo img.under{clip-path:inset(0 0 0 0)}
+.stage__photo::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(to top,rgba(0,0,0,.85),rgba(0,0,0,0) 55%)}
+.stage__name{position:absolute;left:0;right:0;top:42%;transform:translateY(-50%);overflow:hidden;pointer-events:none;color:rgba(237,235,230,.94);text-shadow:0 .04em .3em rgba(0,0,0,.35);z-index:3}
+.stage__name div{display:inline-flex;white-space:nowrap;animation:mq 24s linear infinite;font-family:var(--serif);font-style:italic;font-size:clamp(6rem,17vw,16rem);line-height:1;letter-spacing:-.04em}
+.stage__name span{padding-right:.3em}
+.stage__buy{position:relative;z-index:4;color:var(--paper);padding:clamp(1rem,2.4vw,2rem);display:flex;justify-content:space-between;align-items:flex-end;gap:1.5rem;flex-wrap:wrap}
+.price{display:flex;align-items:baseline;gap:.4rem}
+.price small{font-size:var(--t-s);font-weight:600}
+.price .odo{font-size:clamp(3.2rem,7vw,6.4rem);font-weight:800;font-stretch:68%;letter-spacing:-.02em;line-height:1}
+.buy{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.qty{display:inline-flex;align-items:center;border:1px solid rgba(237,235,230,.45);border-radius:999px}
+.qty button{width:2.75rem;height:2.75rem;font-size:1.1rem}
+.qty output{min-width:1.6rem;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.stage__meta{font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:rgba(237,235,230,.8);margin-bottom:.4rem}
 
-/* sabores: galeria horizontal */
-.flavors{position:relative;height:340vh}
-.flavors__sticky{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:2.5rem}
-.flavors__head{align-items:end}
-.flavors__head .label{grid-column:1/4}
-.flavors__head .pos{grid-column:10/13;justify-self:end;font-variant-numeric:tabular-nums}
-.flavors__tape{display:flex;gap:var(--gap);padding-inline:var(--pad);will-change:transform}
-.flavor{flex:none;width:min(80vw,620px);aspect-ratio:4/5;max-height:72svh;display:flex;flex-direction:column;justify-content:space-between;padding:1.4rem;position:relative;overflow:hidden;isolation:isolate}
-.flavor>*{position:relative;z-index:1}
-.flavor__img{position:absolute!important;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2!important;transform:scale(1.12);transition:transform 1.6s var(--ease)}
-.flavor:hover .flavor__img{transform:scale(1.04)}
-.flavor::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.2) 45%,rgba(0,0,0,.35) 100%)}
-.flavor .label{color:rgba(237,235,230,.8)}
-.flavor__word{font-family:var(--serif);font-style:italic;font-size:clamp(4rem,10vw,9rem);line-height:.85;letter-spacing:-.04em}
-.flavor__row{display:flex;justify-content:space-between;align-items:end;gap:1rem;margin-top:.6rem}
-.flavor__row p{font-size:var(--t-s);color:rgba(237,235,230,.8);max-width:28ch}
-
-/* rotina: cartões que empilham */
+/* ato 4: benefícios, cartões que empilham */
 .stack{padding-inline:var(--pad);display:flex;flex-direction:column;gap:2rem}
-.card{position:sticky;top:12vh;min-height:72svh;border:1px solid var(--line);background:#141415;padding:clamp(1.25rem,3vw,2.5rem);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);transform-origin:50% 0;will-change:transform,filter}
-.card:nth-child(2){background:#1a1a1b;top:calc(12vh + 1rem)}
-.card:nth-child(3){background:#202021;top:calc(12vh + 2rem)}
-.card:nth-child(4){background:var(--paper);color:var(--ink);top:calc(12vh + 3rem)}
-.card:nth-child(4) .label,.card:nth-child(4) p{color:#55534f}
-.card__time{grid-column:1/7;grid-row:2;font-size:clamp(4rem,14vw,13rem);font-variant-numeric:tabular-nums}
+.card{position:sticky;top:12vh;min-height:68svh;border:1px solid var(--line);background:#141415;padding:clamp(1.25rem,3vw,2.5rem);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:auto 1fr;gap:var(--gap);transform-origin:50% 0;will-change:transform,filter}
+.card:nth-child(2){background:#18181a;top:calc(12vh + 1rem)}
+.card:nth-child(3){background:#1c1c1e;top:calc(12vh + 2rem)}
+.card:nth-child(4){background:#202022;top:calc(12vh + 3rem)}
+.card:nth-child(5){background:var(--paper);color:var(--ink);top:calc(12vh + 4rem)}
+.card:nth-child(5) .label,.card:nth-child(5) p{color:#4c4a47}
 .card__idx{grid-column:1/7;grid-row:1}
-.card__body{grid-column:1/6;grid-row:3;align-self:end}
-.card__body h3{font-weight:700;font-stretch:80%;text-transform:uppercase;font-size:clamp(1.5rem,3vw,2.4rem);line-height:1;letter-spacing:-.01em;margin-bottom:.8rem}
-.card__body p{color:rgba(237,235,230,.65);max-width:40ch}
-.card__fig{grid-column:7/13;grid-row:1/4;overflow:hidden;position:relative;min-height:16rem}
+.card__body{grid-column:1/6;grid-row:2;align-self:end}
+.card__body h3{font-weight:800;font-stretch:72%;text-transform:uppercase;font-size:clamp(2rem,4.4vw,4rem);line-height:.92;letter-spacing:-.015em;margin-bottom:1rem}
+.card__body p{color:rgba(237,235,230,.7);max-width:40ch}
+.card__fig{grid-column:7/13;grid-row:1/3;overflow:hidden;position:relative;min-height:16rem}
 .card__fig img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.1)}
-.card:nth-child(4) .card__fig img{filter:none}
+.card:nth-child(5) .card__fig img{filter:none}
 
-/* ciência: odômetros + máscara */
-.stats{border-top:1px solid var(--line)}
-.stat{grid-column:span 3;border-right:1px solid var(--line);padding:2rem 1rem 0 0}
-.stat:last-child{border-right:0}
-.stat__num{display:flex;align-items:flex-end;font-size:clamp(3.4rem,8vw,7.5rem)}
-.stat__num small{font-size:.35em;margin:0 0 .2em .15em;font-weight:600;font-stretch:80%}
-.stat p{font-size:var(--t-s);color:rgba(237,235,230,.65);margin-top:.6rem;max-width:26ch}
-.reveal{position:relative;height:240vh}
+/* ato 5: prova honesta */
+.proof{row-gap:var(--gap)}
+.proof__nums{grid-column:1/13;display:flex;flex-wrap:wrap;gap:.6rem 2rem;font-size:clamp(1.2rem,2.6vw,2.2rem);font-weight:700;font-stretch:75%;text-transform:uppercase;padding-bottom:2rem;border-bottom:1px solid var(--line)}
+.quote{grid-column:span 4;border:1px dashed rgba(237,235,230,.3);padding:1.4rem;min-height:15rem;display:flex;flex-direction:column;justify-content:space-between;gap:1.5rem}
+.quote p{font-family:var(--serif);font-style:italic;font-size:clamp(1.4rem,2.2vw,1.9rem);line-height:1.1;color:rgba(237,235,230,.6)}
+.proof__note{grid-column:1/13;font-size:var(--t-s);color:var(--mute)}
+
+/* máscara que revela */
+.reveal{position:relative;height:220vh}
 .reveal__sticky{position:sticky;top:0;height:100svh;overflow:hidden}
 .scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:7rem var(--pad) var(--pad)}
+.scene>*{position:relative}
 .scene h3{font-size:clamp(3rem,11vw,11rem)}
 .scene--a{background:#141415}
-.scene>*{position:relative}
-.scene__img{position:absolute!important;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.1) brightness(.4)}
-.scene--a h3{color:rgba(237,235,230,.5)}
+.scene__img{position:absolute!important;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.1) brightness(.42)}
+.scene--a h3{color:rgba(237,235,230,.6)}
 .scene--b{background:var(--accent);color:var(--ink);clip-path:circle(0% at 50% 55%)}
-.scene--b .label{color:rgba(11,11,12,.7)}
+.scene--b .label{color:rgba(11,11,12,.72)}
 .scene__row{display:flex;justify-content:space-between;align-items:end;gap:2rem}
-.scene__row p{max-width:34ch;font-size:var(--t-m)}
+.scene__row p{max-width:36ch;font-size:var(--t-m)}
 
-/* oferta: contador + embaralhar */
-.offer{align-items:end;row-gap:3rem}
-.offer h2{grid-column:1/8;font-size:clamp(3rem,9vw,8.5rem)}
-.offer__side{grid-column:9/13}
-.clock{display:flex;gap:.5rem;margin:1rem 0 2rem}
-.clock div{flex:1;border:1px solid var(--line-ink);padding:.8rem .6rem;text-align:left}
-.clock b{display:block;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;font-stretch:68%;line-height:1;font-variant-numeric:tabular-nums}
-.coupon{display:flex;justify-content:space-between;align-items:center;width:100%;border:1px dashed var(--ink);padding:1rem 1.2rem;gap:1rem}
-.coupon code{font:800 clamp(1.4rem,2.6vw,2rem)/1 var(--sans);font-stretch:68%;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+/* ato 6: oferta, objeções, garantia */
+.offer{row-gap:3rem}
+.offer h2{grid-column:1/7;font-size:clamp(2.8rem,7vw,6.5rem)}
+.offer__list{grid-column:7/13;border-top:1px solid var(--line-ink)}
+.orow{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--line-ink)}
+.orow b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(1.6rem,2.6vw,2.2rem);line-height:1}
+.orow span{font-weight:600;font-variant-numeric:tabular-nums}
+.orow .btn{padding:.65rem 1rem}
+.offer__anchor{grid-column:1/7;font-size:clamp(1.2rem,2vw,1.6rem);line-height:1.25;font-weight:500;font-stretch:90%;max-width:30ch;align-self:start}
+.offer__terms{grid-column:7/13;display:grid;gap:.5rem;font-size:var(--t-s);color:#4c4a47}
+.obj{border-top:1px solid var(--line-ink);grid-column:1/13}
+.obj details{border-bottom:1px solid var(--line-ink)}
+.obj summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);padding:1.4rem 0;align-items:baseline}
+.obj summary::-webkit-details-marker{display:none}
+.obj summary .label{grid-column:1/4}
+.obj summary b{grid-column:4/12;font-size:clamp(1.5rem,3.2vw,2.8rem);font-weight:700;font-stretch:78%;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
+.obj summary i{grid-column:12/13;justify-self:end;font-style:normal;font-size:1.6rem;transition:transform .8s var(--ease)}
+.obj details[open] summary i{transform:rotate(45deg)}
+.obj .ans{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);overflow:hidden;transition:height .8s var(--ease)}
+.obj .ans p{grid-column:4/11;padding-bottom:1.6rem;color:#3f3d3a;max-width:56ch}
+.guarantee{grid-column:1/13;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);background:var(--ink);color:var(--paper);padding:clamp(1.5rem,4vw,3.5rem) 0;margin-top:2rem}
+.guarantee .label{grid-column:2/5;color:var(--mute)!important}
+.guarantee h3{grid-column:5/12;font-size:clamp(2.4rem,6vw,5.5rem)}
+.guarantee p{grid-column:5/11;color:rgba(237,235,230,.75);margin-top:1rem}
+
+/* FAQ */
+.faq{grid-column:4/13;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:1rem;padding:1.3rem 0;font-size:clamp(1.1rem,1.8vw,1.45rem);font-weight:500;font-stretch:92%}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary i{font-style:normal;transition:transform .8s var(--ease)}
+.faq details[open] summary i{transform:rotate(45deg)}
+.faq .ans{overflow:hidden;transition:height .8s var(--ease)}
+.faq .ans p{padding-bottom:1.4rem;color:rgba(237,235,230,.72);max-width:60ch}
+
+/* CTA final */
+.final{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding-block:6rem}
+.final>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.2) brightness(.45)}
+.final>*{position:relative}
+.final h2{font-size:clamp(3rem,10vw,10rem);padding-inline:var(--pad)}
+.final__row{margin-top:2.5rem;align-items:end;row-gap:1.5rem}
+.final__row p{grid-column:1/6;font-size:var(--t-m);color:rgba(237,235,230,.82);max-width:42ch}
+.final__row .btn{grid-column:7/10;justify-self:start}
+.final__row .ps{grid-column:10/13;font-size:var(--t-s)}
 
 /* rodapé */
-.foot{padding-top:var(--sec);overflow:hidden}
+.foot{padding-top:6rem;overflow:hidden}
 .foot__cols{row-gap:2rem;padding-bottom:4rem;border-bottom:1px solid var(--line)}
-.foot__cols>div{grid-column:span 3;display:flex;flex-direction:column;gap:.35rem;font-size:var(--t-s)}
+.foot__cols>div{grid-column:span 3;display:flex;flex-direction:column;gap:.4rem;font-size:var(--t-s);align-items:flex-start}
 .foot__cols>div:first-child{grid-column:1/6}
 .foot__cols h4{font-size:var(--t-l);font-weight:500;font-stretch:88%;letter-spacing:-.02em;line-height:1.05;margin-bottom:1rem}
 .foot__cols .label{margin-bottom:.6rem}
-.foot__cols a{color:rgba(237,235,230,.75);width:fit-content}
+.foot__cols a{color:rgba(237,235,230,.78)}
 .u{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .6s var(--ease)}
 .u:hover{background-size:100% 1px}
-.news{display:flex;border-bottom:1px solid var(--paper);max-width:420px}
-.news input{flex:1;background:none;border:0;color:var(--paper);font:inherit;padding:.8rem 0;outline:none;min-width:0}
-.news input::placeholder{color:var(--mute)}
 .foot__meta{padding-block:1.2rem}
 .foot__meta>*:nth-child(1){grid-column:1/5}
 .foot__meta>*:nth-child(2){grid-column:5/9}
 .foot__meta>*:nth-child(3){grid-column:9/13;justify-self:end}
 .wordmark{font-weight:900;font-stretch:62%;text-transform:uppercase;font-size:39vw;line-height:.82;letter-spacing:-.03em;text-align:center;margin-bottom:-.04em;color:var(--accent);user-select:none}
+
+/* sacola */
+.drawer{position:fixed;inset:0;z-index:80;pointer-events:none;visibility:hidden;transition:visibility 0s linear 1s}
+.drawer__bg{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .8s var(--ease)}
+.drawer__panel{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--paper);color:var(--ink);transform:translateX(100%);transition:transform 1s var(--ease);display:flex;flex-direction:column;padding:1.5rem}
+.drawer.open{pointer-events:auto;visibility:visible;transition:none}
+.drawer.open .drawer__bg{opacity:1}
+.drawer.open .drawer__panel{transform:none}
+.drawer__head{display:flex;justify-content:space-between;align-items:center;padding-bottom:1rem;border-bottom:1px solid var(--line-ink)}
+.drawer__head b{font-weight:800;font-stretch:68%;font-size:1.8rem;text-transform:uppercase}
+.drawer__items{flex:1;overflow:auto}
+.ditem{display:grid;grid-template-columns:64px 1fr auto;gap:1rem;align-items:center;padding:1rem 0;border-bottom:1px solid var(--line-ink)}
+.ditem img{width:64px;height:80px;object-fit:cover}
+.ditem b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.5rem;line-height:1}
+.ditem small{display:block;color:#5f5d59}
+.ditem button{font-size:var(--t-xs);text-decoration:underline;color:#5f5d59}
+.drawer__empty{padding:2rem 0;color:#5f5d59}
+.drawer__foot{border-top:1px solid var(--line-ink);padding-top:1rem;display:grid;gap:.8rem}
+.drawer__total{display:flex;justify-content:space-between;font-weight:700;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.drawer__foot .btn{justify-content:center}
+.drawer__foot small{font-size:var(--t-xs);color:#5f5d59}
 
 /* cursor */
 .cursor{position:fixed;left:0;top:0;z-index:90;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;transition:width .5s var(--ease),height .5s var(--ease),margin .5s var(--ease);display:none}
@@ -247,24 +307,36 @@ svg{display:block}
   .nav__pill{display:none}
   .nav__logo{grid-column:1/7}
   .nav__cart{grid-column:7/13}
-  .hero__meta .swap-wrap{grid-column:1/13}
-  .hero__meta p{grid-column:1/10}
-  .reel{grid-column:1/13;justify-self:start;max-width:none}
   .hud--t>*:nth-child(1){grid-column:1/7}
   .hud--t>*:nth-child(2){display:none}
   .hud--t>*:nth-child(3){grid-column:7/13}
   .shot:nth-child(1) img{object-position:72% 55%}
-  .sec__head .label,.sec__head h2,.filters,.count{grid-column:1/13}
+  .hero__sub,.hero__cta,.reel{grid-column:1/13}
+  .reel{justify-self:start;max-width:none}
+  .sec__head .label,.sec__head h2{grid-column:1/13}
   .manifesto__sticky .label,.manifesto p{grid-column:1/13}
   .manifesto__sticky .grid{align-content:center;row-gap:1.5rem}
-  .cat{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .stat{grid-column:span 6;border-right:0;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
-  .card__time{grid-column:1/13}
-  .card__idx{grid-column:1/13;justify-self:start;grid-row:1}
-  .card__body{grid-column:1/13}
-  .card__fig{grid-column:1/13;grid-row:auto;min-height:11rem;order:-1}
-  .card__time,.card__idx,.card__body{grid-row:auto}
-  .offer h2,.offer__side{grid-column:1/13}
+  .pains__intro,.pains li span:first-child,.pains li span:last-child{grid-column:1/13}
+  .pains li{row-gap:.4rem}
+  .sabor__info,.sabor__stage{grid-column:1/13}
+  .sabor__stage{min-height:78svh}
+  .flist{display:flex;overflow-x:auto;gap:.5rem;border:0;scrollbar-width:none;margin-inline:calc(var(--pad)*-1);padding-inline:var(--pad)}
+  .flist button{flex:none;width:auto;border:1px solid var(--line-ink);border-radius:999px;padding:.55rem 1rem;gap:.6rem;align-items:center}
+  .flist button[aria-pressed="true"]{padding-left:1rem;background:var(--ink);color:var(--paper)}
+  .flist button[aria-pressed="true"] b::before{content:none}
+  .flist b{font-size:1.3rem}
+  .flist span{font-size:var(--t-s)}
+  .card__idx,.card__body,.card__fig{grid-column:1/13;grid-row:auto}
+  .card{grid-template-rows:auto}
+  .card__fig{min-height:12rem;order:-1}
+  .quote{grid-column:1/13;min-height:auto}
+  .offer h2,.offer__list,.offer__terms,.offer__anchor{grid-column:1/13}
+  .obj summary .label{grid-column:1/13}
+  .obj summary b{grid-column:1/12}
+  .obj .ans p{grid-column:1/13}
+  .guarantee .label,.guarantee h3,.guarantee p{grid-column:2/12}
+  .faq{grid-column:1/13}
+  .final__row p,.final__row .btn,.final__row .ps{grid-column:1/13}
   .foot__cols>div,.foot__cols>div:first-child{grid-column:1/13}
   .foot__cols>div:not(:first-child){grid-column:span 6}
   .foot__meta>*:nth-child(1){grid-column:1/7}
@@ -273,14 +345,11 @@ svg{display:block}
 }
 @media (max-width:520px){
   :root{--t-xl:clamp(3.2rem,20vw,13rem)}
-  .prod{padding:.8rem}
-  .prod__name{font-size:1rem}
-  .prod__foot{flex-direction:column;align-items:stretch}
-  .add{justify-content:center}
-  .tag{font-size:.6rem}
   .scene__row{flex-direction:column;align-items:start}
-  .flavor{aspect-ratio:4/5}
-  .flavor svg{width:58%;top:14%}
+  .stage__buy{flex-direction:column;align-items:stretch}
+  .buy .btn{flex:1;justify-content:center}
+  .orow{grid-template-columns:1fr auto}
+  .orow .btn{grid-column:1/3;justify-content:center}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:.01ms!important;animation:none!important}
@@ -291,7 +360,7 @@ svg{display:block}
 <body class="loading">
 
 <div class="loader" aria-hidden="true">
-  <span class="label">Forja · Lote 26</span>
+  <span class="label">Forja · Whey refil 450g</span>
   <span class="loader__num">0</span>
 </div>
 
@@ -300,14 +369,14 @@ svg{display:block}
 <header class="nav grid">
   <a class="nav__logo" href="#top">Forja</a>
   <nav class="nav__pill" aria-label="Seções">
-    <a href="#loja">Loja</a><a href="#sabores">Sabores</a><a href="#rotina">Rotina</a><a href="#laudo">Laudo</a><a href="#oferta">Oferta</a>
+    <a href="#sabor">Sabores</a><a href="#beneficios">Por que</a><a href="#oferta">Preços</a><a href="#duvidas">Dúvidas</a>
   </nav>
-  <a class="nav__cart" href="#loja" aria-label="Sacola">Sacola <span class="odo" data-odo="0">0</span></a>
+  <button class="nav__cart" data-open-bag aria-label="Abrir sacola">Sacola <span class="odo" data-bagcount>0</span></button>
 </header>
 
 <main id="top">
 
-<!-- (01) hero -->
+<!-- ato 1: hero (blocos 1, 2, 4) -->
 <section class="hero" data-hero>
   <div class="shots" data-shots>
     <figure class="shot on"><img src="img/hero-3.webp" alt="Mão segurando a barra antes do levantamento"></figure>
@@ -320,18 +389,18 @@ svg{display:block}
   <div class="hud hud--t grid" aria-hidden="true">
     <span class="rec">Rec · <span data-tc>00:00:00:00</span></span>
     <span>Cena <span data-scene>01</span> / 03 — <span data-scenename>Pegada</span></span>
-    <span>São Paulo · Lote 26</span>
+    <span>Whey · refil 450g</span>
   </div>
   <h1 class="hero__title display" data-split>
-    <span class="line"><span>Treino pede</span></span>
-    <span class="line"><span><em class="serif hi">combustível.</em></span></span>
+    <span class="line"><span>Whey sem</span></span>
+    <span class="line"><span><em class="serif hi">letra miúda.</em></span></span>
   </h1>
   <div class="hero__meta grid">
-    <div class="swap-wrap" data-fade style="--i:4">
-      Pra quem leva a sério o
-      <span class="swap"><span class="swap__tape"><span>whey.</span><span>pré-treino.</span><span>descanso.</span><span>creatina.</span><span>whey.</span></span></span>
+    <p class="hero__sub" data-fade style="--i:4">Refil de 450g em 5 sabores, de <span class="hi">R$ 35</span> a R$ 69,99. Você escolhe o sabor e vê o preço na hora.</p>
+    <div class="hero__cta" data-fade style="--i:5">
+      <a class="btn" href="#sabor" data-magnet>Escolher meu sabor ↓</a>
+      <small>Preço na hora • 7 dias pra desistir • <span class="ph">[INSERIR prazo de entrega]</span></small>
     </div>
-    <p data-fade style="--i:5">Proteína isolada, creatina pura e pré-treino sem enrolação. Cada lote com laudo de laboratório aberto no site.</p>
     <div class="reel" data-reel data-fade style="--i:6"><button aria-label="Cena 1"><i></i></button><button aria-label="Cena 2"><i></i></button><button aria-label="Cena 3"><i></i></button></div>
   </div>
   <div class="bar bar--t"></div><div class="bar bar--b"></div>
@@ -339,137 +408,183 @@ svg{display:block}
 
 <div class="marquee" aria-hidden="true">
   <div class="marquee__track">
-    <span>Frete grátis acima de R$ 199 <i>/</i> 27g de proteína por dose <i>/</i> Laudo aberto <i>/</i> Zero açúcar <i>/</i> Creatina 100% pura <i>/</i></span>
-    <span>Frete grátis acima de R$ 199 <i>/</i> 27g de proteína por dose <i>/</i> Laudo aberto <i>/</i> Zero açúcar <i>/</i> Creatina 100% pura <i>/</i></span>
+    <span>Natural R$ 35,00 <i>/</i> Baunilha R$ 49,90 <i>/</i> Morango R$ 49,90 <i>/</i> Chocolate R$ 54,90 <i>/</i> Cookies R$ 69,99 <i>/</i></span>
+    <span>Natural R$ 35,00 <i>/</i> Baunilha R$ 49,90 <i>/</i> Morango R$ 49,90 <i>/</i> Chocolate R$ 54,90 <i>/</i> Cookies R$ 69,99 <i>/</i></span>
   </div>
 </div>
 
-<!-- manifesto -->
-<section class="manifesto" aria-label="Manifesto">
+<!-- ato 2: abertura e dor (blocos 3, 5) -->
+<section class="manifesto" aria-label="Abertura">
   <div class="manifesto__sticky">
     <div class="grid">
-      <span class="label">(02) — Manifesto</span>
-      <p data-fill>A gente não vende milagre. Vende <em class="serif">proteína</em> que bate com o rótulo, creatina sem mistura e um laudo que você lê antes de abrir o pote. O resto é com você e com a barra.</p>
+      <span class="label">(01) — A real</span>
+      <p data-fill>Um ano de treino e você já sabe: a carga só sobe quando a comida acompanha. O que cansa não é tomar whey. É o preço que muda no <em class="serif">carrinho</em>, o sabor que enjoa no terceiro pote e o rótulo que fala muito e explica pouco.</p>
     </div>
   </div>
 </section>
 
-<!-- (03) loja -->
-<section class="sec paper" id="loja">
+<section class="sec" style="padding-top:0" aria-label="O que irrita">
+  <div class="grid"><p class="pains__intro" data-fade>Você já passou da fase de comprar o pote mais bonito da prateleira. Agora você compara, e é aí que irrita:</p></div>
+  <ul class="grid pains">
+    <li data-fade><span class="label">01</span><span>O sabor que você gosta custa mais, e ninguém avisa até o carrinho.</span></li>
+    <li data-fade><span class="label">02</span><span>O frete aparece no fim e muda a conta.</span></li>
+    <li data-fade><span class="label">03</span><span>Pote de 1kg do sabor errado é dinheiro parado no armário.</span></li>
+    <li data-fade><span class="label">04</span><span>Chocolate todo dia enjoa, mas trocar de marca é loteria.</span></li>
+    <li data-fade><span class="label">05</span><span>O rótulo tem nome bonito e pouca informação.</span></li>
+  </ul>
+</section>
+
+<!-- ato 3: solução + seletor (bloco 6, interação assinatura) -->
+<section class="sec paper sabor" id="sabor" style="padding-block:clamp(4rem,7vw,5.5rem)">
+  <div class="grid sabor__wrap">
+    <div class="sabor__info">
+      <span class="label">(02) — Preço por sabor</span>
+      <h2 class="display" data-split><span class="line"><span>Escolha o sabor.</span></span><span class="line"><span>O <em class="serif">preço</em> vem junto.</span></span></h2>
+      <p>Cada sabor tem o seu preço, mostrado antes de você clicar. O Natural custa menos porque <span class="ph">[INSERIR motivo real, ex.: não leva aromatizante]</span>. Ninguém paga pelo que não toma.</p>
+      <div class="flist" role="group" aria-label="Sabores" data-flist></div>
+    </div>
+    <div class="sabor__stage">
+      <div class="stage__photo" data-photos></div>
+      <div class="stage__name" aria-hidden="true"><div data-bigname></div></div>
+      <div class="stage__buy">
+        <div>
+          <div class="stage__meta">Whey Forja · refil 450g · <span data-fname>Chocolate</span></div>
+          <div class="price" aria-live="polite"><small>R$</small><span class="odo" data-price>54,90</span></div>
+        </div>
+        <div class="buy">
+          <div class="qty"><button data-q="-1" aria-label="Diminuir quantidade">−</button><output data-qty aria-label="Quantidade">1</output><button data-q="1" aria-label="Aumentar quantidade">+</button></div>
+          <button class="btn" data-buy>Comprar <span data-buyname>Chocolate</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ato 4: benefícios (bloco 7) -->
+<section class="sec" id="beneficios" style="padding-bottom:0">
   <div class="sec__head grid">
-    <span class="label">(03) — Loja</span>
-    <h2 class="display" data-split><span class="line"><span>Mais vendidos</span></span><span class="line"><span>da <em class="serif">semana</em></span></span></h2>
+    <span class="label">(03) — O que muda</span>
+    <h2 class="display" data-split><span class="line"><span>Feito pra quem</span></span><span class="line"><span>já <em class="serif hi">treina</em> sério</span></span></h2>
   </div>
-  <div class="grid">
-    <span class="label count" data-count>8 produtos</span>
-    <div class="filters" role="group" aria-label="Filtrar produtos">
-      <button class="on" data-f="tudo">Tudo</button>
-      <button data-f="proteina">Proteína</button>
-      <button data-f="creatina">Creatina</button>
-      <button data-f="pre">Pré-treino</button>
-      <button data-f="vitaminas">Vitaminas</button>
-    </div>
-  </div>
-  <div class="cat" data-cat></div>
-</section>
-
-<!-- (04) sabores -->
-<section class="flavors" id="sabores" aria-label="Sabores do whey">
-  <div class="flavors__sticky">
-    <div class="flavors__head grid">
-      <span class="label">(04) — Sabores do whey</span>
-      <span class="label pos" data-pos>01 / 05</span>
-    </div>
-    <div class="flavors__tape" data-tape>
-      <article class="flavor"><span class="label">Clássico</span><div><div class="flavor__word">Baunilha</div><div class="flavor__row"><p>Doce na medida, bate bem com aveia e banana.</p><span class="label">01</span></div></div><img class="flavor__img" src="img/f-baunilha.webp" alt="" loading="lazy"></article>
-      <article class="flavor"><span class="tag" style="align-self:flex-start">Mais pedido</span><div><div class="flavor__word">Chocolate</div><div class="flavor__row"><p>Cacau de verdade, sem gosto de remédio no fundo.</p><span class="label">02</span></div></div><img class="flavor__img" src="img/f-chocolate.webp" alt="" loading="lazy"></article>
-      <article class="flavor"><span class="label">Sobremesa</span><div><div class="flavor__word">Cookies</div><div class="flavor__row"><p>Pedaços crocantes de biscoito em cada dose.</p><span class="label">03</span></div></div><img class="flavor__img" src="img/f-cookies.webp" alt="" loading="lazy"></article>
-      <article class="flavor"><span class="label">Fresco</span><div><div class="flavor__word">Morango</div><div class="flavor__row"><p>Leve, bom com leite gelado depois do treino.</p><span class="label">04</span></div></div><img class="flavor__img" src="img/f-morango.webp" alt="" loading="lazy"></article>
-      <article class="flavor"><span class="label">Puro</span><div><div class="flavor__word">Natural</div><div class="flavor__row"><p>Sem sabor e sem adoçante, para usar em receitas.</p><span class="label">05</span></div></div><img class="flavor__img" src="img/f-natural.webp" alt="" loading="lazy"></article>
-    </div>
-  </div>
-</section>
-
-<!-- (05) rotina -->
-<section class="sec" id="rotina" style="padding-bottom:0">
-  <div class="sec__head grid">
-    <span class="label">(05) — Rotina</span>
-    <h2 class="display" data-split><span class="line"><span>Um dia de</span></span><span class="line"><span><em class="serif hi">treino</em> sério</span></span></h2>
-  </div>
-  <div class="stack" data-stack>
+  <div class="stack">
     <article class="card">
-      <span class="label card__idx">01 — Manhã</span>
-      <div class="card__time display">06:30</div>
-      <div class="card__body"><h3>Multivitamínico + Ômega 3</h3><p>Base do dia. Cobre o que a dieta deixa passar e cuida das articulações que você castiga na barra.</p></div>
+      <span class="label card__idx">01 — Preço</span>
+      <div class="card__body"><h3>Você sabe quanto paga antes de escolher.</h3><p>O valor de cada sabor está na página, não escondido no carrinho.</p></div>
       <figure class="card__fig"><img src="img/r-manha.webp" alt="Academia vazia de manhã" loading="lazy"></figure>
     </article>
     <article class="card">
-      <span class="label card__idx">02 — Pré-treino</span>
-      <div class="card__time display">17:40</div>
-      <div class="card__body"><h3>Ignição, 1 dose</h3><p>200mg de cafeína, beta-alanina e citrulina. Tome 30 minutos antes e sinta a diferença no último set.</p></div>
+      <span class="label card__idx">02 — Variedade</span>
+      <div class="card__body"><h3>Troca de sabor sem trocar de marca.</h3><p>Cinco sabores, mesma marca. Enjoou do chocolate, vai de cookies.</p></div>
       <figure class="card__fig"><img src="img/r-pre.webp" alt="Halteres na prateleira" loading="lazy"></figure>
     </article>
     <article class="card">
-      <span class="label card__idx">03 — Pós-treino</span>
-      <div class="card__time display">19:15</div>
-      <div class="card__body"><h3>Whey isolado + creatina</h3><p>27g de proteína e 3g de creatina no mesmo shaker. A janela importa menos do que a constância.</p></div>
+      <span class="label card__idx">03 — Refil 450g</span>
+      <div class="card__body"><h3>Testa sem empatar dinheiro.</h3><p>Um sabor novo não precisa ser um pote de 1kg parado no armário.</p></div>
+      <figure class="card__fig"><img src="img/p-creatina.webp" alt="Saco de pó com peneira" loading="lazy"></figure>
+    </article>
+    <article class="card">
+      <span class="label card__idx">04 — Rotina</span>
+      <div class="card__body"><h3>Bate a proteína do dia sem outra marmita.</h3><p><span class="ph">[INSERIR g de proteína por dose]</span> por dose, escrito na frente da embalagem.</p></div>
       <figure class="card__fig"><img src="img/r-pos.webp" alt="Atleta treinando rosca com barra" loading="lazy"></figure>
     </article>
     <article class="card">
-      <span class="label card__idx">04 — Noite</span>
-      <div class="card__time display">23:00</div>
-      <div class="card__body"><h3>Caseína e cama</h3><p>Proteína de absorção lenta para a madrugada. Músculo cresce no descanso, não no treino.</p></div>
-      <figure class="card__fig"><img src="img/r-noite.webp" alt="Atleta treinando no escuro" loading="lazy"></figure>
+      <span class="label card__idx">05 — Momento</span>
+      <div class="card__body"><h3>Natural pra receita. Cookies pra sobremesa.</h3><p>Um whey pra cada hora do dia, sem misturar marcas.</p></div>
+      <figure class="card__fig"><img src="img/f-natural.webp" alt="Colher dosadora com whey em pó" loading="lazy"></figure>
     </article>
   </div>
 </section>
 
-<!-- (06) laudo -->
-<section class="sec" id="laudo">
+<!-- ato 5: prova social honesta (bloco 8) -->
+<section class="sec" aria-label="Avaliações">
   <div class="sec__head grid">
-    <span class="label">(06) — Laudo</span>
-    <h2 class="display" data-split><span class="line"><span>Número que</span></span><span class="line"><span>se <em class="serif">confere</em></span></span></h2>
+    <span class="label">(04) — Quem já toma</span>
+    <h2 class="display" data-split><span class="line"><span>Avaliação</span></span><span class="line"><span>só <em class="serif">de verdade</em></span></span></h2>
   </div>
-  <div class="grid stats">
-    <div class="stat"><div class="stat__num display"><span class="odo" data-odo-on="27">00</span><small>g</small></div><p>de proteína por dose de 30g, medida por laboratório independente.</p></div>
-    <div class="stat"><div class="stat__num display"><span class="odo" data-odo-on="100">000</span><small>%</small></div><p>creatina monohidratada, sem carboidrato de enchimento.</p></div>
-    <div class="stat"><div class="stat__num display"><span class="odo" data-odo-on="0">0</span><small>g</small></div><p>de açúcar adicionado em toda a linha de proteínas.</p></div>
-    <div class="stat"><div class="stat__num display"><span class="odo" data-odo-on="48">00</span><small>h</small></div><p>do pedido até a porta nas capitais do Sudeste.</p></div>
+  <div class="grid proof">
+    <div class="proof__nums" data-fade><span class="ph">[INSERIR nº real de pedidos]</span><span class="ph">[INSERIR nota real]</span><span class="ph">[INSERIR Reclame Aqui]</span></div>
+    <figure class="quote" data-fade style="--i:0"><p>[INSERIR avaliação real — tempo de treino, sabor, resultado]</p><figcaption class="label">Nome · cidade</figcaption></figure>
+    <figure class="quote" data-fade style="--i:1"><p>[INSERIR avaliação real — sabor e preço]</p><figcaption class="label">Nome · cidade</figcaption></figure>
+    <figure class="quote" data-fade style="--i:2"><p>[INSERIR avaliação real — entrega]</p><figcaption class="label">Nome · cidade</figcaption></figure>
+    <p class="proof__note">A gente não inventa depoimento. Estes espaços ficam vazios até chegarem avaliações reais.</p>
   </div>
 </section>
 
-<section class="reveal" aria-label="Laudo aberto">
+<section class="reveal" aria-label="Transição para a oferta">
   <div class="reveal__sticky">
     <div class="scene scene--a"><img class="scene__img" src="img/laudo.webp" alt="" loading="lazy">
-      <span class="label">O mercado</span>
-      <h3 class="display">Rótulo<br>bonito.<br>Pó qualquer.</h3>
-      <div class="scene__row"><p style="color:rgba(237,235,230,.6)">Amino spiking, creatina com enchimento, proteína que some no teste.</p><span class="label">Role ↓</span></div>
+      <span class="label">O de sempre</span>
+      <h3 class="display">Pote de 1kg.<br>Sabor errado.<br>Preço surpresa.</h3>
+      <div class="scene__row"><p style="color:rgba(237,235,230,.75)">Errar o sabor num pote de 1kg custa o pote inteiro.</p><span class="label">Role ↓</span></div>
     </div>
     <div class="scene scene--b" data-mask>
       <span class="label">A Forja</span>
-      <h3 class="display">Laudo<br>aberto em<br><em class="serif">cada lote.</em></h3>
-      <div class="scene__row"><p>Digite o número do lote impresso no pote e veja o resultado do laboratório antes de abrir o lacre.</p><a class="btn" href="#oferta" data-magnet style="background:var(--ink);color:var(--accent)">Consultar lote ↗</a></div>
+      <h3 class="display">Refil de 450g.<br>Seu sabor.<br><em class="serif">Preço na cara.</em></h3>
+      <div class="scene__row"><p>Errar num refil custa metade, e você ainda descobre o seu favorito.</p><a class="btn btn--ink" href="#oferta" data-magnet>Ver os preços ↓</a></div>
     </div>
   </div>
 </section>
 
-<!-- (07) oferta -->
+<!-- ato 6: oferta, objeções, garantia (blocos 9, 10, 11) -->
 <section class="sec paper" id="oferta">
   <div class="grid offer">
-    <h2 class="display" data-split><span class="line"><span>Black Forja</span></span><span class="line"><span><em class="serif">15% off</em> em</span></span><span class="line"><span>tudo.</span></span></h2>
-    <div class="offer__side" data-fade>
-      <span class="label">Termina em</span>
-      <div class="clock" data-clock>
-        <div><b data-d>00</b><span class="label">dias</span></div>
-        <div><b data-h>00</b><span class="label">horas</span></div>
-        <div><b data-m>00</b><span class="label">min</span></div>
-        <div><b data-s>00</b><span class="label">seg</span></div>
-      </div>
-      <button class="coupon" data-coupon aria-label="Copiar cupom FORJA15">
-        <code data-scramble="FORJA15">FORJA15</code>
-        <span class="label" data-copy>Copiar ↗</span>
-      </button>
+    <h2 class="display" data-split><span class="line"><span>Cinco sabores.</span></span><span class="line"><span>Cinco <em class="serif">preços</em>.</span></span><span class="line"><span>Zero surpresa.</span></span></h2>
+    <div class="offer__list" data-offer></div>
+    <p class="offer__anchor" data-fade>Errar o sabor num pote de 1kg custa o pote inteiro. Num refil de 450g, custa metade.</p>
+    <div class="offer__terms" data-fade>
+      <span>Pagamento: <span class="ph">[INSERIR Pix, cartão e parcelamento]</span></span>
+      <span>Frete: <span class="ph">[INSERIR regra de frete]</span>, calculado pelo CEP antes de pagar.</span>
     </div>
+
+    <div class="obj" data-acc>
+      <details>
+        <summary><span class="label">Dúvida 01</span><b>Mas vai chegar rápido?</b><i aria-hidden="true">+</i></summary>
+        <div class="ans"><p>Você vê o prazo pelo seu CEP antes de pagar. Hoje ele é de <span class="ph">[INSERIR prazo médio por região]</span>, com código de rastreio por <span class="ph">[INSERIR canal]</span>.</p></div>
+      </details>
+      <details>
+        <summary><span class="label">Dúvida 02</span><b>Mas faz diferença mesmo?</b><i aria-hidden="true">+</i></summary>
+        <div class="ans"><p>Whey não faz milagre. Ele resolve uma conta: chegar na proteína do dia sem cozinhar mais um frango. Com 1 ano de treino, é essa constância que separa platô de evolução.</p></div>
+      </details>
+      <details>
+        <summary><span class="label">Dúvida 03</span><b>Mas é confiável?</b><i aria-hidden="true">+</i></summary>
+        <div class="ans"><p>A tabela nutricional completa fica na página, antes da compra. <span class="ph">[INSERIR laudo de laboratório, se existir]</span> <span class="ph">[INSERIR CNPJ e atendimento]</span></p></div>
+      </details>
+    </div>
+
+    <div class="guarantee" data-fade>
+      <span class="label">Garantia</span>
+      <h3 class="display">7 dias pra <em class="serif hi">desistir.</em></h3>
+      <p>Comprou online, tem 7 dias depois de receber pra desistir, pelo Código de Defesa do Consumidor (art. 49). <span class="ph">[INSERIR garantia extra, se houver]</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ (bloco 13) -->
+<section class="sec" id="duvidas">
+  <div class="sec__head grid">
+    <span class="label">(05) — Perguntas</span>
+    <h2 class="display" data-split><span class="line"><span>Antes de</span></span><span class="line"><span><em class="serif">pedir</em></span></span></h2>
+  </div>
+  <div class="grid">
+    <div class="faq" data-acc>
+      <details><summary>Quanto tempo dura um refil de 450g?<i aria-hidden="true">+</i></summary><div class="ans"><p><span class="ph">[INSERIR nº de doses por refil]</span>. Com uma dose por dia, faça a conta pela sua rotina.</p></div></details>
+      <details><summary>Serve pra quem já treina há anos?<i aria-hidden="true">+</i></summary><div class="ans"><p>Serve. A página foi feita pra quem já treina: você escolhe o sabor e o preço, sem papo de iniciante.</p></div></details>
+      <details><summary>E se eu não gostar do sabor?<i aria-hidden="true">+</i></summary><div class="ans"><p>Você tem 7 dias pra desistir pelo CDC. E com refil de 450g, testar outro sabor sai mais barato.</p></div></details>
+      <details><summary>Como é a entrega?<i aria-hidden="true">+</i></summary><div class="ans"><p>Prazo calculado pelo CEP no checkout. <span class="ph">[INSERIR transportadora e rastreio]</span></p></div></details>
+      <details><summary>Tem atendimento?<i aria-hidden="true">+</i></summary><div class="ans"><p><span class="ph">[INSERIR canal e horário de atendimento]</span></p></div></details>
+      <details><summary>Quais as formas de pagamento?<i aria-hidden="true">+</i></summary><div class="ans"><p><span class="ph">[INSERIR Pix, cartão e parcelamento]</span></p></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA final + PS (blocos 14, 15) -->
+<section class="final" aria-label="Fechamento">
+  <img src="img/r-noite.webp" alt="" loading="lazy">
+  <h2 class="display" data-split><span class="line"><span>Você já treina</span></span><span class="line"><span><em class="serif hi">sério.</em></span></span></h2>
+  <div class="grid final__row">
+    <p data-fade>Falta o whey acompanhar: no sabor que você gosta, no preço que você vê.</p>
+    <a class="btn" href="#sabor" data-magnet data-fade>Escolher meu sabor ↑</a>
+    <p class="ps" data-fade><b>PS:</b> o Natural sai por R$ 35. Se ainda não sabe qual sabor é o seu, começa por um refil e descobre sem empatar dinheiro.</p>
   </div>
 </section>
 
@@ -478,22 +593,32 @@ svg{display:block}
 <footer class="foot">
   <div class="grid foot__cols">
     <div>
-      <h4>Novidades de lote, cupons e nada de spam.</h4>
-      <form class="news" onsubmit="event.preventDefault();this.querySelector('button').textContent='Pronto ✓'">
-        <input type="email" required placeholder="seu@email.com" aria-label="E-mail">
-        <button class="label" style="color:var(--paper)">Assinar ↗</button>
-      </form>
+      <h4>Whey sem letra miúda.</h4>
+      <a class="btn btn--line" href="#sabor" style="color:var(--paper)">Escolher meu sabor</a>
     </div>
-    <div><span class="label">Loja</span><a class="u" href="#loja">Proteínas</a><a class="u" href="#loja">Creatina</a><a class="u" href="#loja">Pré-treino</a><a class="u" href="#loja">Vitaminas</a></div>
-    <div><span class="label">Forja</span><a class="u" href="#laudo">Laudos</a><a class="u" href="#rotina">Rotina</a><a class="u" href="#">Atendimento</a><a class="u" href="#">Instagram ↗</a></div>
+    <div><span class="label">Comprar</span><a class="u" href="#sabor">Sabores</a><a class="u" href="#oferta">Preços</a><a class="u" href="#duvidas">Dúvidas</a></div>
+    <div><span class="label">Forja</span><a class="u" href="#oferta">Garantia</a><span class="ph">[INSERIR atendimento]</span><span class="ph">[INSERIR CNPJ]</span></div>
   </div>
   <div class="grid foot__meta label">
     <span>© 2026 Forja · conceito</span>
-    <span>Site de referência, marca fictícia</span>
+    <span>Marca fictícia · fotos Unsplash</span>
     <span>São Paulo <span data-clocklocal>00:00</span></span>
   </div>
   <div class="wordmark" aria-hidden="true">Forja</div>
 </footer>
+
+<div class="drawer" data-drawer aria-hidden="true">
+  <div class="drawer__bg" data-close-bag></div>
+  <aside class="drawer__panel" role="dialog" aria-label="Sacola">
+    <div class="drawer__head"><b>Sacola</b><button class="label" data-close-bag data-close-btn style="color:var(--ink)">Fechar ✕</button></div>
+    <div class="drawer__items" data-items></div>
+    <div class="drawer__foot">
+      <div class="drawer__total"><span>Total</span><span data-total>R$ 0,00</span></div>
+      <a class="btn btn--ink" href="#" data-checkout>Finalizar compra ↗</a>
+      <small>Frete calculado pelo CEP no checkout. Link do checkout: <span class="ph">[INSERIR]</span></small>
+    </div>
+  </aside>
+</div>
 
 <script>
 /* ---------- ferramentas ---------- */
@@ -501,118 +626,145 @@ var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 var FINE = matchMedia('(hover: hover) and (pointer: fine)').matches;
 var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
 var lerp = function(a,b,t){ return a + (b-a)*t; };
-/* 0 quando o topo do bloco encosta no topo da tela, 1 quando o fim encosta no fim */
+var $ = function(s, c){ return (c || document).querySelector(s); };
+var $$ = function(s, c){ return [].slice.call((c || document).querySelectorAll(s)); };
 function pinProgress(el){
   var r = el.getBoundingClientRect();
   return clamp(-r.top / (r.height - innerHeight), 0, 1);
 }
-
-/* ---------- catálogo ---------- */
-var produtos = [
-  {n:'Whey Isolado', s:'900g · 27g de proteína', c:'proteina', img:'p-whey', p:189.9, o:229.9, tag:'Mais vendido', short:'Whey', sub:'Isolado'},
-  {n:'Creatina', s:'250g · monohidratada', c:'creatina', img:'p-creatina', p:89.9, short:'Creatina', sub:'100% pura'},
-  {n:'Ignição', s:'300g · pré-treino', c:'pre', img:'p-pre', p:119.9, o:139.9, short:'Ignição', sub:'Pré-treino'},
-  {n:'Multivitamínico', s:'60 cápsulas', c:'vitaminas', img:'p-multi', p:59.9, short:'Multi', sub:'A–Z'},
-  {n:'Whey Concentrado', s:'1kg · 21g de proteína', c:'proteina', img:'p-concentrado', p:139.9, short:'Whey', sub:'Concentrado'},
-  {n:'Barra Proteica', s:'Caixa com 12 · 20g cada', c:'proteina', img:'p-barra', p:99.9, tag:'Novo', short:'Creatina', sub:'500g'},
-  {n:'Cafeína 210mg', s:'120 cápsulas', c:'pre', img:'p-cafeina', p:44.9, short:'Cafeína', sub:'210mg'},
-  {n:'Ômega 3', s:'120 cápsulas · 1g', c:'vitaminas', img:'p-omega', p:69.9, short:'Ômega 3', sub:'1000mg'}
-];
 var brl = function(v){ return 'R$ ' + v.toFixed(2).replace('.', ','); };
-var cat = document.querySelector('[data-cat]');
-cat.innerHTML = produtos.map(function(p, i){
-  return '<article class="prod" data-c="'+p.c+'" data-fade style="--i:'+(i%4)+'">' +
-    '<div class="prod__top"><span class="label">'+String(i+1).padStart(2,'0')+'</span>'+(p.tag?'<span class="tag">'+p.tag+'</span>':'')+'</div>' +
-    '<div class="prod__fig"><img src="img/'+p.img+'.webp" alt="'+p.n+'" loading="lazy"></div>' +
-    '<h3 class="prod__name">'+p.n+'</h3><p class="prod__sub">'+p.s+'</p>' +
-    '<div class="prod__foot"><span class="prod__price">'+(p.o?'<s>'+brl(p.o)+'</s>':'')+brl(p.p)+'</span>' +
-    '<button class="add" data-add>Adicionar +</button></div></article>';
-}).join('');
 
-/* luz que segue o mouse */
-cat.addEventListener('mousemove', function(e){
-  var el = e.target.closest('.prod'); if(!el) return;
-  var r = el.getBoundingClientRect();
-  el.style.setProperty('--x', (e.clientX - r.left) + 'px');
-  el.style.setProperty('--y', (e.clientY - r.top) + 'px');
-});
+/* ---------- dados ---------- */
+var sabores = [
+  {id:'natural',   n:'Natural',   p:35.00, img:'f-natural',   alt:'Colher dosadora com whey em pó'},
+  {id:'baunilha',  n:'Baunilha',  p:49.90, img:'f-baunilha',  alt:'Tabletes de chocolate branco com amêndoas'},
+  {id:'morango',   n:'Morango',   p:49.90, img:'f-morango',   alt:'Morangos frescos'},
+  {id:'chocolate', n:'Chocolate', p:54.90, img:'f-chocolate', alt:'Pedaços de chocolate empilhados'},
+  {id:'cookies',   n:'Cookies',   p:69.99, img:'f-cookies',   alt:'Cookies com gotas de chocolate'}
+];
+var porId = function(id){ return sabores.filter(function(x){ return x.id === id; })[0]; };
 
-/* filtro com FLIP */
-var itens = [].slice.call(cat.children);
-var countEl = document.querySelector('[data-count]');
-document.querySelectorAll('[data-f]').forEach(function(b){
-  b.addEventListener('click', function(){
-    document.querySelectorAll('[data-f]').forEach(function(o){ o.classList.toggle('on', o === b); });
-    var f = b.dataset.f;
-    var antes = itens.map(function(i){ return i.getBoundingClientRect(); });
-    itens.forEach(function(i){ i.classList.toggle('out', f !== 'tudo' && i.dataset.c !== f); });
-    var vis = 0;
-    itens.forEach(function(i, n){
-      if(i.classList.contains('out')) return;
-      vis++;
-      var d = i.getBoundingClientRect(), a = antes[n];
-      var dx = a.width ? a.left - d.left : 0, dy = a.width ? a.top - d.top : 24;
-      i.style.transition = 'none';
-      i.style.opacity = a.width ? 1 : 0;
-      i.style.transform = 'translate('+dx+'px,'+dy+'px)';
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        i.style.transition = 'transform .9s var(--ease), opacity .9s var(--ease)';
-        i.style.transform = ''; i.style.opacity = 1;
-      }); });
-    });
-    countEl.textContent = vis + (vis === 1 ? ' produto' : ' produtos');
-  });
-});
-
-/* ---------- odômetro ---------- */
-function odoSet(el, value){
-  var str = String(value);
-  var digs = el.querySelectorAll('.dig');
-  if(digs.length !== str.length){
-    el.innerHTML = str.split('').map(function(){
+/* ---------- odômetro (NãoCodei 18) ---------- */
+function odoSet(el, str){
+  str = String(str);
+  var shape = str.replace(/\d/g, '0');
+  if(el.dataset.shape !== shape){
+    el.innerHTML = str.split('').map(function(ch){
+      if(!/\d/.test(ch)) return '<span class="sep">' + ch + '</span>';
       return '<span class="dig"><span class="tape">' + '0123456789'.split('').map(function(n){ return '<span>'+n+'</span>'; }).join('') + '</span></span>';
     }).join('');
-    digs = el.querySelectorAll('.dig');
+    el.dataset.shape = shape;
     el.offsetWidth;
   }
-  str.split('').forEach(function(d, i){
-    var t = digs[i].firstChild;
-    setTimeout(function(){ t.style.transform = 'translateY(' + (-d * 10) + '%)'; }, i * 110);
+  var tapes = $$('.tape', el), k = 0;
+  str.split('').forEach(function(ch){
+    if(!/\d/.test(ch)) return;
+    var t = tapes[k++];
+    setTimeout(function(){ t.style.transform = 'translateY(' + (-ch * 10) + '%)'; }, k * 90);
   });
+  el.setAttribute('aria-label', str);
 }
 
-/* sacola: botão com mola + contador */
-var sacola = 0, cartOdo = document.querySelector('[data-odo]');
-odoSet(cartOdo, 0);
+/* ---------- seletor de sabor (assinatura) ---------- */
+var flist = $('[data-flist]'), photos = $('[data-photos]'), offer = $('[data-offer]');
+flist.innerHTML = sabores.map(function(s){
+  return '<button aria-pressed="false" data-s="'+s.id+'"><b>'+s.n+'</b><span>'+brl(s.p)+'</span></button>';
+}).join('');
+photos.innerHTML = sabores.map(function(s){
+  return '<img src="img/'+s.img+'.webp" alt="'+s.alt+'" data-ph="'+s.id+'"' + (s.id === 'chocolate' ? '' : ' loading="lazy"') + '>';
+}).join('');
+offer.innerHTML = sabores.map(function(s){
+  return '<div class="orow"><b>'+s.n+'</b><span>'+brl(s.p)+'</span><button class="btn btn--ink" data-add="'+s.id+'">Comprar</button></div>';
+}).join('');
+
+var atualSabor = null, qtd = 1, priceEl = $('[data-price]');
+function escolher(id){
+  if(id === atualSabor) return;
+  var s = porId(id);
+  $$('[data-s]', flist).forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.s === id); });
+  $$('img', photos).forEach(function(im){
+    var era = im.dataset.ph === atualSabor;
+    im.classList.toggle('under', era);
+    im.classList.toggle('on', im.dataset.ph === id);
+    if(!era && im.dataset.ph !== id) im.classList.remove('under');
+  });
+  var big = (s.n + ' · ').repeat(4);
+  $('[data-bigname]').innerHTML = '<span>' + big + '</span><span>' + big + '</span>';
+  $('[data-fname]').textContent = s.n;
+  $('[data-buyname]').textContent = s.n;
+  odoSet(priceEl, s.p.toFixed(2).replace('.', ','));
+  atualSabor = id;
+}
+flist.addEventListener('click', function(e){ var b = e.target.closest('[data-s]'); if(b) escolher(b.dataset.s); });
+$$('[data-q]').forEach(function(b){
+  b.addEventListener('click', function(){ qtd = clamp(qtd + (+b.dataset.q), 1, 9); $('[data-qty]').textContent = qtd; });
+});
+escolher('chocolate');
+
+/* ---------- sacola ---------- */
+var bag = {}, bagCount = $('[data-bagcount]'), drawer = $('[data-drawer]');
+odoSet(bagCount, '0');
+function renderBag(){
+  var ids = Object.keys(bag), total = 0, n = 0;
+  $('[data-items]').innerHTML = ids.length ? ids.map(function(id){
+    var s = porId(id);
+    total += s.p * bag[id]; n += bag[id];
+    return '<div class="ditem"><img src="img/'+s.img+'.webp" alt=""><div><b>'+s.n+'</b><small>Refil 450g · '+bag[id]+' × '+brl(s.p)+'</small></div><button data-rm="'+id+'">Remover</button></div>';
+  }).join('') : '<p class="drawer__empty">Sua sacola está vazia. Escolha um sabor.</p>';
+  $('[data-total]').textContent = brl(total);
+  odoSet(bagCount, String(n));
+}
+function abrirSacola(){ drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); $('[data-close-btn]').focus(); }
+function fecharSacola(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); }
+function adicionar(id, q){ bag[id] = (bag[id] || 0) + q; renderBag(); abrirSacola(); }
+$('[data-buy]').addEventListener('click', function(){ adicionar(atualSabor, qtd); });
+offer.addEventListener('click', function(e){ var b = e.target.closest('[data-add]'); if(b) adicionar(b.dataset.add, 1); });
+$('[data-items]').addEventListener('click', function(e){ var b = e.target.closest('[data-rm]'); if(b){ delete bag[b.dataset.rm]; renderBag(); } });
+$('[data-open-bag]').addEventListener('click', abrirSacola);
+$$('[data-close-bag]').forEach(function(b){ b.addEventListener('click', fecharSacola); });
+addEventListener('keydown', function(e){ if(e.key === 'Escape') fecharSacola(); });
+$('[data-checkout]').addEventListener('click', function(e){ e.preventDefault(); this.textContent = 'Checkout: [INSERIR link]'; });
+renderBag();
+
+/* botão com mola (NãoCodei 14) */
 function spring(btn){
   var esc = 1, vel = 0, alvo = 1, id = null;
   function step(){
-    vel = (vel + (alvo - esc) * .22) * .72;
-    esc += vel;
+    vel = (vel + (alvo - esc) * .22) * .72; esc += vel;
     btn.style.transform = 'scale(' + esc.toFixed(4) + ')';
-    if(Math.abs(vel) > .0005 || Math.abs(alvo - esc) > .0005) id = requestAnimationFrame(step); else id = null;
+    id = (Math.abs(vel) > .0005 || Math.abs(alvo - esc) > .0005) ? requestAnimationFrame(step) : null;
   }
   function go(a){ alvo = a; if(!id && !RM) step(); }
-  btn.addEventListener('mouseenter', function(){ go(1.08); });
-  btn.addEventListener('mouseleave', function(){ go(1); });
-  btn.addEventListener('pointerdown', function(){ go(.9); });
-  btn.addEventListener('pointerup', function(){ go(FINE ? 1.08 : 1); });
+  btn.addEventListener('pointerenter', function(){ if(FINE) go(1.06); });
+  btn.addEventListener('pointerleave', function(){ go(1); });
+  btn.addEventListener('pointerdown', function(){ go(.92); });
+  btn.addEventListener('pointerup', function(){ go(FINE ? 1.06 : 1); });
 }
-document.querySelectorAll('[data-add]').forEach(function(b){
-  spring(b);
-  b.addEventListener('click', function(){
-    sacola++;
-    odoSet(cartOdo, sacola);
-    b.classList.add('ok'); b.textContent = 'Na sacola ✓';
-    clearTimeout(b._t);
-    b._t = setTimeout(function(){ b.classList.remove('ok'); b.textContent = 'Adicionar +'; }, 1800);
+spring($('[data-buy]'));
+$$('[data-add]').forEach(spring);
+
+/* ---------- painéis que expandem (NãoCodei 23) ---------- */
+$$('[data-acc] details').forEach(function(d){
+  var ans = $('.ans', d), sum = $('summary', d);
+  sum.addEventListener('click', function(e){
+    e.preventDefault();
+    if(RM){ d.open = !d.open; return; }
+    if(d.open){
+      ans.style.height = ans.scrollHeight + 'px';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ ans.style.height = '0px'; }); });
+      setTimeout(function(){ d.open = false; ans.style.height = ''; }, 800);
+    } else {
+      d.open = true;
+      ans.style.height = '0px';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ ans.style.height = ans.scrollHeight + 'px'; }); });
+      setTimeout(function(){ ans.style.height = ''; }, 800);
+    }
   });
 });
 
 /* ---------- hero: tomadas, letterbox e timecode ---------- */
-var hero = document.querySelector('[data-hero]');
-var shotEls = [].slice.call(document.querySelectorAll('.shot'));
-var reelBtns = [].slice.call(document.querySelectorAll('[data-reel] button'));
+var hero = $('[data-hero]');
+var shotEls = $$('.shot'), reelBtns = $$('[data-reel] button');
 var nomes = ['Pegada', 'Terra', 'Barra'], SHOT = 6000, atual = 0, shotTimer = null;
 hero.style.setProperty('--shot', SHOT / 1000 + 's');
 function cena(n){
@@ -626,36 +778,27 @@ function cena(n){
     b.classList.remove('on'); b.classList.toggle('done', i < n);
     if(i === n){ b.offsetWidth; b.classList.add('on'); }
   });
-  document.querySelector('[data-scene]').textContent = '0' + (n + 1);
-  document.querySelector('[data-scenename]').textContent = nomes[n];
+  $('[data-scene]').textContent = '0' + (n + 1);
+  $('[data-scenename]').textContent = nomes[n];
   atual = n;
   clearTimeout(shotTimer);
   if(!RM) shotTimer = setTimeout(function(){ cena((atual + 1) % shotEls.length); }, SHOT);
 }
 reelBtns.forEach(function(b, i){ b.addEventListener('click', function(){ cena(i); }); });
 (function(){
-  var tc = document.querySelector('[data-tc]'), t0 = performance.now();
+  var tc = $('[data-tc]'), t0 = performance.now();
   var pad = function(n){ return String(n).padStart(2, '0'); };
   setInterval(function(){
     var f = Math.floor((performance.now() - t0) / 1000 * 24);
     tc.textContent = pad(Math.floor(f / 86400)) + ':' + pad(Math.floor(f / 1440) % 60) + ':' + pad(Math.floor(f / 24) % 60) + ':' + pad(f % 24);
   }, 42);
+  var lc = $('[data-clocklocal]');
+  function hora(){ lc.textContent = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo'}); }
+  hora(); setInterval(hora, 15000);
 })();
 
-/* ---------- palavras que trocam ---------- */
-(function(){
-  var tape = document.querySelector('.swap__tape'), n = tape.children.length, i = 0;
-  if(RM) return;
-  setInterval(function(){
-    i++;
-    tape.style.transition = 'transform 1s var(--ease)';
-    tape.style.transform = 'translateY(' + (-i * 100 / n) + '%)';
-    if(i === n - 1) setTimeout(function(){ tape.style.transition = 'none'; tape.style.transform = 'none'; i = 0; }, 1050);
-  }, 2400);
-})();
-
-/* ---------- texto que se preenche ---------- */
-var fill = document.querySelector('[data-fill]');
+/* ---------- texto que se preenche (NãoCodei 04) ---------- */
+var fill = $('[data-fill]');
 (function split(node){
   [].slice.call(node.childNodes).forEach(function(c){
     if(c.nodeType === 3){
@@ -672,72 +815,19 @@ var fill = document.querySelector('[data-fill]');
     }
   });
 })(fill);
-var fillWords = [].slice.call(fill.querySelectorAll('span'));
+var fillWords = $$('span', fill);
 
 /* ---------- reveal ao entrar na tela ---------- */
-document.querySelectorAll('[data-split] .line').forEach(function(l, i, all){
-  var siblings = [].slice.call(l.parentNode.children);
-  l.style.setProperty('--i', siblings.indexOf(l));
-});
+$$('[data-split] .line').forEach(function(l){ l.style.setProperty('--i', [].indexOf.call(l.parentNode.children, l)); });
 var io = new IntersectionObserver(function(es){
-  es.forEach(function(e){
-    if(!e.isIntersecting) return;
-    var el = e.target;
-    el.classList.add('in');
-    if(el.hasAttribute('data-odo-on')) odoSet(el, el.dataset.odoOn);
-    if(el.hasAttribute('data-scramble')) scramble(el);
-    io.unobserve(el);
-  });
-}, {threshold:.2, rootMargin:'0px 0px -6% 0px'});
-function watchReveals(){
-  document.querySelectorAll('[data-split]:not(.hero__title),[data-fade]:not(.hero [data-fade]),[data-odo-on],[data-scramble]').forEach(function(el){ io.observe(el); });
-}
+  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, {threshold:.15, rootMargin:'0px 0px -6% 0px'});
+function watchReveals(){ $$('[data-split]:not(.hero__title),[data-fade]:not(.hero [data-fade])').forEach(function(el){ io.observe(el); }); }
 
-/* ---------- embaralhar letras ---------- */
-function scramble(el){
-  var final = el.dataset.scramble, sopa = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%', q = 0;
-  if(RM){ el.textContent = final; return; }
-  (function girar(){
-    var travadas = Math.floor(q / 4), out = '';
-    for(var i = 0; i < final.length; i++) out += i < travadas ? final[i] : sopa[(Math.random() * sopa.length) | 0];
-    el.textContent = out; q++;
-    if(travadas <= final.length) requestAnimationFrame(girar);
-  })();
-}
-var coupon = document.querySelector('[data-coupon]');
-coupon.addEventListener('click', function(){
-  scramble(coupon.querySelector('code'));
-  try{ navigator.clipboard.writeText('FORJA15'); }catch(e){}
-  coupon.querySelector('[data-copy]').textContent = 'Copiado ✓';
-});
-
-/* ---------- contador regressivo ---------- */
-(function(){
-  var fim = new Date('2026-11-27T23:59:59-03:00').getTime();
-  var c = document.querySelector('[data-clock]');
-  var D = c.querySelector('[data-d]'), H = c.querySelector('[data-h]'), M = c.querySelector('[data-m]'), S = c.querySelector('[data-s]');
-  var pad = function(n){ return String(n).padStart(2, '0'); };
-  function tick(){
-    var r = Math.max(0, fim - Date.now()) / 1000;   /* sempre a partir da data final */
-    D.textContent = pad(Math.floor(r / 86400));
-    H.textContent = pad(Math.floor(r % 86400 / 3600));
-    M.textContent = pad(Math.floor(r % 3600 / 60));
-    S.textContent = pad(Math.floor(r % 60));
-  }
-  tick(); setInterval(tick, 1000);
-  var lc = document.querySelector('[data-clocklocal]');
-  function hora(){ lc.textContent = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo'}); }
-  hora(); setInterval(hora, 15000);
-})();
-
-/* ---------- laço de scroll: manifesto, sabores, pilha, máscara, menu ---------- */
-var manifesto = document.querySelector('.manifesto');
-var flavors = document.querySelector('.flavors'), tapeH = document.querySelector('[data-tape]'), posEl = document.querySelector('[data-pos]');
-var cards = [].slice.call(document.querySelectorAll('.card'));
-var reveal = document.querySelector('.reveal'), mask = document.querySelector('[data-mask]');
-var nav = document.querySelector('.nav'), lastY = scrollY;
-var light = document.querySelector('.hero__light'), shots = document.querySelector('[data-shots]'), heroTitle = document.querySelector('.hero__title');
-
+/* ---------- laço de scroll ---------- */
+var manifesto = $('.manifesto'), cards = $$('.card'), reveal = $('.reveal'), mask = $('[data-mask]');
+var nav = $('.nav'), lastY = scrollY;
+var light = $('.hero__light'), shots = $('[data-shots]'), heroTitle = $('.hero__title');
 function onScroll(){
   var y = scrollY;
   nav.classList.toggle('hide', y > lastY && y > innerHeight * .6);
@@ -746,48 +836,40 @@ function onScroll(){
   shots.style.transform = 'translate3d(0,' + (k * 30) + '%,0) scale(' + (1 + k * .08) + ')';
   heroTitle.style.transform = 'translate3d(0,' + (-k * 25) + 'vh,0)';
 
-  var p = pinProgress(manifesto);
-  var cur = p * (fillWords.length + 6) - 3;
+  var p = pinProgress(manifesto), cur = p * (fillWords.length + 6) - 3;
   fillWords.forEach(function(w, i){
     var d = clamp((cur - i) / 3, 0, 1);
-    w.style.color = d >= 1 ? '' : 'rgba(237,235,230,' + (.13 + d * .87).toFixed(3) + ')';
-    if(d >= 1) w.style.color = w.classList.contains('serif') ? 'var(--accent)' : 'var(--paper)';
+    w.style.color = d >= 1 ? (w.classList.contains('serif') ? 'var(--accent)' : 'var(--paper)') : 'rgba(237,235,230,' + (.13 + d * .87).toFixed(3) + ')';
   });
-
-  var ph = pinProgress(flavors);
-  var curso = Math.max(0, tapeH.scrollWidth - innerWidth);
-  tapeH.style.transform = 'translate3d(' + (-ph * curso) + 'px,0,0)';
-  posEl.textContent = String(Math.min(5, 1 + Math.round(ph * 4))).padStart(2, '0') + ' / 05';
 
   cards.forEach(function(c, i){
     var next = cards[i + 1]; if(!next) return;
     var r = c.getBoundingClientRect(), rn = next.getBoundingClientRect();
-    var k = clamp(1 - (rn.top - r.top) / r.height, 0, 1);
-    c.style.transform = 'scale(' + (1 - k * .08) + ')';
-    c.style.filter = 'brightness(' + (1 - k * .55) + ')';
+    var t = clamp(1 - (rn.top - r.top) / r.height, 0, 1);
+    c.style.transform = 'scale(' + (1 - t * .08) + ')';
+    c.style.filter = 'brightness(' + (1 - t * .55) + ')';
   });
 
-  var pm = pinProgress(reveal);
-  var e = 1 - Math.pow(1 - clamp(pm * 1.25, 0, 1), 3);
+  var pm = pinProgress(reveal), e = 1 - Math.pow(1 - clamp(pm * 1.25, 0, 1), 3);
   mask.style.clipPath = 'circle(' + (e * 150).toFixed(2) + '% at 50% 55%)';
 }
 addEventListener('scroll', function(){ requestAnimationFrame(onScroll); }, {passive:true});
 addEventListener('resize', onScroll);
 
-/* ---------- cursor, magnéticos, brilho do hero ---------- */
-var cursor = document.querySelector('.cursor'), cx = innerWidth/2, cy = innerHeight/2, tx = cx, ty = cy;
+/* ---------- cursor, magnéticos, luz do hero ---------- */
+var cursor = $('.cursor'), cx = innerWidth/2, cy = innerHeight/2, tx = cx, ty = cy;
 addEventListener('pointermove', function(e){
   tx = e.clientX; ty = e.clientY;
   if(e.clientY < innerHeight){ light.style.setProperty('--gx', (e.clientX / innerWidth * 100) + '%'); light.style.setProperty('--gy', (e.clientY / innerHeight * 100) + '%'); }
 }, {passive:true});
 if(FINE && !RM){
-  document.addEventListener('pointerover', function(e){ cursor.classList.toggle('big', !!e.target.closest('a,button,.prod')); });
+  document.addEventListener('pointerover', function(e){ cursor.classList.toggle('big', !!e.target.closest('a,button,summary')); });
   (function loop(){
     cx = lerp(cx, tx, .16); cy = lerp(cy, ty, .16);
     cursor.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
     requestAnimationFrame(loop);
   })();
-  document.querySelectorAll('[data-magnet],.nav__cart').forEach(function(b){
+  $$('[data-magnet],.nav__cart').forEach(function(b){
     var x = 0, y = 0, gx = 0, gy = 0, id = null;
     function step(){
       x = lerp(x, gx, .14); y = lerp(y, gy, .14);
@@ -796,7 +878,7 @@ if(FINE && !RM){
     }
     b.addEventListener('pointermove', function(e){
       var r = b.getBoundingClientRect();
-      gx = (e.clientX - r.left - r.width / 2) * .35; gy = (e.clientY - r.top - r.height / 2) * .35;
+      gx = (e.clientX - r.left - r.width / 2) * .3; gy = (e.clientY - r.top - r.height / 2) * .3;
       if(!id) step();
     });
     b.addEventListener('pointerleave', function(){ gx = gy = 0; if(!id) step(); });
@@ -805,8 +887,8 @@ if(FINE && !RM){
 
 /* ---------- loader ---------- */
 (function(){
-  var num = document.querySelector('.loader__num'), loader = document.querySelector('.loader');
-  var t0 = performance.now(), dur = RM ? 1 : 1400;
+  var num = $('.loader__num'), loader = $('.loader');
+  var t0 = performance.now(), dur = RM ? 1 : 1300;
   (function count(t){
     var k = clamp((t - t0) / dur, 0, 1);
     num.textContent = Math.round((1 - Math.pow(1 - k, 3)) * 100);
@@ -816,14 +898,13 @@ if(FINE && !RM){
     setTimeout(function(){
       hero.classList.add('open');
       cena(0);
-      document.querySelector('.hero__title').classList.add('in');
-      document.querySelectorAll('.hero [data-fade]').forEach(function(el){ el.classList.add('in'); });
+      heroTitle.classList.add('in');
+      $$('.hero [data-fade]').forEach(function(el){ el.classList.add('in'); });
       watchReveals();
       onScroll();
     }, 250);
   })(t0);
 })();
 </script>
-
 </body>
 </html>
