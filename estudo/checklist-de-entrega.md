@@ -8,6 +8,8 @@ tags: [regra, checklist]
 
 - [ ] Quantas fontes/estilos? (≤ 2 / ≤ 4) → [Tipografia](regras/tipografia.md)
 - [ ] Quantas cores? (3 neutros + 1 acento) → [Cor e paleta](regras/cor-e-paleta.md)
+- [ ] Produto, pessoa e lugar aparecem em **foto real**, sem 3D ou desenho no lugar? → [Fundo vivo e 3D](regras/fundo-vivo-e-3d.md)
+- [ ] Todo número, laudo ou depoimento é verdadeiro ou está marcado como `[INSERIR X]`?
 - [ ] O título principal ocupa a tela com convicção?
 - [ ] Existe hierarquia clara em 3 segundos?
 - [ ] O alinhamento segue o grid? Tem espaço vazio de verdade? → [Grid e espaço](regras/grid-e-espaco.md)

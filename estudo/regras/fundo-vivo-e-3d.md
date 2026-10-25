@@ -6,6 +6,9 @@ tags: [regra, 3d, webgl]
 
 # Fundo vivo e 3D
 
+> [!IMPORTANT]
+> **Realismo e verdade primeiro** (regra do usuário, 2026-10-25). Para mostrar produto, pessoa ou lugar a clientes, use **foto real**. 3D procedural, pote desenhado e objeto "de mentira" ficam feios e passam falsidade. 3D só quando a própria experiência for o produto (ex.: [Ilha 3D](../mundo-3d.md)), nunca para representar algo que existe de verdade.
+
 1. **Dois estados:** o fundo se mexe sozinho e reage ao cursor (e ao scroll) de outro jeito.
 2. **Contido:** o texto continua legível; usar overlay em gradiente e vinheta.
 3. **3D é herói ou não entra.** Se é decoração, um shader 2D resolve.
