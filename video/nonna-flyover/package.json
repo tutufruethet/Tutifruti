@@ -1,0 +1,14 @@
+{
+  "name": "nonna-flyover",
+  "private": true,
+  "description": "Fly-over 3D da landing page da Nonna Pizzaria (14,5s, 1440x1152, 60fps).",
+  "scripts": {
+    "render": "node render.js",
+    "preview": "node render.js --fps 30 --sub 1 --out preview-30fps.mp4",
+    "check": "python check_flow.py preview-30fps.mp4"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright": "^1.48.0"
+  }
+}
