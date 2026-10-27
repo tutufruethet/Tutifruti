@@ -17,12 +17,15 @@ while True:
     g = cv2.cvtColor(cv2.resize(frame, (720, 576)), cv2.COLOR_BGR2GRAY)
     if prev is not None:
         flow = cv2.calcOpticalFlowFarneback(prev, g, None, 0.5, 4, 31, 5, 7, 1.5, 0)
-        band = flow[150:330, 120:600]  # middle of the frame, where the focus sits
-        vy = -np.median(band[..., 1]) * 2  # page moving up the frame, in full-res px
-        xs = np.arange(120, 600) - 360
-        dx = np.median(band[..., 0], axis=0)
-        zoom = np.polyfit(xs, dx, 1)[0]  # >0 means the picture is expanding (zoom in)
-        rows.append((i / fps, vy, zoom))
+        # only pixels with texture: flat colour fields read as zero flow
+        gx = cv2.Sobel(prev, cv2.CV_32F, 1, 0); gy = cv2.Sobel(prev, cv2.CV_32F, 0, 1)
+        tex = np.hypot(gx, gy) > 40
+        band, m = flow[60:420], tex[60:420]  # upper and middle of the frame, where the focus sits
+        if m.sum() > 400:
+            vy = -np.median(band[..., 1][m]) * 2  # page moving up the frame, in full-res px
+            ys, xs = np.nonzero(m)
+            zoom = np.polyfit(xs - 360.0, band[..., 0][m], 1)[0]  # >0 means the picture is expanding (zoom in)
+            rows.append((i / fps, vy, zoom))
     prev, i = g, i + 1
 
 rows = np.array(rows)
