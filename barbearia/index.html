@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberElite ✨ | Eleve Seu Estilo a Outro Nível</title>
+<meta name="description" content="Antiexemplo: site de barbearia propositalmente genérico, com cara de feito por IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Antiexemplo de propósito: cada escolha aqui está na lista de "erros que eu cometia". */
+  :root {
+    --primary: #7c3aed;
+    --secondary: #3b82f6;
+    --accent: #ec4899;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --dark: #0f172a;
+    --gray: #64748b;
+    --light: #f8fafc;
+    --gradient: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+    --shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+    --radius: 24px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; color: var(--dark); background: var(--light); line-height: 1.6; overflow-x: hidden; }
+  h1, h2, h3 { font-family: 'Poppins', sans-serif; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .gradient-text { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* Navbar com glassmorphism */
+  nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 1200px; z-index: 100;
+        background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; box-shadow: var(--shadow); padding: 12px 24px;
+        display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'Poppins'; font-weight: 700; font-size: 1.4rem; }
+  nav ul { display: flex; gap: 32px; list-style: none; }
+  nav a { text-decoration: none; color: var(--dark); font-weight: 500; transition: all 0.3s ease; }
+  nav ul a:hover { color: var(--primary); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 999px; font-weight: 600; text-decoration: none;
+         border: none; cursor: pointer; transition: all 0.3s ease; font-size: 1rem; font-family: inherit; }
+  .btn-primary { background: var(--gradient); color: #fff; box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(124,58,237,0.5); }
+  .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-outline:hover { background: var(--primary); color: #fff; transform: translateY(-3px); }
+  .nav-btn { padding: 10px 22px; font-size: 0.9rem; }
+
+  /* Hero */
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; padding: 140px 0 80px; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: float 8s ease-in-out infinite; }
+  .blob-1 { width: 500px; height: 500px; background: #7c3aed; top: -100px; left: -100px; }
+  .blob-2 { width: 400px; height: 400px; background: #3b82f6; bottom: -100px; right: -100px; animation-delay: 2s; }
+  .blob-3 { width: 300px; height: 300px; background: #ec4899; top: 40%; left: 50%; animation-delay: 4s; opacity: 0.3; }
+  @keyframes float { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-30px) scale(1.1); } }
+  .hero-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 999px; background: rgba(124,58,237,0.1);
+           color: var(--primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 24px; border: 1px solid rgba(124,58,237,0.2); }
+  .hero h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.15; font-weight: 700; margin-bottom: 24px; }
+  .hero p { font-size: 1.2rem; color: var(--gray); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .trust { margin-top: 48px; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--gray); font-size: 0.95rem; flex-wrap: wrap; }
+  .avatars { display: flex; }
+  .avatars span { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #fff; margin-left: -10px; display: grid; place-items: center; font-size: 1.1rem; background: #ede9fe; }
+  .avatars span:first-child { margin-left: 0; }
+  .stars { color: var(--gold); }
+
+  /* Seções */
+  section { padding: 100px 0; }
+  .section-header { text-align: center; max-width: 700px; margin: 0 auto 64px; }
+  .section-tag { color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; margin-bottom: 12px; }
+  .section-header h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 16px; line-height: 1.2; }
+  .section-header p { color: var(--gray); font-size: 1.1rem; }
+
+  /* Stats */
+  .stats { padding: 0; margin-top: -40px; position: relative; z-index: 3; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; background: #fff; border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+  .stat { text-align: center; }
+  .stat h3 { font-size: 2.5rem; }
+  .stat p { color: var(--gray); }
+
+  /* Cards */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .card { background: #fff; border-radius: var(--radius); padding: 40px 32px; box-shadow: var(--shadow); transition: all 0.3s ease; text-align: center; border: 1px solid rgba(124,58,237,0.08); }
+  .card:hover { transform: translateY(-10px); box-shadow: 0 20px 60px rgba(124,58,237,0.25); }
+  .icon { width: 72px; height: 72px; border-radius: 20px; background: var(--gradient); display: grid; place-items: center; font-size: 2rem; margin: 0 auto 24px; box-shadow: 0 8px 24px rgba(124,58,237,0.3); }
+  .card h3 { font-size: 1.4rem; margin-bottom: 12px; }
+  .card p { color: var(--gray); }
+  .price-tag { display: inline-block; margin-top: 20px; font-weight: 700; font-size: 1.3rem; color: var(--primary); }
+
+  /* Por que nós */
+  .why { background: #fff; }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .why-visual { aspect-ratio: 1; border-radius: 32px; background: var(--gradient); display: grid; place-items: center; font-size: 10rem; box-shadow: var(--shadow); position: relative; }
+  .floating-card { position: absolute; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); padding: 16px 20px; border-radius: 16px; box-shadow: var(--shadow); font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .fc-1 { top: 10%; left: -20px; } .fc-2 { bottom: 12%; right: -20px; }
+  .why-list { list-style: none; margin: 32px 0; }
+  .why-list li { display: flex; gap: 16px; margin-bottom: 24px; }
+  .check { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: rgba(16,185,129,0.15); color: var(--green); display: grid; place-items: center; font-weight: 700; }
+  .why-list strong { display: block; margin-bottom: 4px; }
+  .why-list span { color: var(--gray); }
+
+  /* Preços */
+  .pricing-card { position: relative; text-align: left; }
+  .pricing-card.featured { background: var(--gradient); color: #fff; transform: scale(1.05); }
+  .pricing-card.featured:hover { transform: scale(1.05) translateY(-10px); }
+  .pricing-card.featured p, .pricing-card.featured li { color: rgba(255,255,255,0.9); }
+  .popular { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 6px 18px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+  .amount { font-size: 3rem; font-weight: 800; font-family: 'Poppins'; margin: 16px 0; }
+  .amount small { font-size: 1rem; font-weight: 400; opacity: 0.7; }
+  .pricing-card ul { list-style: none; margin: 24px 0 32px; }
+  .pricing-card li { padding: 8px 0; color: var(--gray); }
+  .pricing-card .btn { width: 100%; justify-content: center; }
+  .featured .btn { background: #fff; color: var(--primary); }
+
+  /* Depoimentos */
+  .testimonials { background: linear-gradient(180deg, #f8fafc 0%, #ede9fe 100%); }
+  .testimonial { text-align: left; }
+  .testimonial .stars { font-size: 1.2rem; margin-bottom: 16px; }
+  .testimonial p { font-style: italic; margin-bottom: 24px; }
+  .author { display: flex; align-items: center; gap: 12px; }
+  .author-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--gradient); display: grid; place-items: center; font-size: 1.4rem; }
+  .author strong { display: block; color: var(--dark); }
+  .author span { color: var(--gray); font-size: 0.9rem; }
+
+  /* FAQ */
+  .faq-list { max-width: 800px; margin: 0 auto; }
+  details { background: #fff; border-radius: 16px; padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease; }
+  details[open] { box-shadow: var(--shadow); }
+  summary { font-weight: 600; font-size: 1.1rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  summary::after { content: '➕'; font-size: 0.9rem; }
+  details[open] summary::after { content: '➖'; }
+  details p { margin-top: 16px; color: var(--gray); }
+
+  /* CTA */
+  .cta-box { background: var(--gradient); border-radius: 32px; padding: 80px 40px; text-align: center; color: #fff; position: relative; overflow: hidden; box-shadow: 0 20px 60px rgba(124,58,237,0.4); }
+  .cta-box::before { content: ''; position: absolute; width: 400px; height: 400px; background: rgba(255,255,255,0.1); border-radius: 50%; top: -200px; right: -100px; }
+  .cta-box h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 16px; position: relative; }
+  .cta-box p { font-size: 1.15rem; opacity: 0.9; margin-bottom: 32px; position: relative; }
+  .newsletter { display: flex; gap: 12px; max-width: 480px; margin: 0 auto; position: relative; }
+  .newsletter input { flex: 1; min-width: 0; padding: 16px 24px; border-radius: 999px; border: none; font-size: 1rem; font-family: inherit; }
+  .newsletter .btn { background: var(--dark); color: #fff; }
+
+  footer { background: var(--dark); color: #94a3b8; padding: 64px 0 32px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+  footer h4 { color: #fff; margin-bottom: 16px; }
+  footer ul { list-style: none; }
+  footer li { margin-bottom: 8px; }
+  footer a { color: #94a3b8; text-decoration: none; transition: all 0.3s ease; }
+  footer a:hover { color: #fff; }
+  .socials { display: flex; gap: 12px; margin-top: 20px; }
+  .socials a { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.08); display: grid; place-items: center; }
+  .socials a:hover { background: var(--gradient); transform: translateY(-3px); }
+  .copyright { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 32px; text-align: center; font-size: 0.9rem; }
+
+  /* O fade-in genérico de 0,3s */
+  .fade-in { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .fade-in { opacity: 1; transform: none; transition: none; } .blob { animation: none; } }
+
+  @media (max-width: 900px) {
+    nav ul { display: none; }
+    .grid-3, .why-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .pricing-card.featured { transform: none; }
+    .pricing-card.featured:hover { transform: translateY(-10px); }
+    .fc-1 { left: 10px; } .fc-2 { right: 10px; }
+  }
+  @media (max-width: 520px) {
+    section { padding: 72px 0; }
+    .stats-grid { padding: 28px 16px; gap: 20px; }
+    .stat h3 { font-size: 2rem; }
+    .newsletter { flex-direction: column; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .why-visual { font-size: 6rem; }
+    .nav-btn { padding: 8px 16px; }
+    .hero p { font-size: 1.05rem; }
+    .blob-1 { width: 300px; height: 300px; } .blob-2 { width: 260px; height: 260px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">💈 <span class="gradient-text">BarberElite</span></a>
+  <ul>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#precos">Preços</a></li>
+    <li><a href="#depoimentos">Depoimentos</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#agendar" class="btn btn-primary nav-btn">Agendar ✂️</a>
+</nav>
+
+<header class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="container hero-content">
+    <div class="badge">✨ A barbearia nº 1 da região</div>
+    <h1>Eleve Seu Estilo a <span class="gradient-text">Outro Nível</span> 🚀</h1>
+    <p>Onde a tradição encontra a modernidade. Experiência premium, profissionais apaixonados e resultados que transformam não só o seu visual, mas a sua confiança.</p>
+    <div class="hero-buttons">
+      <a href="#agendar" class="btn btn-primary">Agende Agora →</a>
+      <a href="#servicos" class="btn btn-outline">Conheça Nossos Serviços</a>
+    </div>
+    <div class="trust">
+      <div class="avatars"><span>👨</span><span>🧔</span><span>👱‍♂️</span><span>👨‍🦱</span></div>
+      <span class="stars">★★★★★</span>
+      <span>Mais de <strong>10.000+</strong> clientes satisfeitos</span>
+    </div>
+  </div>
+</header>
+
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid fade-in">
+      <div class="stat"><h3 class="gradient-text">10K+</h3><p>Clientes Felizes</p></div>
+      <div class="stat"><h3 class="gradient-text">15+</h3><p>Anos de Experiência</p></div>
+      <div class="stat"><h3 class="gradient-text">4.9⭐</h3><p>Avaliação Média</p></div>
+      <div class="stat"><h3 class="gradient-text">100%</h3><p>Satisfação Garantida</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="servicos">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Nossos Serviços</div>
+      <h2>Tudo o Que Você Precisa Para <span class="gradient-text">Brilhar</span></h2>
+      <p>Oferecemos uma gama completa de serviços pensados para o homem moderno que valoriza qualidade e estilo.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card fade-in"><div class="icon">✂️</div><h3>Corte Premium</h3><p>Cortes modernos e clássicos executados com precisão e atenção a cada detalhe.</p><span class="price-tag">A partir de R$ 49</span></div>
+      <div class="card fade-in"><div class="icon">🧔</div><h3>Barba Perfeita</h3><p>Modelagem, toalha quente e produtos de alta qualidade para uma barba impecável.</p><span class="price-tag">A partir de R$ 39</span></div>
+      <div class="card fade-in"><div class="icon">💆‍♂️</div><h3>Tratamentos</h3><p>Hidratação, limpeza de pele e relaxamento para você se sentir renovado.</p><span class="price-tag">A partir de R$ 59</span></div>
+      <div class="card fade-in"><div class="icon">🎨</div><h3>Coloração</h3><p>Pigmentação e luzes com técnicas avançadas para um visual único e autêntico.</p><span class="price-tag">A partir de R$ 89</span></div>
+      <div class="card fade-in"><div class="icon">👶</div><h3>Corte Infantil</h3><p>Ambiente acolhedor e divertido para os pequenos cavalheiros da família.</p><span class="price-tag">A partir de R$ 35</span></div>
+      <div class="card fade-in"><div class="icon">🤵</div><h3>Dia do Noivo</h3><p>Pacote exclusivo para você estar impecável no dia mais importante da sua vida.</p><span class="price-tag">A partir de R$ 199</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="sobre" class="why">
+  <div class="container why-grid">
+    <div class="why-visual fade-in">
+      💈
+      <div class="floating-card fc-1">⭐ 4.9 no Google</div>
+      <div class="floating-card fc-2">🏆 Prêmio Excelência 2026</div>
+    </div>
+    <div class="fade-in">
+      <div class="section-tag">Por Que Nos Escolher</div>
+      <h2 style="font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2;">Mais Que Uma Barbearia, Uma <span class="gradient-text">Experiência</span></h2>
+      <ul class="why-list">
+        <li><div class="check">✓</div><div><strong>Profissionais Certificados</strong><span>Nossa equipe é formada pelos melhores barbeiros do mercado.</span></div></li>
+        <li><div class="check">✓</div><div><strong>Ambiente Premium</strong><span>Espaço moderno, climatizado e pensado para o seu conforto.</span></div></li>
+        <li><div class="check">✓</div><div><strong>Produtos de Alta Qualidade</strong><span>Trabalhamos apenas com as melhores marcas nacionais e internacionais.</span></div></li>
+        <li><div class="check">✓</div><div><strong>Agendamento Online 24/7</strong><span>Marque seu horário em segundos, quando e onde quiser.</span></div></li>
+      </ul>
+      <a href="#agendar" class="btn btn-primary">Saiba Mais →</a>
+    </div>
+  </div>
+</section>
+
+<section id="precos">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Planos</div>
+      <h2>Escolha o Plano <span class="gradient-text">Ideal</span> Para Você</h2>
+      <p>Planos flexíveis que cabem no seu bolso. Sem taxas escondidas, cancele quando quiser.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card pricing-card fade-in">
+        <h3>Básico</h3><p>Para quem está começando</p>
+        <div class="amount">R$ 79<small>/mês</small></div>
+        <ul><li>✅ 2 cortes por mês</li><li>✅ Lavagem inclusa</li><li>✅ Agendamento online</li><li>❌ Barba</li></ul>
+        <a href="#agendar" class="btn btn-outline">Começar Agora</a>
+      </div>
+      <div class="card pricing-card featured fade-in">
+        <div class="popular">🔥 Mais Popular</div>
+        <h3>Premium</h3><p>O favorito dos nossos clientes</p>
+        <div class="amount">R$ 149<small>/mês</small></div>
+        <ul><li>✅ 4 cortes por mês</li><li>✅ Barba ilimitada</li><li>✅ Bebida cortesia 🍺</li><li>✅ Prioridade no agendamento</li></ul>
+        <a href="#agendar" class="btn">Assinar Premium</a>
+      </div>
+      <div class="card pricing-card fade-in">
+        <h3>VIP</h3><p>A experiência completa</p>
+        <div class="amount">R$ 249<small>/mês</small></div>
+        <ul><li>✅ Cortes ilimitados</li><li>✅ Barba ilimitada</li><li>✅ Tratamentos mensais</li><li>✅ Barbeiro exclusivo</li></ul>
+        <a href="#agendar" class="btn btn-outline">Seja VIP</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="depoimentos" class="testimonials">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Depoimentos</div>
+      <h2>O Que Nossos <span class="gradient-text">Clientes</span> Dizem</h2>
+      <p>Não acredite só na nossa palavra. Veja o que quem já viveu a experiência tem a dizer.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card testimonial fade-in"><div class="stars">★★★★★</div><p>"Simplesmente a melhor barbearia que já fui! Atendimento impecável e o resultado superou todas as minhas expectativas."</p><div class="author"><div class="author-avatar">👨</div><div><strong>Cliente A.</strong><span>Empresário</span></div></div></div>
+      <div class="card testimonial fade-in"><div class="stars">★★★★★</div><p>"Ambiente incrível, profissionais super atenciosos. Virei cliente fiel desde a primeira visita. Recomendo demais!"</p><div class="author"><div class="author-avatar">🧔</div><div><strong>Cliente B.</strong><span>Designer</span></div></div></div>
+      <div class="card testimonial fade-in"><div class="stars">★★★★★</div><p>"Transformou completamente meu visual e minha autoestima. Vale cada centavo. Experiência 10/10!"</p><div class="author"><div class="author-avatar">👱‍♂️</div><div><strong>Cliente C.</strong><span>Advogado</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">FAQ</div>
+      <h2>Perguntas <span class="gradient-text">Frequentes</span></h2>
+      <p>Tudo o que você precisa saber antes da sua primeira visita.</p>
+    </div>
+    <div class="faq-list fade-in">
+      <details><summary>Preciso agendar com antecedência?</summary><p>Recomendamos o agendamento online para garantir seu horário, mas também atendemos por ordem de chegada conforme disponibilidade.</p></details>
+      <details><summary>Quais formas de pagamento vocês aceitam?</summary><p>Aceitamos Pix, cartões de crédito e débito e dinheiro.</p></details>
+      <details><summary>Quanto tempo dura um atendimento?</summary><p>Em média, de 30 a 60 minutos, dependendo do serviço escolhido.</p></details>
+      <details><summary>Posso cancelar meu plano a qualquer momento?</summary><p>Sim! Sem multas, sem burocracia. Sua satisfação é nossa prioridade.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="agendar">
+  <div class="container">
+    <div class="cta-box fade-in">
+      <h2>Pronto Para Transformar Seu Visual? 💈</h2>
+      <p>Junte-se a milhares de clientes satisfeitos e ganhe 20% OFF no primeiro corte!</p>
+      <form class="newsletter" onsubmit="event.preventDefault(); this.querySelector('button').textContent='🎉 Enviado!';">
+        <input type="email" placeholder="Seu melhor e-mail" required aria-label="E-mail">
+        <button class="btn" type="submit">Quero Meu Desconto 🎁</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo" style="color:#fff;">💈 BarberElite</div>
+        <p style="margin-top:12px;">Elevando o padrão de estilo masculino desde 2011. Sua melhor versão começa aqui.</p>
+        <div class="socials"><a href="#" aria-label="Instagram">📸</a><a href="#" aria-label="Facebook">👍</a><a href="#" aria-label="WhatsApp">💬</a><a href="#" aria-label="TikTok">🎵</a></div>
+      </div>
+      <div><h4>Links Rápidos</h4><ul><li><a href="#servicos">Serviços</a></li><li><a href="#precos">Preços</a></li><li><a href="#faq">FAQ</a></li></ul></div>
+      <div><h4>Contato</h4><ul><li>📍 Rua Exemplo, 123</li><li>📞 (00) 0000-0000</li><li>✉️ contato@exemplo.com</li></ul></div>
+      <div><h4>Horários</h4><ul><li>Seg–Sex: 9h–20h</li><li>Sáb: 9h–18h</li><li>Dom: Fechado</li></ul></div>
+    </div>
+    <div class="copyright">© 2026 BarberElite. Todos os direitos reservados. Feito com ❤️ e ✂️</div>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
