@@ -23,6 +23,7 @@ export const NAV = [
   { href: "/jogo/treino", label: "Treino" },
   { href: "/jogo/noticias", label: "Notícias" },
   { href: "/jogo/vestiario", label: "Vestiário" },
+  { href: "/jogo/vida", label: "Vida pessoal" },
   { href: "/jogo/estatisticas", label: "Estatísticas" },
   { href: "/jogo/historico", label: "Histórico" },
   { href: "/jogo/config", label: "Configurações" },

@@ -532,6 +532,7 @@ export interface GameState {
   celebrations: { groupId: string; level: GroupLevel; kind: string; day: number }[];
   inbox: GameEvent[];
   agents?: Agent[];
+  romance?: RomanceState;
   seasonSummary?: SeasonEndSummary;
 }
 
@@ -584,4 +585,41 @@ export interface AgentHire {
   reports: { day: number; text: string }[];
   offersFound: number;
   earned: number;
+}
+
+// ---------- Vida pessoal / namoro ----------
+export type FanVibe = "romantica" | "divertida" | "ciumenta" | "independente" | "timida" | "famosa" | "torcedora" | "intelectual";
+export type FanStage = "fa" | "conversando" | "ficando" | "namorando" | "noivos" | "casados" | "ex";
+
+export interface Fan {
+  id: string;
+  name: string;
+  age: number; // sempre adulta (20+)
+  city: string;
+  nation: NationId;
+  job: string;
+  vibe: FanVibe;
+  likes: string[];
+  attraction: number; // 0..100
+  affection: number; // 0..100
+  trust: number; // 0..100
+  stage: FanStage;
+  metDay: number;
+  stageDay: number;
+  lastTalk: number;
+  dates: number;
+  famous: boolean;
+  laugh: string;
+  emoji: number;
+  birthday: number;
+  used: string[];
+  dailyDelta: number;
+  dailyDay: number;
+}
+
+export interface RomanceState {
+  fans: Fan[];
+  partnerId?: string;
+  weddingDay?: number;
+  log: { day: number; text: string }[];
 }

@@ -7,6 +7,8 @@ import { commitTurn, planTurn, type TurnPlan } from "@/engine/chat/chat";
 import { localBackend, metaOf, addToHall, type HallEntry } from "./persist";
 import { legacyScore } from "@/engine/career/player";
 import { AGENT_THREAD, agentChat } from "@/engine/career/agent";
+import { commitRomance, FAN_PREFIX, fanProfile, planRomance } from "@/engine/social/romance";
+import { buildCtx, ctxToFacts } from "@/engine/chat/context";
 import { DEFAULT_SETTINGS } from "@/engine/world/generate";
 import { ollamaModels, ollamaReplies } from "@/lib/ollama";
 import type { AIRequest } from "@/engine/chat/aiPrompt";
@@ -145,6 +147,39 @@ export const useGame = create<Store>((set, get) => ({
     const g = get().game;
     if (!g || !text.trim()) return;
     if (threadId === AGENT_THREAD) { agentChat(g, text.trim()); get().bump(); return; }
+    if (threadId.startsWith(FAN_PREFIX)) {
+      const rp = planRomance(g, threadId, text.trim());
+      if (!rp) return;
+      let ov: string[] | undefined;
+      const st = g.settings;
+      if (st.advancedAI && get().aiStatus === "disponivel" && (g.chat.aiDay !== g.day || g.chat.aiUsedToday < st.aiDailyLimit)) {
+        if (g.chat.aiDay !== g.day) { g.chat.aiDay = g.day; g.chat.aiUsedToday = 0; }
+        const fan = g.romance!.fans.find((f) => f.id === rp.fanId)!;
+        const t = g.chat.threads[threadId];
+        const req: AIRequest = {
+          facts: ctxToFacts(g, buildCtx(g)),
+          profiles: [fanProfile(g, fan)],
+          recent: t.messages.slice(-10).map((m) => ({ from: m.from === "me" ? "Usuário" : fan.name, text: m.text })),
+          message: rp.text,
+          draft: { [fan.id]: rp.free ? [] : rp.lines },
+        };
+        set({ sending: { threadId, text: rp.text } });
+        try {
+          const r = st.aiProvider === "ollama" ? await ollamaReplies(st.ollamaUrl, st.ollamaModel, req) : await fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) }).then((x) => (x.ok ? x.json() : null)).then((d: { replies?: Record<string, string[]> } | null) => d?.replies ?? null);
+          if (r?.[fan.id]?.length) { ov = r[fan.id]; g.chat.aiUsedToday++; }
+        } catch { /* modo local */ } finally { set({ sending: null }); }
+      }
+      const before = g.chat.seq;
+      commitRomance(g, rp, ov);
+      if (g.settings.typingAnimation) {
+        const until: Record<string, number> = { ...get().typingUntil };
+        let acc = Date.now();
+        for (const m of g.chat.threads[threadId].messages.filter((m) => m.id >= before && m.from !== "me")) { acc += 800 + Math.min(2600, m.text.length * 45); until[`${threadId}:${m.id}`] = acc; }
+        set({ typingUntil: until });
+      }
+      get().bump();
+      return;
+    }
     const plan: TurnPlan = planTurn(g, threadId, text.trim());
     let override: Record<string, string[]> | undefined;
     const s = g.settings;

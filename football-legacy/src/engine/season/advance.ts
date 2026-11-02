@@ -5,6 +5,7 @@ import { processChatTriggers } from "../chat/triggers";
 import { checkAchievements } from "../career/achievements";
 import { weeklyCoachTick } from "../career/coach";
 import { agentDaily, agentWeekly } from "../career/agent";
+import { romanceWeekly } from "../social/romance";
 import { expireDecisions, maybeDecision } from "../career/decisions";
 import { updateCallups, weeklyPlayerTick } from "../career/player";
 import { createMatch, finalizeMatch, simulateToEnd, type MatchState } from "../match/engine";
@@ -87,6 +88,7 @@ function weeklyTick(g: GameState, rng: Rng) {
   weeklyPlayerTick(g, rng);
   weeklyCoachTick(g, rng);
   agentWeekly(g, rng);
+  romanceWeekly(g, rng);
   weeklyChemistryDecay(g);
   for (const ev of detectGroups(g)) {
     const gr = ev.group;

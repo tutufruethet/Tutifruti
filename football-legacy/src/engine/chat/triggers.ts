@@ -7,6 +7,7 @@ import type { GameState, PersonalityType, Player } from "../types";
 import { dmId, ensureDm, ensureGroupThread, ensureTeamThread, meId, sayLine, teamThreadId } from "./chat";
 import { addMemory, hasMemory, mindOf } from "./memory";
 import type { Emo } from "./style";
+import { romanceOnEvent } from "../social/romance";
 
 type V = Partial<Record<PersonalityType | "default", string[]>>;
 
@@ -50,6 +51,7 @@ export function processChatTriggers(g: GameState, rng: Rng) {
   const me = meId(g);
   const mates = teammates(g);
   const events = g.inbox.splice(0, g.inbox.length);
+  for (const ev of events) romanceOnEvent(g, rng, ev);
   for (const ev of events) {
     if (!budget(g)) break;
     switch (ev.t) {

@@ -9,6 +9,15 @@ import { formatShortDate } from "@/engine/world/players";
 import type { ChatThread, GameState } from "@/engine/types";
 import { Avatar, Bar, PageTitle, Tabs } from "@/components/ui";
 import { AGENT_THREAD, currentAgent } from "@/engine/career/agent";
+import { FAN_PREFIX, STAGE_LABEL, VIBE_LABEL } from "@/engine/social/romance";
+
+function senderName(g: GameState, id: string): string {
+  if (g.players[id]) return g.players[id].first;
+  const f = g.romance?.fans.find((x) => x.id === id);
+  if (f) return f.name.split(" ")[0];
+  if (id === "agente") return currentAgent(g)?.name.split(" ")[0] ?? "Agente";
+  return "";
+}
 
 const TYPE_LABEL: Record<string, string> = { brincalhao: "Brincalhão", competitivo: "Competitivo", timido: "Tímido", leal: "Leal", ambicioso: "Ambicioso", arrogante: "Arrogante", lider: "Líder", emocional: "Emocional" };
 
@@ -28,6 +37,7 @@ function lastMsg(t: ChatThread) {
 
 function ThreadAvatar({ g, t }: { g: GameState; t: ChatThread }) {
   const ps = t.members.map((m) => g.players[m]).filter(Boolean);
+  if (t.id.startsWith(FAN_PREFIX)) { const f = g.romance?.fans.find((x) => `${FAN_PREFIX}${x.id}` === t.id); const [a, b] = (f?.name ?? "F ").split(" "); return <Avatar p={{ id: t.id, first: a, last: b ?? "" }} size={40} ring={g.romance?.partnerId === f?.id} />; }
   if (t.id === AGENT_THREAD) { const a = currentAgent(g); const [f, l] = (a?.name ?? "Agente X").split(" "); return <Avatar p={{ id: "ag", first: f, last: l ?? "" }} size={40} />; }
   if (t.kind === "dm" && ps[0]) return <Avatar p={ps[0]} size={40} />;
   return (
@@ -72,6 +82,7 @@ function Conversations() {
   const rel = other ? getRel(g, me, other.id) : undefined;
   const group = t?.groupId ? g.groups.find((x) => x.id === t.groupId) : undefined;
   const suggestions = useMemo(() => {
+    if (t?.id.startsWith(FAN_PREFIX)) return ["Oi! Tudo bem?", "O que tu faz da vida?", "Tu é linda", "Bora sair qualquer dia?", "Vai ver meu jogo?"];
     if (t?.id === AGENT_THREAD) return ["Procura um clube pra mim", "Quanto eu tô valendo?", "E meu contrato?", "Quero jogar na Europa"];
     const s = ["E aí, tudo bem?", "Esse jogo vai ser fácil", "Viu o último jogo?"];
     if (g.user.mode === "player") s.push("Tô pensando em sair do clube", "Tô cansado de ficar no banco");
@@ -134,7 +145,7 @@ function Conversations() {
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[15px]">{t.name}</div>
                   <div className="dim truncate text-xs">
-                    {t.id === AGENT_THREAD ? "Seu empresário · peça para procurar clube, seu valor ou contrato" : other ? `${TYPE_LABEL[other.persona.type]} · ${POS_LABEL[other.pos]} · ${other.clubId ? g.clubs[other.clubId].short : "sem clube"}` : t.members.map((m) => g.players[m]?.first).join(", ")}
+                    {t.id.startsWith(FAN_PREFIX) ? (() => { const f = g.romance?.fans.find((x) => `${FAN_PREFIX}${x.id}` === t.id); return f ? `${STAGE_LABEL[f.stage]} · ${f.job} · ${VIBE_LABEL[f.vibe]}` : ""; })() : t.id === AGENT_THREAD ? "Seu empresário · peça para procurar clube, seu valor ou contrato" : other ? `${TYPE_LABEL[other.persona.type]} · ${POS_LABEL[other.pos]} · ${other.clubId ? g.clubs[other.clubId].short : "sem clube"}` : t.members.map((m) => g.players[m]?.first).join(", ")}
                     {group ? ` · ${levelLabel(group.level, group.members.length)}` : ""}
                   </div>
                 </div>
@@ -176,10 +187,10 @@ function Conversations() {
                   <div className="flex items-center gap-2 pt-1"><div className="typing rounded-2xl border line surface px-3 py-2.5"><i /><i /><i /></div><span className="dim text-xs">digitando…</span></div>
                 </>
               )}
-              {typer && g.players[typer.from] && (
+              {typer && senderName(g, typer.from) && (
                 <div className="flex items-center gap-2 pt-1">
                   <div className="typing rounded-2xl border line surface px-3 py-2.5"><i /><i /><i /></div>
-                  <span className="dim text-xs">{g.players[typer.from].first} está digitando…</span>
+                  <span className="dim text-xs">{senderName(g, typer.from)} está digitando…</span>
                 </div>
               )}
               <div ref={endRef} />
