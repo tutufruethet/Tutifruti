@@ -134,7 +134,7 @@ export function computeRatings(g: GameState, ms: MatchState, si: 0 | 1) {
   att *= coh * (1 + s.chem);
   mid *= coh;
   def *= coh;
-  if (s.home && !ms.neutral) { att *= 1.035; mid *= 1.03; def *= 1.01; }
+  if (s.home && !ms.neutral) { att *= 1.055; mid *= 1.04; def *= 1.02; }
   const f = ms.dayForm[si];
   s.r = { att: att * f, mid: mid * f, def: def * f, gk: gk * (0.98 + 0.04 * (f - 1) * 10) };
 }
@@ -407,13 +407,25 @@ export function stepMinute(g: GameState, ms: MatchState): boolean {
   }
   if (m % 5 === 0) { computeRatings(g, ms, 0); computeRatings(g, ms, 1); }
   // posse
-  const pm = Math.pow(h.r.mid, 3) / (Math.pow(h.r.mid, 3) + Math.pow(a.r.mid, 3));
+  const pm = Math.pow(h.r.mid, 2.3) / (Math.pow(h.r.mid, 2.3) + Math.pow(a.r.mid, 2.3));
   const si: 0 | 1 = rng.chance(pm) ? 0 : 1;
   ms.poss[si]++;
   const att = ms.sides[si];
   const def = ms.sides[1 - si];
   const ratio = att.r.att / Math.max(20, def.r.def);
-  const pChance = clamp(0.25 * Math.pow(ratio, 2.05), 0.04, 0.6);
+  const pChance = clamp(0.215 * Math.pow(ratio, 1.45), 0.05, 0.5);
+  // contra-ataque: quem está sem a bola também cria (mais com velocidade e mentalidade ofensiva)
+  const counterSide = (1 - si) as 0 | 1;
+  const ctr = ms.sides[counterSide];
+  const ctrVel = ctr.xi.reduce((acc, x) => acc + (["PON", "ATA"].includes(x.slot) ? P(g, x.id).attrs.vel : 0), 0) / Math.max(1, ctr.xi.filter((x) => ["PON", "ATA"].includes(x.slot)).length);
+  if (ctr.xi.length > 6 && rng.chance(clamp(0.034 * (ctr.r.att / Math.max(20, att.r.def)) * (0.75 + ctrVel / 200) * (1 + 0.15 * ctr.tactic.mentality + 0.1 * att.tactic.mentality), 0.01, 0.07))) {
+    const shooter = pickShooter(g, rng, ctr);
+    const q = clamp(-Math.log(Math.max(1e-6, rng.next())) * 0.13, 0.03, 0.62);
+    if (!userInvolved(g, ms, rng, counterSide, shooter)) {
+      const assist = rng.chance(0.8) ? pickAssist(g, rng, ctr, shooter.id) : null;
+      shotOutcome(g, ms, rng, counterSide, shooter.id, q, assist?.id ?? null, false);
+    }
+  }
   if (rng.chance(pChance) && att.xi.length) {
     if (rng.chance(0.012)) {
       // pênalti
@@ -427,7 +439,7 @@ export function stepMinute(g: GameState, ms: MatchState): boolean {
       else ms.events.push({ min: m, type: "pen_miss", side: si, playerId: taker.id, text: fill(rng.pick(T.penMiss), { p: N(g, taker.id), k: gk ? N(g, gk.id) : "o goleiro" }) });
     } else {
       const shooter = pickShooter(g, rng, att);
-      const q = clamp(-Math.log(Math.max(1e-6, rng.next())) * 0.098, 0.02, 0.62);
+      const q = clamp(-Math.log(Math.max(1e-6, rng.next())) * 0.1, 0.02, 0.62);
       if (userInvolved(g, ms, rng, si, shooter)) {
         ms.rng = rng.state;
         openDecision(g, ms, rng, si, q);

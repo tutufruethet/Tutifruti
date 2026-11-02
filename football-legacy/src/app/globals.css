@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Football Legacy — 3 neutros + 1 acento (ver estudo/regras/cor-e-paleta.md) */
+@theme {
+  --color-ink: #0e100f;      /* grafite profundo (fundo) */
+  --color-paper: #ecebe6;    /* texto principal, quente */
+  --color-gray: #8b8f8a;     /* texto secundário */
+  --color-accent: #3ee27f;   /* verde vibrante: usado pouco */
+  --font-sans: var(--font-ui), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-num), ui-monospace, monospace;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root { color-scheme: dark; }
+html, body { background: var(--color-ink); color: var(--color-paper); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+@layer components {
+/* hierarquia por opacidade, não por cores novas */
+.line { border-color: color-mix(in oklab, var(--color-paper) 10%, transparent); }
+.surface { background: color-mix(in oklab, var(--color-paper) 3%, transparent); }
+.surface-2 { background: color-mix(in oklab, var(--color-paper) 6%, transparent); }
+.dim { color: color-mix(in oklab, var(--color-paper) 55%, transparent); }
+.faint { color: color-mix(in oklab, var(--color-paper) 35%, transparent); }
+
+/* rótulo: mono 11–12px, caixa alta, tracking positivo */
+.label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-gray); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.score { font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-weight: 500; letter-spacing: -0.04em; }
+.display { font-weight: 600; letter-spacing: -0.04em; line-height: 0.92; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; height: 2.5rem; padding: 0 1rem; border: 1px solid color-mix(in oklab, var(--color-paper) 16%, transparent); font-size: .875rem; font-weight: 500; border-radius: 4px; transition: background .4s var(--ease-out-expo), border-color .4s var(--ease-out-expo), color .4s var(--ease-out-expo); white-space: nowrap; }
+.btn:hover { background: color-mix(in oklab, var(--color-paper) 7%, transparent); border-color: color-mix(in oklab, var(--color-paper) 30%, transparent); }
+.btn:disabled { opacity: .4; pointer-events: none; }
+.btn-primary { background: var(--color-accent); color: var(--color-ink); border-color: var(--color-accent); }
+.btn-primary:hover { background: color-mix(in oklab, var(--color-accent) 85%, white); border-color: transparent; }
+.btn-sm { height: 2rem; padding: 0 .7rem; font-size: .8rem; }
+.btn-ghost { border-color: transparent; }
+
+.input { height: 2.5rem; padding: 0 .75rem; background: color-mix(in oklab, var(--color-paper) 4%, transparent); border: 1px solid color-mix(in oklab, var(--color-paper) 14%, transparent); border-radius: 4px; color: var(--color-paper); font-size: .9rem; outline: none; width: 100%; }
+.input:focus { border-color: var(--color-accent); }
+select.input { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--color-gray) 50%), linear-gradient(135deg, var(--color-gray) 50%, transparent 50%); background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 2rem; }
+
+.chip { display: inline-flex; align-items: center; height: 1.6rem; padding: 0 .6rem; border: 1px solid color-mix(in oklab, var(--color-paper) 14%, transparent); border-radius: 999px; font-size: .75rem; transition: all .4s var(--ease-out-expo); }
+.chip[data-on="true"] { border-color: var(--color-accent); color: var(--color-accent); }
+
+table.t { width: 100%; border-collapse: collapse; font-size: .85rem; }
+table.t th { text-align: left; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-gray); font-weight: 400; padding: .5rem .5rem; border-bottom: 1px solid color-mix(in oklab, var(--color-paper) 10%, transparent); white-space: nowrap; }
+table.t td { padding: .55rem .5rem; border-bottom: 1px solid color-mix(in oklab, var(--color-paper) 6%, transparent); white-space: nowrap; }
+table.t tr.me td { color: var(--color-accent); }
+table.t tbody tr { transition: background .3s var(--ease-out-expo); }
+table.t tbody tr:hover { background: color-mix(in oklab, var(--color-paper) 3%, transparent); }
+
+.bar { height: 4px; background: color-mix(in oklab, var(--color-paper) 10%, transparent); border-radius: 2px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--color-paper); border-radius: 2px; transition: width .9s var(--ease-out-expo); }
+.bar.accent > i { background: var(--color-accent); }
+
+/* entrada: reveal com o mesmo easing expo-out */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .9s var(--ease-out-expo) both; }
+.rise-1 { animation-delay: .07s; } .rise-2 { animation-delay: .14s; } .rise-3 { animation-delay: .21s; } .rise-4 { animation-delay: .28s; }
+@keyframes typing { 0%, 80%, 100% { opacity: .2; } 40% { opacity: 1; } }
+.typing i { display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%; background: var(--color-paper); animation: typing 1.2s infinite; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes pulse-ring { from { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 50%, transparent); } to { box-shadow: 0 0 0 10px transparent; } }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); animation: pulse-ring 1.4s var(--ease-out-expo) infinite; }
+
+.scroll-thin { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--color-paper) 15%, transparent) transparent; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@layer base {
+  .grid > * { min-width: 0; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }

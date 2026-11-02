@@ -52,7 +52,7 @@ export const POS_NEAR: Record<Pos, Pos[]> = {
 
 export const FORMATIONS: Record<string, Pos[]> = {
   "4-3-3": ["GOL", "LAT", "ZAG", "ZAG", "LAT", "VOL", "MEI", "MEI", "PON", "ATA", "PON"],
-  "4-4-2": ["GOL", "LAT", "ZAG", "ZAG", "LAT", "VOL", "VOL", "MEI", "PON", "ATA", "ATA"],
+  "4-4-2": ["GOL", "LAT", "ZAG", "ZAG", "LAT", "PON", "VOL", "VOL", "PON", "ATA", "ATA"],
   "4-2-3-1": ["GOL", "LAT", "ZAG", "ZAG", "LAT", "VOL", "VOL", "PON", "MEI", "PON", "ATA"],
   "3-5-2": ["GOL", "ZAG", "ZAG", "ZAG", "LAT", "VOL", "MEI", "MEI", "LAT", "ATA", "ATA"],
   "5-3-2": ["GOL", "LAT", "ZAG", "ZAG", "ZAG", "LAT", "VOL", "MEI", "MEI", "ATA", "ATA"],
@@ -62,7 +62,7 @@ export const FORMATIONS: Record<string, Pos[]> = {
 /** Coordenadas (x 0..100 largura, y 0..100 do gol próprio ao ataque) para desenhar o campinho. */
 export const FORMATION_COORDS: Record<string, [number, number][]> = {
   "4-3-3": [[50, 6], [12, 28], [37, 22], [63, 22], [88, 28], [50, 44], [30, 56], [70, 56], [15, 78], [50, 86], [85, 78]],
-  "4-4-2": [[50, 6], [12, 28], [37, 22], [63, 22], [88, 28], [36, 48], [64, 48], [50, 64], [12, 62], [36, 84], [64, 84]],
+  "4-4-2": [[50, 6], [12, 28], [37, 22], [63, 22], [88, 28], [12, 58], [37, 50], [63, 50], [88, 58], [36, 84], [64, 84]],
   "4-2-3-1": [[50, 6], [12, 28], [37, 22], [63, 22], [88, 28], [36, 44], [64, 44], [15, 68], [50, 66], [85, 68], [50, 86]],
   "3-5-2": [[50, 6], [27, 22], [50, 20], [73, 22], [10, 52], [50, 42], [32, 58], [68, 58], [90, 52], [36, 84], [64, 84]],
   "5-3-2": [[50, 6], [8, 32], [28, 22], [50, 20], [72, 22], [92, 32], [50, 44], [30, 58], [70, 58], [36, 84], [64, 84]],

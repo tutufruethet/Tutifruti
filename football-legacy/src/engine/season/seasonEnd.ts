@@ -189,6 +189,15 @@ export function rollover(g: GameState, rng: Rng) {
     }
     if (p.clubId && p.contract.until < g.season) releasePlayer(g, p.id);
   }
+  // contrato do usuário (modo jogador) acabou: vira agente livre e recebe propostas
+  const up = g.user.mode === "player" && g.user.playerId ? g.players[g.user.playerId] : undefined;
+  if (up && !up.retired && up.clubId && up.contract.until < g.season) {
+    const old = g.clubs[up.clubId];
+    releasePlayer(g, up.id);
+    g.user.clubId = null;
+    g.user.wantsTransfer = true;
+    addNews(g, { title: "Você está livre no mercado", body: `Seu contrato com o ${old.name} terminou. Propostas devem chegar nos próximos dias.`, tag: "carreira", importance: 3, playerIds: [up.id] });
+  }
   // remove aposentados sem importância para manter o save leve
   for (const p of Object.values(g.players)) {
     if (!p.retired) continue;

@@ -225,7 +225,8 @@ export function userPlayerOffers(g: GameState, rng: Rng) {
   if (me.retired) return;
   const pending = g.offers.filter((o) => o.direction === "user" && o.status === "pendente").length;
   if (pending >= 3) return;
-  const chance = (g.user.wantsTransfer ? 0.55 : 0.18) + clamp((me.reputation - 40) / 200, 0, 0.25) + (me.contract.until <= g.season ? 0.3 : 0);
+  const free = !me.clubId;
+  const chance = free ? 0.8 : (g.user.wantsTransfer ? 0.45 : 0.03) + clamp((me.reputation - 30) / 150, 0, 0.3) + (me.contract.until <= g.season ? 0.25 : 0);
   if (!rng.chance(chance)) return;
   const curRep = me.clubId ? g.clubs[me.clubId].reputation : 0;
   const cands = Object.values(g.clubs).filter((c) => {

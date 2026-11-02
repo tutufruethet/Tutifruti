@@ -25,10 +25,10 @@ export const FOCUS_LABEL: Record<TrainingFocus, string> = {
 
 /** Taxa base de evolução (overall por semana) pela idade. */
 export function ageRate(age: number): number {
-  if (age <= 19) return 0.22;
-  if (age <= 21) return 0.17;
-  if (age <= 23) return 0.11;
-  if (age <= 26) return 0.05;
+  if (age <= 19) return 0.17;
+  if (age <= 21) return 0.135;
+  if (age <= 23) return 0.09;
+  if (age <= 26) return 0.045;
   if (age <= 28) return 0.015;
   if (age <= 30) return -0.02;
   if (age <= 32) return -0.06;
@@ -97,7 +97,7 @@ export function weeklyProgression(g: GameState, rng: Rng, weekOfSeason: number) 
     if (p.retired) continue;
     const age = ageOf(p, g.day);
     const club = p.clubId ? g.clubs[p.clubId] : undefined;
-    const isUser = p.isUser && g.user.mode === "player";
+    const isUser = (p.isUser && g.user.mode === "player") || (g.user.mode === "coach" && !g.user.unemployed && p.clubId === g.user.clubId);
     const ctx: GrowthCtx = {
       minutesShare: weekOfSeason < 3 ? 0.6 : p.stats.minutes / possibleMinutes,
       facilities: club?.facilities ?? 2,

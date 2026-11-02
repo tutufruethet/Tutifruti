@@ -12,5 +12,6 @@ tags: [regra, design, layout]
 4. **Metadados nos cantos:** números de índice `(01) — Seção`, ano, local, "Role ↓".
 5. Listas em linhas com bordas finas (`1px`, cinza escuro) em vez de cards com sombra.
 6. No celular, tudo vira 1 coluna, mas a hierarquia e o espaço continuam.
+7. Em grid CSS, filhos precisam de `min-width: 0`; sem isso uma tabela ou nome longo empurra a página e cria rolagem horizontal no celular.
 
-Related: [Instrument](../referencias/instrument.md) · [Tipografia](tipografia.md) · [Detalhes de acabamento](detalhes-de-acabamento.md)
+Related: [Football Legacy](../football-legacy.md) · [Instrument](../referencias/instrument.md) · [Tipografia](tipografia.md) · [Detalhes de acabamento](detalhes-de-acabamento.md)

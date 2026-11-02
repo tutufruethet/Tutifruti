@@ -72,7 +72,8 @@ export function townName(nation: string, i: number, j: number): string {
   if (nation === "ING" || nation === "ALE") return p + s;
   if (nation === "ESP" && (p === "Castil" || p === "Torre" || p === "Villa") && /^[a-z]/.test(s)) return p + s;
   if (nation === "ITA" && (p === "Monte" || p === "Castel" || p === "Val" || p === "Rocca") && /^[a-z]/.test(s)) return p + s;
-  return `${p} ${s.charAt(0).toUpperCase() === s.charAt(0) ? s : s.charAt(0).toUpperCase() + s.slice(1)}`;
+  if (/^(da|das|do|dos|de|del|di)\b/.test(s)) return `${p} ${s}`;
+  return `${p} ${s.charAt(0).toUpperCase() + s.slice(1)}`;
 }
 
 export function clubPattern(nation: string, k: number): string {

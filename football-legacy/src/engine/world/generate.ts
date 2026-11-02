@@ -98,10 +98,10 @@ export function fillSquad(g: GameState, rng: Rng, club: Club, target: number, fo
   positions.forEach((pos, idx) => {
     const age = rng.pick(AGE_DIST);
     const starter = idx % 2 === 0;
-    let ovr = target + (starter ? rng.normal(2, 3) : rng.normal(-4, 3.5));
+    let ovr = target + (starter ? rng.normal(1.5, 2.6) : rng.normal(-4, 3.5));
     if (age <= 20) ovr -= (21 - age) * 3.5;
     if (age >= 33) ovr -= 2;
-    ovr = clamp(ovr, 40, 92);
+    ovr = clamp(ovr, 40, 90);
     const potential = age <= 23 ? ovr + Math.max(2, rng.normal((24 - age) * 3.2, 5)) : ovr + rng.range(0, 2);
     const nation = rng.chance(foreignShare) ? foreignNation(rng, club.nation) : club.nation;
     const p = createPlayer(g, rng, { nation, pos, age, ovr, potential, clubId: club.id });
@@ -133,7 +133,7 @@ export function createWorld(seed: number): GameState {
         const name = clubPattern(n.id, rng.int(0, 20)).replace("{t}", town);
         // força relativa: topo da liga ~ +8, fundo ~ -7
         const rank = i / (lg.teams - 1);
-        const target = clamp(lg.strength + 8 - rank * 15 + rng.normal(0, 1.5), 45, 88);
+        const target = clamp(lg.strength + 6 - rank * 13 + rng.normal(0, 1.5), 45, 85);
         const rep = clamp(Math.round((target - 48) * 2.3), 5, 98);
         const c1 = rng.pick(CLUB_COLORS);
         let c2 = rng.pick(CLUB_COLORS);

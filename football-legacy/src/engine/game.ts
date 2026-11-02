@@ -90,7 +90,8 @@ export function createCareer(setup: PlayerSetup | CoachSetup, world?: GameState)
   const r2 = new Rng(g.rng ^ 77);
   if (tt) {
     pushMsg(g, tt, "sys", setup.mode === "player" ? `Você foi adicionado ao grupo.` : `O treinador entrou no grupo.`);
-    for (const p of welcome) sayLine(g, r2, tt.id, p.id, setup.mode === "player" ? "Chegou o reforço! Bem-vindo, {a}" : "Bem-vindo, professor! Tamo junto", "feliz");
+    const lines = setup.mode === "player" ? ["Chegou o reforço! Bem-vindo, {a}", "Seja bem-vindo! Bora fazer história aqui"] : ["Bem-vindo, professor! Tamo junto", "Seja bem-vindo, professor. O grupo tá pronto"];
+    welcome.forEach((p, i) => sayLine(g, r2, tt.id, p.id, lines[i % lines.length], "feliz"));
   }
   if (welcome[0]) {
     ensureDm(g, welcome[0].id);

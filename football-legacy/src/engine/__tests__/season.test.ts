@@ -95,3 +95,21 @@ describe("várias temporadas no modo treinador", () => {
     expect(Object.keys(g.players).length).toBeLessThan(5200);
   });
 });
+
+describe("carreira de jogador em várias temporadas", () => {
+  it("três temporadas: evolução, contrato e histórico coerentes", () => {
+    const g = playerCareer(88);
+    const me = g.players[g.user.playerId!];
+    const start = me.ovr;
+    run(g, 364 * 3 + 3);
+    expect(g.season).toBe(3);
+    expect(me.career.length).toBeGreaterThanOrEqual(3);
+    expect(me.ovr).toBeGreaterThan(start);
+    expect(g.history.userSeasons.length).toBe(3);
+    // o usuário está num clube coerente (ou livre, recebendo propostas)
+    if (me.clubId) { expect(g.clubs[me.clubId].squad).toContain(me.id); expect(g.user.clubId).toBe(me.clubId); }
+    const apps = me.career.reduce((s, c) => s + c.apps, 0);
+    expect(apps).toBeGreaterThan(20);
+    console.log("ovr", start, "->", me.ovr, "apps", apps, "gols", me.career.reduce((s, c) => s + c.goals, 0), "clubes", me.clubs.map((c) => c.clubName).join(" > "), "grupos", g.groups.length, "conquistas", Object.keys(g.achievements).length);
+  });
+});

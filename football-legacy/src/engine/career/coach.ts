@@ -156,6 +156,17 @@ export function weeklyCoachTick(g: GameState, rng: Rng) {
   g.user.jobOffers = g.user.jobOffers.filter((o) => o.expires >= g.day);
   if (g.user.mode === "coach") {
     if (!g.user.unemployed && g.user.clubId) {
+      // treino coletivo: intensidade troca condição física por evolução
+      const club = g.clubs[g.user.clubId];
+      const { intensity, focus } = g.user.training;
+      for (const id of club.squad) {
+        const p = g.players[id];
+        if (!p) continue;
+        if (focus === "descanso") p.fitness = clamp(p.fitness + 8, 0, 100);
+        else p.fitness = clamp(p.fitness + (intensity === 0 ? 3 : intensity === 2 ? -5 : 0), 25, 100);
+        if (intensity === 2 && !p.injury && rng.chance(0.006)) p.injury = { name: "Lesão muscular no treino", days: rng.int(5, 15) };
+      }
+      club.cohesion = clamp(club.cohesion + (intensity === 2 ? 0.5 : 0.2), 0, 92);
       evaluateObjectives(g);
       const played = g.user.coachRecord.w + g.user.coachRecord.d + g.user.coachRecord.l;
       if (g.user.boardConfidence < 12 && played >= 8) fireCoach(g, rng, "maus resultados");
@@ -186,4 +197,20 @@ export function weeklyCoachTick(g: GameState, rng: Rng) {
     }
   }
   void teamName;
+}
+
+/** Depois de se aposentar como jogador, começa a carreira de treinador no mesmo universo. */
+export function startCoachAfterRetirement(g: GameState, rng: Rng) {
+  const legacy = g.user.legacyScore;
+  g.user.mode = "coach";
+  g.user.retired = false;
+  g.user.unemployed = true;
+  g.user.clubId = null;
+  g.user.playerId = g.user.playerId; // mantém referência histórica
+  g.user.reputation = clamp(15 + legacy / 40, 15, 70);
+  g.user.coachRecord = { w: 0, d: 0, l: 0 };
+  g.user.boardConfidence = 60;
+  g.user.jobOffers = [];
+  milestone(g, "Início da carreira de treinador");
+  maybeJobOffers(g, rng, true);
 }
