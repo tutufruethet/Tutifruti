@@ -24,7 +24,7 @@ export function Crest({ g, id, size = 28 }: { g: GameState; id: string; size?: n
         {pattern === "cruz" && <><rect x="16" width="8" height="44" fill={c2} /><rect y="14" width="40" height="8" fill={c2} /></>}
         {id.startsWith("N-") && <rect y="28" width="40" height="16" fill={c2} />}
       </g>
-      <path d="M4 3h32v19c0 10-7 16-16 19C11 38 4 32 4 22z" fill="none" stroke="rgba(0,0,0,.35)" strokeWidth="1.5" />
+      <path d="M4 3h32v19c0 10-7 16-16 19C11 38 4 32 4 22z" fill="none" stroke="rgba(236,235,230,.28)" strokeWidth="1.5" />
     </svg>
   );
 }

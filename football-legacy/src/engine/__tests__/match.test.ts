@@ -71,3 +71,28 @@ describe("motor de partidas", () => {
     expect(r.sot[0]).toBeLessThanOrEqual(r.shots[0]);
   });
 });
+
+import { playerCareer } from "./helpers";
+import { resolveDecision, stepMinute } from "../match/engine";
+
+describe("partida interativa do jogador", () => {
+  it("pausa em lances do usuário e continua depois da escolha", () => {
+    const g = playerCareer(55, "L-BRA-2");
+    const me = g.players[g.user.playerId!];
+    me.ovr = 90; me.attrs.fin = 95; me.attrs.dri = 90; me.attrs.pas = 90; // garante que seja escalado e participe
+    const club = g.clubs[g.user.clubId!];
+    const opp = Object.values(g.clubs).find((c) => c.leagueId === club.leagueId && c.id !== club.id)!;
+    const f = fx(g, club.id, opp.id, 777);
+    const ms = createMatch(g, f, { interactive: true });
+    expect(ms.sides[0].xi.some((x) => x.id === me.id)).toBe(true);
+    let decisions = 0, guard = 0;
+    while (!ms.finished && guard++ < 400) {
+      if (ms.pending) { decisions++; resolveDecision(g, ms, ms.pending.options[0].id); expect(ms.pending).toBeUndefined(); }
+      stepMinute(g, ms);
+    }
+    expect(ms.finished).toBe(true);
+    expect(decisions).toBeGreaterThan(0);
+    expect(decisions).toBeLessThanOrEqual(4);
+    expect(ms.events.some((e) => e.type === "decision")).toBe(true);
+  });
+});
