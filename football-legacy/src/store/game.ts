@@ -149,7 +149,7 @@ export const useGame = create<Store>((set, get) => ({
     if (s.advancedAI && get().aiStatus === "disponivel") {
       if (g.chat.aiDay !== g.day) { g.chat.aiDay = g.day; g.chat.aiUsedToday = 0; }
       if (g.chat.aiUsedToday < s.aiDailyLimit) {
-        const req: AIRequest = { facts: plan.facts, profiles: plan.profiles, recent: plan.recent, message: plan.text, draft: Object.fromEntries(plan.responders.map((r) => [r.id, r.lines])) };
+        const req: AIRequest = { facts: plan.facts, profiles: plan.profiles, recent: plan.recent, message: plan.text, draft: Object.fromEntries(plan.responders.map((r) => [r.id, r.reply.free ? [] : r.lines])) };
         set({ sending: { threadId, text: plan.text } });
         try {
           if (s.aiProvider === "ollama") {

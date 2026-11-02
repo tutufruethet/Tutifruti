@@ -11,6 +11,7 @@ import type { GameState, MemoryKind, PersonalityType, Player } from "../types";
 import type { Rng } from "../rng";
 import { hasMemory } from "./memory";
 import { getRel } from "../chemistry/relations";
+import { autoLineup } from "../match/lineup";
 
 export interface Reply {
   lines: string[];
@@ -22,6 +23,7 @@ export interface Reply {
   action?: { kind: "advice"; option: "vai" | "fica" | "decide" } | { kind: "rename"; name: string };
   id: string;
   dup?: boolean;
+  free?: boolean; // resposta genérica: a IA (se ligada) pode responder livremente
 }
 
 export interface TurnInput {
@@ -507,7 +509,7 @@ function convite(t: TurnInput): Reply {
 function pessoal(t: TurnInput): Reply {
   const p = t.p.persona;
   return R(t, "pessoal", {
-    default: [`Sou de ${p.hometown || "longe"}. Saudade de lá | E tu, tá curtindo a cidade?`, `Nas folgas é ${p.hobby} direto {l}`, `Minha mãe faz o melhor ${p.food} do mundo, sem discussão`],
+    default: [`Sou de ${p.hometown || "longe"}. Saudade de lá | E tu, tá curtindo a cidade?`, `Nas folgas é ${p.hobby} direto {l}`, `Ninguém faz ${p.food} igual minha mãe, sem discussão`],
     timido: [`gosto de ${p.hobby}... e tu?`],
     brincalhao: [`Meu negócio é ${p.hobby} e ${p.food} {l} vida boa`],
   }, "neutro", { delta: { friendship: 1 } });
@@ -589,36 +591,275 @@ function rename(t: TurnInput): Reply | null {
   }, "feliz", { action: { kind: "rename", name } });
 }
 
+const FOOTBALL = ["jogo", "gol", "bola", "time", "campeonato", "tabela", "liga", "partida", "classico", "copa", "titulo", "vitoria", "placar"];
+
 function fallback(t: TurnInput): Reply {
+  const n = t.a.norm;
+  // assunto de futebol sem intenção clara: comenta a situação real do time
+  if (FOOTBALL.some((w) => n.includes(` ${w}`)) && (t.ctx.pos || t.ctx.next)) {
+    const pos = t.ctx.pos ? `A gente tá em ${t.ctx.pos}º` : "";
+    const nx = t.ctx.next ? `próximo é o ${t.ctx.next.opp}` : "";
+    return R(t, "fut", {
+      default: [`${pos}${pos && nx ? ", " : ""}${nx}. Tem que pontuar`, `Pois é. ${pos || "A temporada tá longa"}… bora focar no ${t.ctx.next?.opp ?? "próximo"}`],
+      brincalhao: [`Futebol é isso aí {l} ${pos ? pos.toLowerCase() : ""}, bora subir`],
+      competitivo: [`${pos ? pos + " é pouco. " : ""}Quero ganhar tudo que vier`],
+      timido: ["é... bora ver o próximo jogo"],
+    }, "neutro", { free: true });
+  }
   if (t.a.question) {
     return R(t, "perg", {
-      brincalhao: ["Sei lá {a} {l}", "Pergunta difícil, passo {l}"],
-      competitivo: ["Não sei. Só sei que quero ganhar"],
-      timido: ["não sei..."],
-      leal: ["Boa pergunta. O que tu acha?"],
-      ambicioso: ["Depende do que eu ganho com isso {l}"],
-      arrogante: ["Óbvio que sim {l}"],
-      lider: ["Depende. Me dá mais contexto"],
-      emocional: ["Ai, não sei, tô confuso também"],
-    }, "duvida");
+      brincalhao: ["Boa pergunta {l} deixa eu pensar e te falo", "Aí tu me pegou {l}", "Pergunta pro professor, ele sabe tudo {l}"],
+      competitivo: ["Sei lá. Só penso no próximo jogo", "Não parei pra pensar nisso, sinceramente"],
+      timido: ["hmm... não sei direito", "boa pergunta..."],
+      leal: ["Hmm, e tu, o que acha?", "Não sei, {a}. Tu pensa o quê?"],
+      ambicioso: ["Depende. Por quê?", "Hmm. Por que tu quer saber? {l}"],
+      arrogante: ["Óbvio que sim {l}", "Isso nem é pergunta {l}"],
+      lider: ["Depende. Me conta melhor", "Boa. O que te fez pensar nisso?"],
+      emocional: ["Ai, não sei, me pegou agora", "Nossa, nunca pensei nisso"],
+    }, "duvida", { free: true });
   }
   const r = R(t, "fill", {
-    brincalhao: ["{l} tendi", "Kkkk pode crer", "Tô rindo mas não entendi nada {l}"],
-    competitivo: ["Ok", "Entendi. Foco"],
-    timido: ["hm", "entendi", "ah sim"],
-    leal: ["Pode crer, {a}", "Tô contigo"],
-    ambicioso: ["Saquei", "Hmm, ok"],
-    arrogante: ["Se tu tá dizendo {l}", "Ok, ok"],
-    lider: ["Entendi", "Faz sentido"],
-    emocional: ["Aaah entendi", "Sério? Nossa"],
-  }, "neutro");
-  // pergunta espontânea para puxar assunto
-  if (t.rng.chance(0.25 + t.p.persona.extro * 0.25)) {
+    brincalhao: ["{l} tu é figura", "Kkkk conta mais", "Rapaz {l}", "Ah, para {l}", "Tu não existe {l}"],
+    competitivo: ["Hm. E aí?", "Saquei", "Beleza"],
+    timido: ["hm", "ah, legal", "sério?"],
+    leal: ["Pode crer, {a}", "Conta mais", "Tô contigo"],
+    ambicioso: ["Saquei", "Interessante", "E aí, deu em quê?"],
+    arrogante: ["Se tu tá dizendo {l}", "Tá bom, tá bom", "Hm, ok"],
+    lider: ["Faz sentido", "Entendi. E como tu tá com isso?", "Certo"],
+    emocional: ["Sério? Me conta", "Nossa", "Ai, conta tudo"],
+  }, "neutro", { free: true });
+  // às vezes puxa outro assunto
+  if (t.rng.chance(0.15 + t.p.persona.extro * 0.2)) {
     const nx = t.ctx.next;
-    const q = nx ? `E aí, preparado pro ${nx.opp}?` : `Bora um ${t.p.persona.hobby} qualquer dia?`;
-    r.lines.push(q);
+    const opts = [`Bora um ${t.p.persona.hobby} depois do treino?`, nx ? `Tu tá preparado pro ${nx.opp}?` : "", `Tô com uma vontade de ${t.p.persona.food}…`].filter(Boolean);
+    r.lines.push(t.rng.pick(opts));
   }
   return r;
+}
+
+function humorMal(t: TurnInput): Reply {
+  const l = t.ctx.last;
+  // no grupo, só o primeiro pergunta o motivo; os outros só apoiam
+  const hint = t.prev.length ? "" : l && l.res === "D" && l.daysAgo <= 3 ? "É por causa do jogo?" : t.ctx.benchStreak >= 2 ? "É o banco, né?" : "Aconteceu alguma coisa?";
+  return R(t, "mal", {
+    brincalhao: [`Ei, que isso {a}. ${hint} | Se precisar, chama pra um ${t.p.persona.food} que resolve`],
+    competitivo: [`Levanta a cabeça. ${hint}`, "Sentir é normal, ficar parado não. Bora pra cima"],
+    timido: ["poxa... quer conversar?", hint ? hint.toLowerCase() : "força aí..."],
+    leal: [`Tô aqui, {a}. ${hint}`, `Fala comigo. ${hint} Tô contigo pro que precisar`],
+    ambicioso: [`${hint} Foca no que dá pra controlar`],
+    arrogante: ["Ih, que isso. Anima aí {l}", `Relaxa. ${hint}`],
+    lider: [`${hint} Me conta que a gente resolve junto`, "Respira. Ninguém fica bem o tempo todo. O que pegou?"],
+    emocional: [`Aaa não fica assim 😢${hint ? " | " + hint : ""}`, `Te entendo demais. ${hint}`],
+  }, "carinho", { delta: { friendship: 1, trust: 1 }, memory: { kind: "pediu_conselho", text: "Você desabafou com ele num dia ruim." }, pending: "desabafo" });
+}
+
+function humorBom(t: TurnInput): Reply {
+  return R(t, "bom", {
+    default: ["Aí sim! Que bom, {a}", "Boa! Essa energia no jogo"],
+    brincalhao: ["Feliz assim? Ganhou na loteria? {l}", "Tá radiante hein {l}"],
+    timido: ["que bom :)"],
+    emocional: ["AAAA que bom!! Fico feliz por ti"],
+    competitivo: ["Boa. Leva isso pro campo"],
+  }, "feliz", { delta: { friendship: 0.5 } });
+}
+
+function cansaco(t: TurnInput): Reply {
+  const nx = t.ctx.next;
+  return R(t, "cans", {
+    default: [`Descansa, {a}.${nx && nx.daysTo <= 2 ? ` Tem ${nx.opp} logo` : ""}`, "Vai dormir que amanhã tem treino"],
+    brincalhao: ["Cansado de quê? Tu nem correu {l}", "Dorme que tu tá precisando, tá com cara de zumbi {l}"],
+    competitivo: ["Descansa direito. Recuperação também é treino"],
+    lider: ["Dorme cedo, hidrata. O corpo agradece no jogo"],
+    timido: ["descansa aí"],
+    emocional: ["Eu também tô morto 😴"],
+  }, "carinho");
+}
+
+const ACTIVITIES: Record<string, string> = {
+  videogame: "jogando um videogame aqui", pagode: "ouvindo um pagodinho", pescaria: "arrumando as coisas pra pescar no fim de semana", "série": "maratonando uma série",
+  truco: "num truco com a rapaziada", sinuca: "numa sinuca", academia: "saindo da academia", churrasco: "vendo a carne do churrasco", "música gospel": "ouvindo um louvor",
+  trap: "ouvindo um trap", cozinhar: "cozinhando", carro: "lavando o carro", tatuagem: "pensando na próxima tatuagem", xadrez: "jogando xadrez no celular", surf: "vendo vídeo de surf",
+  basquete: "vendo jogo de basquete", funk: "ouvindo um funk", sertanejo: "ouvindo um sertanejo", leitura: "lendo um livro", moda: "vendo roupa na internet",
+};
+
+function atividade(t: TurnInput): Reply {
+  const p = t.p;
+  const act = p.injury ? "na fisio ainda" : ACTIVITIES[p.persona.hobby] ?? "de boa em casa";
+  return R(t, "ativ", {
+    default: [`Tô ${act}. E tu?`, `Nada demais, ${act}`],
+    brincalhao: [`Tô ${act} {l} e tu, fazendo nada como sempre?`],
+    timido: [`${act}... e vc?`],
+    competitivo: [`${p.injury ? "Fisio" : "Vendo vídeo do próximo adversário"}. E tu?`],
+    lider: [`Tô ${act}. Tudo certo por aí?`],
+  }, "neutro", { delta: { friendship: 0.5 } });
+}
+
+function tedio(t: TurnInput): Reply {
+  const h = t.p.persona.hobby;
+  return R(t, "tedio", {
+    default: [`Bora ${h === "videogame" ? "jogar uma partida online" : `um ${h}`}?`, "Vem pra cá que a gente inventa alguma coisa"],
+    brincalhao: [`Entediado? Vem pro ${h} que tu esquece {l}`],
+    timido: [`quer jogar alguma coisa?`],
+    competitivo: ["Vai treinar finalização então {l}"],
+    lider: ["Aproveita e descansa, semana vai ser puxada"],
+  }, "feliz", { delta: { friendship: 1 } });
+}
+
+function comida(t: TurnInput): Reply {
+  const f = t.p.persona.food;
+  return R(t, "comida", {
+    default: [`Agora tu me deu vontade de ${f}`, `Só penso em ${f}, sério`],
+    brincalhao: [`Bora num ${f}? Tu paga {l}`],
+    competitivo: ["Cuidado com a dieta, hein. O nutricionista tá de olho"],
+    timido: [`também tô com fome...`],
+    lider: [`Come direito, mas lembra da dieta da semana de jogo`],
+  }, "feliz");
+}
+
+function autocritica(t: TurnInput): Reply {
+  const l = t.ctx.last;
+  const real = l?.myRating !== undefined ? (l.myRating < 6.3 ? "Foi abaixo mesmo, mas acontece" : `Tu teve nota ${l.myRating.toFixed(1).replace(".", ",")}, nem foi tão ruim`) : "";
+  return R(t, "autocrit", {
+    default: [`${real || "Acontece"}. Próximo jogo tu compensa`],
+    leal: [`Ei, ninguém ganha nem perde sozinho. ${real}`],
+    lider: [`${real || "Todo mundo tem dia ruim"}. Assiste o vídeo, corrige e segue`],
+    competitivo: [`${real}. Então treina mais e mostra no próximo`],
+    brincalhao: [`${real || "Foi feio mesmo"} {l} brincadeira, próximo tu arrebenta`],
+    emocional: ["Não fica assim, tu é muito bom 😔"],
+    arrogante: ["Foi mal mesmo {l} mas relaxa, eu seguro o time"],
+  }, "carinho", { delta: { trust: 1 } });
+}
+
+function gabar(t: TurnInput): Reply {
+  return R(t, "gabar", {
+    brincalhao: ["Melhor do time? No FIFA talvez {l}", "Senta lá, Cláudia {l}"],
+    competitivo: ["Prova no treino amanhã então", "Melhor? Vamo ver no rachão"],
+    arrogante: ["Kkkk o melhor sou eu, tu é no máximo o segundo", "Sonhar é de graça {l}"],
+    timido: ["kkk se tu diz..."],
+    leal: ["Pra mim tu é um dos melhores mesmo {l}"],
+    ambicioso: ["Então mostra pros olheiros, não pra mim {l}"],
+    lider: ["Humildade, {a}. Mas confiança é bom"],
+    emocional: ["Kkkk amo essa confiança"],
+  }, "feliz", { delta: { rivalry: t.p.persona.type === "arrogante" || t.p.persona.type === "competitivo" ? 1 : 0 } });
+}
+
+function melhorTime(t: TurnInput): Reply {
+  const club = t.g.user.clubId ? t.g.clubs[t.g.user.clubId] : undefined;
+  if (!club) return fallback(t);
+  const squad = club.squad.map((id) => t.g.players[id]).filter(Boolean);
+  const best = [...squad].sort((a, b) => b.ovr - a.ovr)[0];
+  const scorer = [...squad].sort((a, b) => b.stats.goals - a.stats.goals)[0];
+  const me = t.p;
+  const isMe = best?.id === me.id;
+  const bestName = best?.isUser ? "tu" : best?.first;
+  const sc = !scorer || scorer.stats.goals === 0 ? "" : scorer.id === best?.id ? ` E ainda é o artilheiro, ${scorer.stats.goals} gols` : ` Mas quem mais fez gol foi ${scorer.isUser ? "tu" : scorer.id === me.id ? "eu" : scorer.first} (${scorer.stats.goals})`;
+  if (me.persona.type === "arrogante" && !isMe) return R(t, "melhor_arr", { default: [`Eu, óbvio {l}.${sc}`] }, "feliz");
+  return R(t, "melhor", { default: [isMe ? `Modéstia à parte… eu {l}.${sc}` : `Hoje? ${bestName}, não tem jeito.${sc}`] }, "neutro");
+}
+
+function titular(t: TurnInput): Reply {
+  const club = t.g.user.clubId ? t.g.clubs[t.g.user.clubId] : undefined;
+  if (!club || t.ctx.coachMode) return fallback(t);
+  const xi = autoLineup(t.g, club.squad, club.tactic.formation).xi;
+  const meIn = xi.includes(t.ctx.meId);
+  const heIn = xi.includes(t.p.id);
+  return R(t, "titular", {
+    default: [
+      `${meIn ? "Tu deve começar, pelo que o professor tá mostrando no treino" : "Acho que tu começa no banco, mas entra"}. ${heIn ? "E eu acho que tô no time" : "Eu acho que fico de fora"}`,
+    ],
+    competitivo: [`${heIn ? "Eu tô no time." : "Ainda não tô no time, mas vou brigar."} ${meIn ? "Tu também" : "Tu tá no banco por enquanto"}`],
+  }, "neutro");
+}
+
+function juiz(t: TurnInput): Reply {
+  return R(t, "juiz", {
+    default: ["Juiz ruim demais, sério", "Esse juiz não pode apitar mais nada"],
+    brincalhao: ["O juiz tava de óculos escuros {l}", "Juiz comprado {l} brincadeira… ou não"],
+    lider: ["Não adianta reclamar de juiz. A gente tem que fazer mais"],
+    timido: ["foi estranho mesmo"],
+    competitivo: ["Roubaram, mas a gente também não fez nossa parte"],
+    emocional: ["Fiquei revoltado 😤"],
+  }, "raiva");
+}
+
+function torcida(t: TurnInput): Reply {
+  const pos = t.ctx.pos;
+  return R(t, "torcida", {
+    default: [`Torcida cobra porque ama. ${pos && pos > 8 ? "E com a gente lá embaixo, é normal" : "Mas tão com a gente"}`],
+    lider: ["Responde em campo. Não adianta rede social"],
+    emocional: ["Me afeta muito quando vaiam 😞"],
+    arrogante: ["Daqui a pouco tão gritando meu nome de novo {l}"],
+    brincalhao: ["Fica tranquilo, ganhou o próximo e tu vira ídolo {l}"],
+  }, "neutro");
+}
+
+function clima(t: TurnInput): Reply {
+  return R(t, "clima", {
+    default: ["Aqui também tá assim", "Tempo doido né"],
+    brincalhao: ["Bom pra ficar debaixo da coberta {l}"],
+    competitivo: ["Gramado pesado é bom pra quem corre mais"],
+    timido: ["aqui tbm"],
+  }, "neutro");
+}
+
+function emprestimo(t: TurnInput): Reply {
+  const f = friendship(t);
+  return R(t, f >= 60 ? "emp_sim" : "emp_nao", f >= 60 ? {
+    default: ["Quanto tu precisa? Se for pouco eu mando", "Tá precisando mesmo? Me fala que eu ajudo"],
+    brincalhao: ["Empresto, mas com juros de 300% {l} brincadeira, quanto?"],
+  } : {
+    default: ["Ih, tô apertado também {l}", "Ganha o que, tu? {l} Tá liso?"],
+    arrogante: ["Kkkk com o salário que tu ganha?"],
+    ambicioso: ["Dinheiro e amizade não se mistura, {a}"],
+    timido: ["hm... agora não dá..."],
+  }, "neutro");
+}
+
+function compra(t: TurnInput): Reply {
+  return R(t, "compra", {
+    default: ["Aí sim! Me leva pra dar uma volta", "Que isso, tá rico hein"],
+    brincalhao: ["Ostentação {l} me empresta?"],
+    ambicioso: ["Boa. Investe também, não gasta tudo"],
+    lider: ["Parabéns. Só não esquece de guardar um pouco"],
+    arrogante: ["O meu é melhor {l}"],
+    timido: ["que legal"],
+  }, "feliz");
+}
+
+function treino(t: TurnInput): Reply {
+  const int = t.g.user.training.intensity;
+  return R(t, "treino", {
+    default: [int === 2 ? "Tu tá treinando pesado, hein. Cuidado com lesão" : "Treino hoje foi puxado mesmo", "O professor tá cobrando muito no treino"],
+    competitivo: ["Treino é onde se ganha vaga. Bora com tudo"],
+    brincalhao: ["Treino? Eu fui só pelo café da manhã {l}"],
+    lider: ["Treino bom é jogo fácil. Bora manter"],
+    timido: ["foi pesado..."],
+    emocional: ["Tô todo dolorido 😩"],
+  }, "neutro");
+}
+
+function idolo(t: TurnInput): Reply {
+  const p = t.p.persona;
+  const IDOLS = ["meu pai, que jogava na várzea", "um meia antigo da minha cidade", "o capitão do time que eu torcia quando era moleque", "meu primeiro treinador da base"];
+  const idol = IDOLS[p.birthday % IDOLS.length];
+  return R(t, "idolo", {
+    default: [`Meu ídolo é ${idol}. E o teu?`, `Cresci vendo ${idol}. Foi por isso que comecei`],
+    timido: [`${idol}... e o seu?`],
+    arrogante: [`Meu ídolo? Eu mesmo {l} brincadeira, ${idol}`],
+  }, "neutro", { delta: { trust: 1 } });
+}
+
+function amor(t: TurnInput): Reply {
+  return R(t, "amor", {
+    brincalhao: ["Kkkk essa parte eu não conto {l}", "Tô focado no futebol… e no zap {l}"],
+    timido: ["kkk não gosto de falar disso", "ah... tô tentando"],
+    leal: ["Tô com a mesma pessoa faz tempo, graças a Deus", "Família em primeiro lugar, {a}"],
+    arrogante: ["Fila grande {l}"],
+    emocional: ["Ai, nem me fala, tô apaixonado 😍", "Tô sofrendo por amor, sério {l}"],
+    competitivo: ["Agora o foco é título {l}"],
+    ambicioso: ["Primeiro a carreira, depois o resto"],
+    lider: ["Tô casado, tranquilo. E tu?"],
+  }, "feliz", { delta: { friendship: 1 } });
 }
 
 export function respond(t: TurnInput): Reply {
@@ -634,6 +875,18 @@ export function respond(t: TurnInput): Reply {
     }
   }
   const top = t.a.top as Intent;
+  if (t.pending === "desabafo" && ["desconhecido", "pergunta", "sim", "nao", "zoeira", "humor_mal", "pessoal", "amor", "cansaco"].includes(top)) {
+    return R(t, "desabafo", {
+      default: ["Entendi, {a}. Conta comigo pro que precisar", "Pô, faz sentido tu estar assim. Vai passar, tô aqui"],
+      brincalhao: ["Pô, sério… vem cá que a gente resolve com um {food} e resenha", "Entendi. Qualquer coisa me chama, tô sempre on {l}"],
+      timido: ["entendi... se quiser conversar, tô aqui"],
+      lider: ["Entendi. Uma coisa de cada vez. Amanhã a gente conversa melhor no CT", "Obrigado por me contar. Tu não tá sozinho nisso"],
+      competitivo: ["Tá. Usa isso como combustível no próximo treino"],
+      emocional: ["Te entendo demais 🫂 tô aqui", "Poxa… manda mensagem quando quiser, de verdade"],
+      arrogante: ["Relaxa, vai dar certo. Tu é bom, só tá numa fase"],
+      ambicioso: ["Entendi. Pensa no que dá pra mudar e foca nisso"],
+    }, "carinho", { clearPending: true, delta: { trust: 2, friendship: 1 }, memory: { kind: "apoio", text: "Ele te ouviu num momento difícil." } });
+  }
   if (top === "nome_grupo" || /chamar de|se chamar|apelido de/.test(t.raw.toLowerCase())) { const r = rename(t); if (r) return r; }
   if (top === "fica" || top === "vai") { const r = advice(t, top); if (r) return r; }
   switch (top) {
@@ -648,6 +901,24 @@ export function respond(t: TurnInput): Reply {
     case "jogo_dificil": return jogoDificil(t);
     case "proximo_jogo": return proximoJogo(t);
     case "ultimo_jogo": return ultimoJogo(t);
+    case "humor_mal": return humorMal(t);
+    case "humor_bom": return humorBom(t);
+    case "cansaco": return cansaco(t);
+    case "atividade": return atividade(t);
+    case "tedio": return tedio(t);
+    case "comida": return comida(t);
+    case "autocritica": return autocritica(t);
+    case "gabar": return gabar(t);
+    case "melhor_time": return melhorTime(t);
+    case "titular": return titular(t);
+    case "juiz": return juiz(t);
+    case "torcida": return torcida(t);
+    case "clima": return clima(t);
+    case "dinheiro_emprestado": return emprestimo(t);
+    case "compra": return compra(t);
+    case "treino": return treino(t);
+    case "idolo": return idolo(t);
+    case "amor": return amor(t);
     case "vitoria": return vitoria(t);
     case "derrota": return derrota(t);
     case "meu_gol": return meuGol(t);

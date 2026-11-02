@@ -159,7 +159,7 @@ function Conversations() {
                     {sys ? <div className="dim text-center text-xs">{m.text}</div> : (
                       <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                         <div className={`rise max-w-[82%] rounded-2xl px-3.5 py-2 text-[14.5px] leading-snug ${mine ? "rounded-br-sm bg-paper/[.13]" : "rounded-bl-sm border line surface"}`}>
-                          {showName && p && <div className="mb-0.5 text-[11px] text-accent/90">{p.first}</div>}
+                          {showName && p && <div className="mb-0.5 text-[11px] text-accent/90">{t.members.some((m) => m !== p.id && g.players[m]?.first === p.first) ? `${p.first} ${p.last.charAt(0)}.` : p.first}</div>}
                           {m.text}
                         </div>
                       </div>
