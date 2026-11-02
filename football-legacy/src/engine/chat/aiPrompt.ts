@@ -30,7 +30,10 @@ export function buildAIPrompt(body: AIRequest): string {
     ...profiles.map((p) => `- id ${clip(p.id, 20)} · ${clip(p.name, 40)}: ${clip(p.persona, 400)} Estilo: ${clip(p.style, 300)} Relação com o usuário: ${clip(p.relation, 120)}. Memórias: ${(p.memories ?? []).slice(0, 6).map((m) => clip(m, 160)).join(" | ") || "nenhuma"}`),
     "", "CONVERSA RECENTE:", ...(body.recent ?? []).slice(-10).map((m) => `${clip(m.from, 30)}: ${clip(m.text, 300)}`),
     "", `NOVA MENSAGEM DO USUÁRIO: ${clip(body.message, 500)}`,
-    "", "RASCUNHOS (reação decidida pelo jogo):", ...ids.map((id) => `${id}: ${(body.draft?.[id] ?? []).map((l) => clip(l, 200)).join(" / ")}`),
+    "", "RASCUNHOS (reação decidida pelo jogo):", ...ids.map((id) => {
+      const d = body.draft?.[id] ?? [];
+      return `${id}: ${d.length ? d.map((l) => clip(l, 200)).join(" / ") : "(livre: o jogo não tem reação específica; responda à mensagem do usuário de forma natural, puxando assunto se fizer sentido)"}`;
+    }),
     "", `Responda só com JSON: {"replies":[{"id":"<id>","lines":["mensagem"]}]} com um item para cada id: ${ids.join(", ")}.`,
   ].join("\n");
 }

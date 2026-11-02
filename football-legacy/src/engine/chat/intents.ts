@@ -52,9 +52,10 @@ function hasWord(t: string, words: string[]): boolean {
   const toks = t.trim().split(/\s+/).map((w) => w.replace(/[?!.,]+$/, ""));
   for (const w of words) {
     if (w.includes(" ")) { if (t.includes(` ${w} `) || t.includes(` ${w}`)) return true; continue; }
+    const ww = w.replace(/[?!.,]+$/, "");
     for (const tok of toks) {
-      if (tok === w) return true;
-      if (w.length >= 6 && tok.length >= 5 && lev(tok, w) <= 1) return true;
+      if (tok === ww) return true;
+      if (ww.length >= 6 && tok.length >= 5 && lev(tok, ww) <= 1) return true;
     }
   }
   return false;
@@ -64,7 +65,9 @@ export type Intent =
   | "saudacao" | "como_vai" | "sair_clube" | "proposta" | "assinei" | "ficar" | "jogo_facil" | "jogo_dificil" | "proximo_jogo"
   | "vitoria" | "derrota" | "meu_gol" | "elogio" | "aniversario" | "ofensa" | "zoeira" | "banco" | "tecnico" | "conselho"
   | "desculpa" | "obrigado" | "convite" | "pessoal" | "sonho" | "grupo" | "tchau" | "valor" | "sim" | "nao" | "vai" | "fica"
-  | "lesao" | "rival" | "companheiro" | "pergunta" | "desconhecido" | "nome_grupo" | "titulo" | "provocar_rival" | "ultimo_jogo";
+  | "lesao" | "rival" | "companheiro" | "pergunta" | "desconhecido" | "nome_grupo" | "titulo" | "provocar_rival" | "ultimo_jogo"
+  | "humor_mal" | "humor_bom" | "atividade" | "tedio" | "comida" | "autocritica" | "gabar" | "melhor_time" | "titular"
+  | "juiz" | "torcida" | "clima" | "dinheiro_emprestado" | "compra" | "treino" | "idolo" | "amor" | "cansaco";
 
 export interface Analysis {
   norm: string;
@@ -81,8 +84,26 @@ export interface Analysis {
 }
 
 const RULES: [Intent, number, (t: string) => boolean][] = [
-  ["saudacao", 1, (t) => hasWord(t, ["oi", "ola", "eai", "salve", "fala", "opa", "bom dia", "boa tarde", "hey", "alo"])],
-  ["como_vai", 1.4, (t) => hasWord(t, ["tudo bem", "tudo bom", "como esta", "como vai", "beleza?", "suave?", "firmeza", "de boa?", "como voce esta", "tranquilo?", "como estao"])],
+  ["saudacao", 1, (t) => hasWord(t, ["oi", "ola", "eai", "e ai", "salve", "fala", "opa", "bom dia", "boa tarde", "hey", "alo", "iai", "coe", "rapaziada", "tropa"])],
+  ["como_vai", 1.4, (t) => hasWord(t, ["tudo bem", "tudo bom", "tudo certo", "como esta", "como vai", "como voce esta", "voce esta bem", "esta bem", "como estao", "como anda", "como tem passado"]) || /^\s*(beleza|suave|firmeza|de boa|tranquilo|tudo)\s*\??\s*$/.test(t.replace(/\s+(mano|irmao|parceiro)\b/g, "")) && t.includes("?")],
+  ["humor_mal", 2.0, (t) => hasWord(t, ["triste", "mal", "pra baixo", "desanimado", "chateado", "depressivo", "sozinho", "estressado", "ansioso", "saudade", "com raiva", "puto", "nervoso", "chorando", "dia ruim", "dia horrivel", "briguei", "brigamos", "discuti", "terminei", "terminou comigo", "levei um fora", "problema em casa", "perdi"])],
+  ["humor_bom", 1.8, (t) => hasWord(t, ["feliz", "animado", "felizao", "alegre", "dia bom", "to bem demais", "radiante", "empolgado"])],
+  ["cansaco", 2, (t) => hasWord(t, ["cansado", "exausto", "morto", "quebrado", "acabado", "sem energia", "com sono", "sono", "vou dormir", "dormir"])],
+  ["atividade", 2.2, (t) => hasWord(t, ["o que voce esta fazendo", "que voce esta fazendo", "fazendo o que", "o que ta fazendo", "o que voce faz agora", "ta fazendo o que", "esta fazendo o que", "que faz ai", "o que esta fazendo", "fazendo oq"]) || /\bo que .*fazendo\b/.test(t)],
+  ["tedio", 2, (t) => hasWord(t, ["entediado", "tedio", "sem nada pra fazer", "nada pra fazer", "que tedio", "morgado"])],
+  ["comida", 1.8, (t) => hasWord(t, ["fome", "comer", "almoco", "janta", "jantar", "cafe da manha", "lanche", "comida", "pizza", "hamburguer", "churrasco", "acai"])],
+  ["autocritica", 2.4, (t) => hasWord(t, ["joguei mal", "fui mal", "errei", "joguei muito mal", "perdi o gol", "fui horrivel", "nao joguei nada", "culpa minha", "minha culpa", "falhei"])],
+  ["gabar", 2.6, (t) => hasWord(t, ["eu sou o melhor", "sou o melhor", "sou craque", "eu sou craque", "sou o cara", "eu jogo muito", "sou o rei", "melhor do mundo"])],
+  ["melhor_time", 2.3, (t) => hasWord(t, ["melhor do time", "melhor jogador do time", "melhor do elenco", "quem e o melhor", "quem joga mais", "craque do time"])],
+  ["titular", 2.3, (t) => hasWord(t, ["vai ser titular", "quem vai jogar", "time titular", "vai jogar domingo", "escalacao", "quem joga", "vai comecar jogando", "vou ser titular"])],
+  ["juiz", 2.3, (t) => hasWord(t, ["juiz", "arbitro", "arbitragem", "roubou", "roubado", "var", "impedimento", "penalti mal marcado"])],
+  ["torcida", 2.1, (t) => hasWord(t, ["torcida", "torcedor", "torcedores", "vaias", "vaiaram", "protesto", "cobrando a gente", "pegando no pe"])],
+  ["clima", 1.6, (t) => hasWord(t, ["chovendo", "chuva", "frio", "calor", "tempo hoje", "temperatura", "nevando"])],
+  ["dinheiro_emprestado", 2.4, (t) => hasWord(t, ["me empresta", "empresta uma grana", "emprestar dinheiro", "to sem grana", "to duro", "me ajuda com grana", "pix"])],
+  ["compra", 2, (t) => hasWord(t, ["comprei", "vou comprar", "carro novo", "casa nova", "relogio novo", "tenis novo", "mansao"])],
+  ["treino", 1.9, (t) => hasWord(t, ["treino", "treinar", "treinamento", "academia", "preparacao fisica", "rachao", "coletivo"])],
+  ["idolo", 2.2, (t) => hasWord(t, ["idolo", "time do coracao", "torcia pra", "torce pra", "inspiracao", "jogador favorito", "posicao favorita", "irmao", "irma", "tem filho"])],
+  ["amor", 2, (t) => hasWord(t, ["namorando", "namorada", "namorado", "as mina", "as minas", "crush", "ficante", "casado", "casar", "solteiro", "date", "gata"])],
   ["sair_clube", 3, (t) => hasWord(t, ["sair do clube", "sair do time", "sair daqui", "ir embora", "deixar o clube", "vou sair", "quero sair", "pensando em sair", "mudar de time", "mudar de clube", "vou embora", "saindo do", "trocar de time", "sair da equipe"])],
   ["proposta", 2.6, (t) => hasWord(t, ["proposta", "oferta", "querem me contratar", "me querem", "sondagem", "interesse", "me sondou", "fizeram uma proposta"])],
   ["assinei", 3.2, (t) => hasWord(t, ["assinei", "ja assinei", "fechei com", "acertei com", "vou jogar no", "vou jogar na", "sou do", "assinar com"])],
@@ -94,7 +115,7 @@ const RULES: [Intent, number, (t: string) => boolean][] = [
   ["vitoria", 2.2, (t) => hasWord(t, ["ganhamos", "vencemos", "que vitoria", "amassamos", "ganhamo", "vitoria", "goleamos", "passamos", "classificamos", "tres pontos"])],
   ["derrota", 2.2, (t) => hasWord(t, ["perdemos", "derrota", "que vergonha", "jogamos mal", "fomos mal", "perdemo", "tomamos", "levamos", "eliminados", "vexame"])],
   ["meu_gol", 2.3, (t) => hasWord(t, ["meu gol", "fiz gol", "marquei", "viu meu gol", "hat trick", "fiz dois", "fiz tres", "meus gols", "que golaco eu", "fiz um golaco"])],
-  ["elogio", 2, (t) => hasWord(t, ["jogou muito", "joga muito", "jogou bem", "craque", "monstro", "brabo", "mandou bem", "que jogada", "voce e bom", "fera", "jogou demais", "foi o melhor", "golaco"])],
+  ["elogio", 2, (t) => hasWord(t, ["jogou muito", "joga muito", "jogando muito", "ta voando", "esta voando", "joga demais", "e bom de bola", "voce e foda", "jogou pra caramba", "jogou bem", "craque", "monstro", "brabo", "mandou bem", "que jogada", "voce e bom", "fera", "jogou demais", "foi o melhor", "golaco"])],
   ["aniversario", 3.5, (t) => hasWord(t, ["aniversario", "niver", "feliz aniversario", "parabens pelo", "felicidades", "muitos anos"])],
   ["ofensa", 3, (t) => hasWord(t, ["lixo", "perna de pau", "bagre", "horrivel", "idiota", "burro", "fraco", "inutil", "ridiculo", "otario", "babaca", "pereba", "vagabundo", "ruim", "mediocre", "fraquinho"])],
   ["zoeira", 1, (t) => /\bkkk\b/.test(t) || hasWord(t, ["zoando", "zoeira", "brincadeira", "piada", "to de boa"])],

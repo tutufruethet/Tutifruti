@@ -39,13 +39,13 @@ export function stylize(raw: string, p: Persona, rng: Rng, emo: Emo, vars: Style
   }
   if (p.type === "timido") {
     t = t.toLowerCase();
-    if (rng.chance(0.35)) t = t.replace(/[.!]?$/, "...");
+    if (rng.chance(0.35) && !t.endsWith("...")) t = t.replace(/[.!]?$/, "...");
   } else if ((emo === "hype" || emo === "raiva") && rng.chance(p.caps * 0.45)) {
     t = t.toUpperCase();
   } else if (p.slang > 0.55 && rng.chance(0.55) && !/^[A-ZÀ-Ú]{2}/.test(t)) {
     t = t.charAt(0).toLowerCase() + t.slice(1);
   }
-  if (p.slang > 0.5 && rng.chance(0.65)) t = t.replace(/\.$/, "");
+  if (p.slang > 0.5 && rng.chance(0.65) && !t.endsWith("...")) t = t.replace(/\.$/, "");
   if (rng.chance(p.emoji * 0.55)) t = `${t} ${rng.pick(EMOJI[emo])}`;
   return t;
 }

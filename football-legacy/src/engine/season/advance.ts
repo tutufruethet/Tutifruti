@@ -4,6 +4,8 @@ import { detectGroups, levelLabel, weeklyChemistryDecay } from "../chemistry/rel
 import { processChatTriggers } from "../chat/triggers";
 import { checkAchievements } from "../career/achievements";
 import { weeklyCoachTick } from "../career/coach";
+import { agentDaily, agentWeekly } from "../career/agent";
+import { romanceWeekly } from "../social/romance";
 import { expireDecisions, maybeDecision } from "../career/decisions";
 import { updateCallups, weeklyPlayerTick } from "../career/player";
 import { createMatch, finalizeMatch, simulateToEnd, type MatchState } from "../match/engine";
@@ -66,6 +68,7 @@ function dailyTick(g: GameState, rng: Rng, playedToday: Set<string>) {
   expireOffers(g);
   resolveUserBids(g);
   expireDecisions(g, rng);
+  agentDaily(g, rng);
 }
 
 function weeklyTick(g: GameState, rng: Rng) {
@@ -84,6 +87,8 @@ function weeklyTick(g: GameState, rng: Rng) {
   for (const c of Object.values(g.clubs)) c.balance -= c.squad.reduce((s, id) => s + (g.players[id]?.contract.wage ?? 0), 0);
   weeklyPlayerTick(g, rng);
   weeklyCoachTick(g, rng);
+  agentWeekly(g, rng);
+  romanceWeekly(g, rng);
   weeklyChemistryDecay(g);
   for (const ev of detectGroups(g)) {
     const gr = ev.group;

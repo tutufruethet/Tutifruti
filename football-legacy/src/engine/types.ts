@@ -289,6 +289,7 @@ export interface TransferOffer {
   direction: "in" | "out" | "user"; // in: usuário (treinador) comprando; out: clube do usuário recebendo; user: proposta pelo jogador do usuário
   note?: string;
   counter?: number;
+  viaAgent?: boolean;
 }
 
 export interface ChampionEntry {
@@ -483,6 +484,7 @@ export interface UserCareer {
   lastBenchStreak: number;
   legacyScore: number;
   money: number; // patrimônio pessoal (modo jogador)
+  agent?: AgentHire;
   pendingSummary?: number; // temporada concluída para mostrar resumo
   hallOfFameSaved?: boolean;
 }
@@ -529,6 +531,8 @@ export interface GameState {
   log: string[];
   celebrations: { groupId: string; level: GroupLevel; kind: string; day: number }[];
   inbox: GameEvent[];
+  agents?: Agent[];
+  romance?: RomanceState;
   seasonSummary?: SeasonEndSummary;
 }
 
@@ -558,3 +562,64 @@ export type GameEvent =
   | { t: "coach_sacked"; clubId: string }
   | { t: "promise"; playerId: string }
   | { t: "advice"; playerId: string; decisionId: string };
+
+// ---------- Agente (empresário) ----------
+export type AgentGoal = "salario" | "clube_grande" | "minutos" | "europa" | "casa";
+
+export interface Agent {
+  id: string;
+  name: string;
+  rep: number; // 0..100: alcance e peso nas negociações
+  commission: number; // fração do salário semanal
+  negotiation: number; // 0..100: quanto melhora salários
+  network: "AS" | "EU" | "global";
+  style: string;
+  bio: string;
+}
+
+export interface AgentHire {
+  agentId: string;
+  hiredDay: number;
+  goal: AgentGoal;
+  searchUntil?: number;
+  reports: { day: number; text: string }[];
+  offersFound: number;
+  earned: number;
+}
+
+// ---------- Vida pessoal / namoro ----------
+export type FanVibe = "romantica" | "divertida" | "ciumenta" | "independente" | "timida" | "famosa" | "torcedora" | "intelectual";
+export type FanStage = "fa" | "conversando" | "ficando" | "namorando" | "noivos" | "casados" | "ex";
+
+export interface Fan {
+  id: string;
+  name: string;
+  age: number; // sempre adulta (20+)
+  city: string;
+  nation: NationId;
+  job: string;
+  vibe: FanVibe;
+  likes: string[];
+  attraction: number; // 0..100
+  affection: number; // 0..100
+  trust: number; // 0..100
+  stage: FanStage;
+  metDay: number;
+  stageDay: number;
+  lastTalk: number;
+  dates: number;
+  famous: boolean;
+  laugh: string;
+  emoji: number;
+  birthday: number;
+  used: string[];
+  dailyDelta: number;
+  dailyDay: number;
+}
+
+export interface RomanceState {
+  fans: Fan[];
+  partnerId?: string;
+  weddingDay?: number;
+  log: { day: number; text: string }[];
+}

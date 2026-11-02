@@ -113,7 +113,7 @@ function Inner() {
               {userOffers.length === 0 ? <Empty>Nenhuma proposta. Jogue bem, ganhe fama ou peça para ser negociado em “Meu jogador”.</Empty> : (
                 <ul>{userOffers.map((o) => (
                   <li key={o.id} className="border-b line py-4">
-                    <div className="flex items-center gap-3"><Crest g={g} id={o.fromClubId} size={28} /><div className="min-w-0 flex-1"><div className="truncate">{teamName(g, o.fromClubId)} <span className="dim text-xs">· {g.comps[g.clubs[o.fromClubId].leagueId]?.name}</span></div><div className="dim text-xs">{formatDate(o.day)} · vence {formatDate(o.expires)} · {status(o.status)}</div></div></div>
+                    <div className="flex items-center gap-3"><Crest g={g} id={o.fromClubId} size={28} /><div className="min-w-0 flex-1"><div className="truncate">{teamName(g, o.fromClubId)} <span className="dim text-xs">· {g.comps[g.clubs[o.fromClubId].leagueId]?.name}</span>{o.viaAgent && <span className="text-xs text-accent"> · via agente</span>}</div><div className="dim text-xs">{formatDate(o.day)} · vence {formatDate(o.expires)} · {status(o.status)}</div></div></div>
                     <div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                       <div><div className="label">Transferência</div><div className="num">{formatMoney(o.fee)}</div></div>
                       <div><div className="label">Salário</div><div className="num">{formatMoney(o.wage)}/sem</div></div>

@@ -7,6 +7,7 @@ import { seasonStart, sortTable, teamName } from "../season/schedule";
 import type { GameState, Player } from "../types";
 import { ageOf, avgRating, fairWage, formatMoney, fullName, roundMoney } from "../world/players";
 import { rollInjury } from "../season/apply";
+import { agentRenewalBonus } from "./agent";
 
 export const userPlayer = (g: GameState): Player | undefined => (g.user.playerId ? g.players[g.user.playerId] : undefined);
 
@@ -38,14 +39,14 @@ export function weeklyPlayerTick(g: GameState, rng: Rng) {
   const week = Math.floor((g.day - seasonStart(g.season)) / 7);
   if (me.clubId && me.contract.until <= g.season && week >= 22 && week <= 36 && !g.decisions.some((d) => d.kind === "renovacao") && !g.offers.some((o) => o.direction === "user" && o.note === "renovacao")) {
     const club = g.clubs[me.clubId];
-    const wage = roundMoney(Math.max(me.contract.wage * 1.1, fairWage(me, g.day)), 100);
+    const wage = roundMoney(Math.max(me.contract.wage * 1.1, fairWage(me, g.day)) * agentRenewalBonus(g), 100);
     const years = ageOf(me, g.day) >= 31 ? 2 : 3;
     const playing = me.stats.starts >= me.stats.apps * 0.5;
     if (playing || rng.chance(0.5)) {
       g.decisions.push({
         id: `d${g.ids++}`, kind: "renovacao", day: g.day, expires: g.day + 10,
         title: `${club.name} quer renovar seu contrato`,
-        body: `Proposta: ${formatMoney(wage)}/sem por ${years} temporadas. Seu contrato acaba no fim desta temporada.`,
+        body: `Proposta: ${formatMoney(wage)}/sem por ${years} temporadas. Seu contrato acaba no fim desta temporada.${g.user.agent ? " Seu agente já negociou um aumento." : ""}`,
         options: [
           { id: "pedir_mais", label: "Pedir 20% a mais", hint: "o clube pode recusar" },
           { id: "recusar", label: "Recusar e sair de graça", hint: "vira agente livre no fim da temporada" },

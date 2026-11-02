@@ -41,6 +41,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: "treinador_ano", name: "Professor", desc: "Seja eleito Treinador do Ano.", mode: "coach", test: (g) => g.history.milestones.some((m) => m.text.includes("Treinador do Ano")) },
   { id: "vitorias_100", name: "Cem vitórias", desc: "Vença 100 jogos como treinador.", mode: "coach", test: (g) => g.user.coachRecord.w >= 100 },
   { id: "temporadas_5", name: "Longevidade", desc: "Complete 5 temporadas.", test: (g) => g.season - g.user.startSeason >= 5 },
+  { id: "namoro", name: "Coração ocupado", desc: "Comece um namoro.", test: (g) => g.history.milestones.some((m) => m.text.startsWith("Começou a namorar")) },
+  { id: "casamento", name: "Sim, aceito", desc: "Case-se.", test: (g) => g.history.milestones.some((m) => m.text.startsWith("Casou com")) },
   { id: "transferencia_grande", name: "Negócio milionário", desc: "Mude de clube por mais de €30M.", mode: "player", test: (g) => (me(g)?.clubs ?? []).some((c) => c.fee >= 30_000_000) },
 ];
 
