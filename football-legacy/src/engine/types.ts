@@ -289,6 +289,7 @@ export interface TransferOffer {
   direction: "in" | "out" | "user"; // in: usuário (treinador) comprando; out: clube do usuário recebendo; user: proposta pelo jogador do usuário
   note?: string;
   counter?: number;
+  viaAgent?: boolean;
 }
 
 export interface ChampionEntry {
@@ -483,6 +484,7 @@ export interface UserCareer {
   lastBenchStreak: number;
   legacyScore: number;
   money: number; // patrimônio pessoal (modo jogador)
+  agent?: AgentHire;
   pendingSummary?: number; // temporada concluída para mostrar resumo
   hallOfFameSaved?: boolean;
 }
@@ -529,6 +531,7 @@ export interface GameState {
   log: string[];
   celebrations: { groupId: string; level: GroupLevel; kind: string; day: number }[];
   inbox: GameEvent[];
+  agents?: Agent[];
   seasonSummary?: SeasonEndSummary;
 }
 
@@ -558,3 +561,27 @@ export type GameEvent =
   | { t: "coach_sacked"; clubId: string }
   | { t: "promise"; playerId: string }
   | { t: "advice"; playerId: string; decisionId: string };
+
+// ---------- Agente (empresário) ----------
+export type AgentGoal = "salario" | "clube_grande" | "minutos" | "europa" | "casa";
+
+export interface Agent {
+  id: string;
+  name: string;
+  rep: number; // 0..100: alcance e peso nas negociações
+  commission: number; // fração do salário semanal
+  negotiation: number; // 0..100: quanto melhora salários
+  network: "AS" | "EU" | "global";
+  style: string;
+  bio: string;
+}
+
+export interface AgentHire {
+  agentId: string;
+  hiredDay: number;
+  goal: AgentGoal;
+  searchUntil?: number;
+  reports: { day: number; text: string }[];
+  offersFound: number;
+  earned: number;
+}

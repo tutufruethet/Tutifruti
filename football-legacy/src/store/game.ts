@@ -6,6 +6,7 @@ import { createMatch, simulateToEnd, type MatchState } from "@/engine/match/engi
 import { commitTurn, planTurn, type TurnPlan } from "@/engine/chat/chat";
 import { localBackend, metaOf, addToHall, type HallEntry } from "./persist";
 import { legacyScore } from "@/engine/career/player";
+import { AGENT_THREAD, agentChat } from "@/engine/career/agent";
 import { DEFAULT_SETTINGS } from "@/engine/world/generate";
 import { ollamaModels, ollamaReplies } from "@/lib/ollama";
 import type { AIRequest } from "@/engine/chat/aiPrompt";
@@ -143,6 +144,7 @@ export const useGame = create<Store>((set, get) => ({
   send: async (threadId, text) => {
     const g = get().game;
     if (!g || !text.trim()) return;
+    if (threadId === AGENT_THREAD) { agentChat(g, text.trim()); get().bump(); return; }
     const plan: TurnPlan = planTurn(g, threadId, text.trim());
     let override: Record<string, string[]> | undefined;
     const s = g.settings;

@@ -8,6 +8,7 @@ import { POS_LABEL } from "@/engine/constants";
 import { formatShortDate } from "@/engine/world/players";
 import type { ChatThread, GameState } from "@/engine/types";
 import { Avatar, Bar, PageTitle, Tabs } from "@/components/ui";
+import { AGENT_THREAD, currentAgent } from "@/engine/career/agent";
 
 const TYPE_LABEL: Record<string, string> = { brincalhao: "Brincalhão", competitivo: "Competitivo", timido: "Tímido", leal: "Leal", ambicioso: "Ambicioso", arrogante: "Arrogante", lider: "Líder", emocional: "Emocional" };
 
@@ -27,6 +28,7 @@ function lastMsg(t: ChatThread) {
 
 function ThreadAvatar({ g, t }: { g: GameState; t: ChatThread }) {
   const ps = t.members.map((m) => g.players[m]).filter(Boolean);
+  if (t.id === AGENT_THREAD) { const a = currentAgent(g); const [f, l] = (a?.name ?? "Agente X").split(" "); return <Avatar p={{ id: "ag", first: f, last: l ?? "" }} size={40} />; }
   if (t.kind === "dm" && ps[0]) return <Avatar p={ps[0]} size={40} />;
   return (
     <div className="relative h-10 w-10 shrink-0">
@@ -70,13 +72,14 @@ function Conversations() {
   const rel = other ? getRel(g, me, other.id) : undefined;
   const group = t?.groupId ? g.groups.find((x) => x.id === t.groupId) : undefined;
   const suggestions = useMemo(() => {
+    if (t?.id === AGENT_THREAD) return ["Procura um clube pra mim", "Quanto eu tô valendo?", "E meu contrato?", "Quero jogar na Europa"];
     const s = ["E aí, tudo bem?", "Esse jogo vai ser fácil", "Viu o último jogo?"];
     if (g.user.mode === "player") s.push("Tô pensando em sair do clube", "Tô cansado de ficar no banco");
     if (other?.persona.birthday === ((g.day % 364) + 364) % 364) s.unshift("Parabéns pelo aniversário!");
     if (g.decisions.some((d) => d.kind === "conselho_amigo" && d.data?.playerId === other?.id)) s.unshift("Fica, a gente tá construindo algo", "Vai, é tua chance");
     if (group) s.push(`Bora chamar a gente de "${group.name}"?`);
     return s.slice(0, 5);
-  }, [g, other, group]);
+  }, [g, other, group, t?.id]);
 
   const submit = async (msg: string) => {
     if (!t || !msg.trim()) return;
@@ -131,7 +134,7 @@ function Conversations() {
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[15px]">{t.name}</div>
                   <div className="dim truncate text-xs">
-                    {other ? `${TYPE_LABEL[other.persona.type]} · ${POS_LABEL[other.pos]} · ${other.clubId ? g.clubs[other.clubId].short : "sem clube"}` : t.members.map((m) => g.players[m]?.first).join(", ")}
+                    {t.id === AGENT_THREAD ? "Seu empresário · peça para procurar clube, seu valor ou contrato" : other ? `${TYPE_LABEL[other.persona.type]} · ${POS_LABEL[other.pos]} · ${other.clubId ? g.clubs[other.clubId].short : "sem clube"}` : t.members.map((m) => g.players[m]?.first).join(", ")}
                     {group ? ` · ${levelLabel(group.level, group.members.length)}` : ""}
                   </div>
                 </div>

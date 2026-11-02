@@ -19,6 +19,7 @@ export const NAV = [
   { href: "/jogo/classificacao", label: "Classificação" },
   { href: "/jogo/elenco", label: "Elenco" },
   { href: "/jogo/transferencias", label: "Transferências" },
+  { href: "/jogo/agente", label: "Agente" },
   { href: "/jogo/treino", label: "Treino" },
   { href: "/jogo/noticias", label: "Notícias" },
   { href: "/jogo/vestiario", label: "Vestiário" },

@@ -236,22 +236,30 @@ export function userPlayerOffers(g: GameState, rng: Rng) {
   });
   if (!cands.length) return;
   const c = rng.weighted(cands, (x) => 1 + x.reputation / 20);
+  makeUserOffer(g, rng, c, {});
+}
+
+/** Cria uma proposta real de um clube pelo jogador do usuário (usada pelo mercado e pelo agente). */
+export function makeUserOffer(g: GameState, rng: Rng, c: Club, opts: { wageMult?: number; viaAgent?: boolean }): TransferOffer | null {
+  const me = g.players[g.user.playerId!];
+  if (!me) return null;
   const ask = me.clubId ? askingPrice(g, me) : 0;
   const fee = me.clubId ? roundMoney(ask * rng.range(0.82, 1.15)) : 0;
-  const wage = roundMoney(wageDemand(g, me, c) * rng.range(0.95, 1.25), 100);
+  const wage = roundMoney(wageDemand(g, me, c) * rng.range(0.95, 1.25) * (opts.wageMult ?? 1), 100);
   const avg = clubAvgOvr(g, c, 11);
   const role = me.ovr >= avg + 1 ? "titular" : ageOf(me, g.day) <= 21 ? "promessa" : "rotacao";
   const offer: TransferOffer = {
     id: `o${g.ids++}`, playerId: me.id, fromClubId: c.id, toClubId: me.clubId, fee, wage, years: rng.int(2, 5), role,
-    day: g.day, expires: g.day + 7, status: "pendente", direction: "user",
+    day: g.day, expires: g.day + (opts.viaAgent ? 10 : 7), status: "pendente", direction: "user", viaAgent: opts.viaAgent,
   };
   g.offers.push(offer);
   g.inbox.push({ t: "offer", offerId: offer.id });
-  addNews(g, {
+  if (!opts.viaAgent) addNews(g, {
     title: `${c.name} faz proposta por você`,
     body: `${c.name} oferece ${fee ? formatMoney(fee) + " ao " + teamName(g, me.clubId ?? "") + " e " : ""}${formatMoney(wage)}/sem por ${offer.years} temporadas. Papel: ${role}.`,
     tag: "transferencia", importance: 3, clubIds: [c.id], playerIds: [me.id],
   });
+  return offer;
 }
 
 /** IA faz propostas por jogadores do clube do usuário (modo treinador). */
