@@ -10,6 +10,9 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultMatchMode: "ao_vivo",
   advancedAI: false,
   aiDailyLimit: 40,
+  aiProvider: "servidor",
+  ollamaUrl: "http://localhost:11434",
+  ollamaModel: "",
   autosave: true,
 };
 

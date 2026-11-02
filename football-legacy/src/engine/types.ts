@@ -454,6 +454,9 @@ export interface Settings {
   defaultMatchMode: "instantanea" | "ao_vivo" | "interativa";
   advancedAI: boolean;
   aiDailyLimit: number;
+  aiProvider: "servidor" | "ollama"; // ollama = chamado direto do navegador, no computador do jogador
+  ollamaUrl: string;
+  ollamaModel: string;
   autosave: boolean;
 }
 

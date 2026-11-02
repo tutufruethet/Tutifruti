@@ -24,10 +24,14 @@ export default function Config() {
   const setGame = useGame((s) => s.setGame);
   const toast = useGame((s) => s.showToast);
   const aiStatus = useGame((s) => s.aiStatus);
+  const aiInfo = useGame((s) => s.aiInfo);
+  const ollamaList = useGame((s) => s.ollamaList);
+  const checkAI = useGame((s) => s.checkAI);
   const lastSavedAt = useGame((s) => s.lastSavedAt);
   const act = useGame((s) => s.act);
   const file = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(g.name);
+  const [url, setUrl] = useState(g.settings.ollamaUrl);
   const s = g.settings;
 
   const exportSave = () => {
@@ -61,14 +65,40 @@ export default function Config() {
         </div>
       </Section>
       <Section idx="B" title="IA avançada no Vestiário" className="mt-10">
-        <p className="dim mb-3 text-sm leading-relaxed">
-          Opcional. Com uma chave de API configurada no servidor (variável <span className="num">ANTHROPIC_API_KEY</span>), os personagens reescrevem as falas com um modelo de linguagem, sempre a partir dos fatos reais da carreira. A chave nunca vai para o navegador. Sem ela, o modo local (offline) continua funcionando.
+        <p className="dim mb-4 text-sm leading-relaxed">
+          Opcional. Sem IA, o modo local (offline) continua funcionando. Com IA, os personagens reescrevem as falas com um modelo de linguagem, sempre a partir dos fatos reais da carreira; relações e memórias continuam com o jogo.
         </p>
-        <p className="mb-3 text-sm">Status do servidor: <span className={aiStatus === "disponivel" ? "text-accent" : "dim"}>{aiStatus === "disponivel" ? "disponível" : aiStatus === "indisponivel" ? "não configurado" : "verificando…"}</span></p>
-        <Toggle on={s.advancedAI} onChange={(v) => set({ advancedAI: v })} label="Usar IA avançada quando disponível" />
+        <Toggle on={s.advancedAI} onChange={(v) => { set({ advancedAI: v }); void checkAI(); }} label="Usar IA avançada" />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b line py-3.5">
+          <span className="text-[15px]">De onde vem a IA</span>
+          <span className="flex gap-1">
+            <button className="chip" data-on={s.aiProvider === "ollama"} onClick={() => { set({ aiProvider: "ollama" }); void checkAI(); }}>Ollama no meu computador</button>
+            <button className="chip" data-on={s.aiProvider === "servidor"} onClick={() => { set({ aiProvider: "servidor" }); void checkAI(); }}>Servidor</button>
+          </span>
+        </div>
+        {s.aiProvider === "ollama" ? (
+          <div className="border-b line py-3.5">
+            <label className="block"><span className="label">Endereço do Ollama</span>
+              <div className="mt-2 flex gap-2"><input className="input" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="http://localhost:11434" /><button className="btn" onClick={() => { set({ ollamaUrl: url.trim() || "http://localhost:11434" }); void checkAI(); }}>Conectar</button></div>
+            </label>
+            {ollamaList.length > 0 && (
+              <label className="mt-3 block"><span className="label">Modelo</span>
+                <select className="input mt-2" value={s.ollamaModel} onChange={(e) => { set({ ollamaModel: e.target.value }); void checkAI(); }}>{ollamaList.map((m) => <option key={m} value={m}>{m}</option>)}</select>
+              </label>
+            )}
+            <div className="dim mt-4 space-y-1 text-xs leading-relaxed">
+              <p>1. Instale o Ollama (ollama.com) e baixe um modelo: <span className="num text-paper">ollama pull llama3.2</span> (ou qwen2.5, gemma3…).</p>
+              <p>2. Se o jogo estiver publicado num site, libere o endereço dele antes de iniciar o Ollama: <span className="num text-paper">OLLAMA_ORIGINS=&quot;{typeof window !== "undefined" ? window.location.origin : "*"}&quot; ollama serve</span></p>
+              <p>3. Clique em Conectar. Tudo roda no seu computador, sem custo e sem mandar nada para a internet.</p>
+            </div>
+          </div>
+        ) : (
+          <p className="dim border-b line py-3.5 text-xs leading-relaxed">No servidor, a IA vem do Ollama (variáveis <span className="num">OLLAMA_URL</span> e <span className="num">OLLAMA_MODEL</span>) ou do Claude (<span className="num">ANTHROPIC_API_KEY</span>). Chaves nunca vão para o navegador.</p>
+        )}
+        <p className="py-3.5 text-sm">Status: <span className={aiStatus === "disponivel" ? "text-accent" : "dim"}>{aiStatus === "disponivel" ? `conectado · ${aiInfo}` : aiStatus === "indisponivel" ? aiInfo || "indisponível" : "verificando…"}</span></p>
         <label className="flex items-center justify-between gap-6 border-b line py-3.5">
           <span className="text-[15px]">Limite diário de mensagens com IA <span className="dim block text-xs">Usadas hoje: {g.chat.aiDay === g.day ? g.chat.aiUsedToday : 0}</span></span>
-          <select className="input max-w-[110px]" value={s.aiDailyLimit} onChange={(e) => set({ aiDailyLimit: +e.target.value })}>{[10, 20, 40, 80, 150].map((v) => <option key={v} value={v}>{v}</option>)}</select>
+          <select className="input max-w-[110px]" value={s.aiDailyLimit} onChange={(e) => set({ aiDailyLimit: +e.target.value })}>{[10, 20, 40, 80, 150, 500].map((v) => <option key={v} value={v}>{v}</option>)}</select>
         </label>
       </Section>
       <Section idx="C" title="Salvamentos" className="mt-10">

@@ -6,6 +6,9 @@ import { createMatch, simulateToEnd, type MatchState } from "@/engine/match/engi
 import { commitTurn, planTurn, type TurnPlan } from "@/engine/chat/chat";
 import { localBackend, metaOf, addToHall, type HallEntry } from "./persist";
 import { legacyScore } from "@/engine/career/player";
+import { DEFAULT_SETTINGS } from "@/engine/world/generate";
+import { ollamaModels, ollamaReplies } from "@/lib/ollama";
+import type { AIRequest } from "@/engine/chat/aiPrompt";
 
 export interface LiveMatch {
   fixtureId: string;
@@ -23,6 +26,9 @@ interface Store {
   live: LiveMatch | null;
   toast: string | null;
   aiStatus: "desconhecido" | "disponivel" | "indisponivel";
+  aiInfo: string;
+  ollamaList: string[];
+  sending: { threadId: string; text: string } | null;
   typingUntil: Record<string, number>;
   setGame: (g: GameState | null) => void;
   act: <T>(fn: (g: GameState) => T) => T | undefined;
@@ -63,8 +69,15 @@ export const useGame = create<Store>((set, get) => ({
   live: null,
   toast: null,
   aiStatus: "desconhecido",
+  aiInfo: "",
+  ollamaList: [],
+  sending: null,
   typingUntil: {},
-  setGame: (g) => set({ game: g, v: get().v + 1, pendingMatch: null, live: null }),
+  setGame: (g) => {
+    if (g) g.settings = { ...DEFAULT_SETTINGS, ...g.settings }; // saves antigos ganham as opções novas
+    set({ game: g, v: get().v + 1, pendingMatch: null, live: null });
+    if (g) void get().checkAI();
+  },
   bump: () => {
     set({ v: get().v + 1 });
     const g = get().game;
@@ -136,13 +149,24 @@ export const useGame = create<Store>((set, get) => ({
     if (s.advancedAI && get().aiStatus === "disponivel") {
       if (g.chat.aiDay !== g.day) { g.chat.aiDay = g.day; g.chat.aiUsedToday = 0; }
       if (g.chat.aiUsedToday < s.aiDailyLimit) {
+        const req: AIRequest = { facts: plan.facts, profiles: plan.profiles, recent: plan.recent, message: plan.text, draft: Object.fromEntries(plan.responders.map((r) => [r.id, r.lines])) };
+        set({ sending: { threadId, text: plan.text } });
         try {
-          const res = await fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ facts: plan.facts, profiles: plan.profiles, recent: plan.recent, message: plan.text, draft: Object.fromEntries(plan.responders.map((r) => [r.id, r.lines])) }) });
-          if (res.ok) {
-            const data = (await res.json()) as { replies?: Record<string, string[]> };
-            if (data.replies) { override = data.replies; g.chat.aiUsedToday++; }
+          if (s.aiProvider === "ollama") {
+            const r = await ollamaReplies(s.ollamaUrl, s.ollamaModel, req);
+            if (r) { override = r; g.chat.aiUsedToday++; } else get().showToast("O Ollama não respondeu direito. Usei o modo local.");
+          } else {
+            const res = await fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
+            if (res.ok) {
+              const data = (await res.json()) as { replies?: Record<string, string[]> };
+              if (data.replies && Object.keys(data.replies).length) { override = data.replies; g.chat.aiUsedToday++; }
+            }
           }
-        } catch { /* cai para o modo local */ }
+        } catch {
+          if (s.aiProvider === "ollama") get().showToast("Não consegui falar com o Ollama. Usei o modo local.");
+        } finally {
+          set({ sending: null });
+        }
       } else get().showToast("Limite diário de mensagens com IA atingido. Usando o modo local.");
     }
     const msgs = commitTurn(g, plan, override);
@@ -177,12 +201,25 @@ export const useGame = create<Store>((set, get) => ({
     if (t) setTimeout(() => { if (get().toast === t) set({ toast: null }); }, 3800);
   },
   checkAI: async () => {
+    const g = get().game;
+    const s = g?.settings;
+    if (s?.aiProvider === "ollama") {
+      try {
+        const list = await ollamaModels(s.ollamaUrl);
+        const model = s.ollamaModel && list.includes(s.ollamaModel) ? s.ollamaModel : list[0] ?? "";
+        if (g && model !== s.ollamaModel) g.settings.ollamaModel = model;
+        set({ ollamaList: list, aiStatus: list.length ? "disponivel" : "indisponivel", aiInfo: list.length ? `Ollama · ${model}` : "Ollama sem modelos (rode: ollama pull llama3.2)" });
+      } catch {
+        set({ ollamaList: [], aiStatus: "indisponivel", aiInfo: "Ollama não encontrado nesse endereço" });
+      }
+      return;
+    }
     try {
       const r = await fetch("/api/chat", { method: "GET" });
-      const d = (await r.json()) as { available?: boolean };
-      set({ aiStatus: d.available ? "disponivel" : "indisponivel" });
+      const d = (await r.json()) as { available?: boolean; provider?: string; model?: string };
+      set({ aiStatus: d.available ? "disponivel" : "indisponivel", aiInfo: d.available ? `${d.provider === "ollama" ? "Ollama no servidor" : "Claude"} · ${d.model}` : "servidor sem IA configurada" });
     } catch {
-      set({ aiStatus: "indisponivel" });
+      set({ aiStatus: "indisponivel", aiInfo: "servidor sem IA configurada" });
     }
   },
 }));

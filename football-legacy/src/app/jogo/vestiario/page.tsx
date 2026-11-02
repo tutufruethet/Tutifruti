@@ -40,6 +40,7 @@ function Conversations() {
   const act = useGame((s) => s.act);
   const send = useGame((s) => s.send);
   const typingUntil = useGame((s) => s.typingUntil);
+  const sending = useGame((s) => s.sending);
   const params = useSearchParams();
   const router = useRouter();
   const open = params.get("t");
@@ -166,6 +167,12 @@ function Conversations() {
                   </div>
                 );
               })}
+              {sending && sending.threadId === t.id && (
+                <>
+                  <div className="flex justify-end"><div className="max-w-[82%] rounded-2xl rounded-br-sm bg-paper/[.13] px-3.5 py-2 text-[14.5px] leading-snug opacity-70">{sending.text}</div></div>
+                  <div className="flex items-center gap-2 pt-1"><div className="typing rounded-2xl border line surface px-3 py-2.5"><i /><i /><i /></div><span className="dim text-xs">digitando…</span></div>
+                </>
+              )}
               {typer && g.players[typer.from] && (
                 <div className="flex items-center gap-2 pt-1">
                   <div className="typing rounded-2xl border line surface px-3 py-2.5"><i /><i /><i /></div>
@@ -180,7 +187,7 @@ function Conversations() {
               </div>
               <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); void submit(text); }}>
                 <input className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Mensagem" maxLength={300} aria-label="Mensagem" />
-                <button className="btn btn-primary" disabled={!text.trim()}>Enviar</button>
+                <button className="btn btn-primary" disabled={!text.trim() || !!sending}>Enviar</button>
               </form>
             </div>
           </>
@@ -256,13 +263,15 @@ function Groups() {
 
 function Inner() {
   const g = useG();
+  const aiOn = useGame((s) => s.aiStatus === "disponivel") && g.settings.advancedAI;
+  const aiInfo = useGame((s) => s.aiInfo);
   const params = useSearchParams();
   const router = useRouter();
   const tab = (params.get("aba") as "conversas" | "amigos" | "grupos") ?? "conversas";
   const setTab = (v: string) => router.push(`/jogo/vestiario?aba=${v}`);
   return (
     <div>
-      <PageTitle kicker="(10) Vestiário" title="Vestiário" meta={<><span>{unreadCount(g)} não lidas</span><span>{g.groups.filter((x) => x.active).length} duplas e trios ativos</span><span>{g.settings.advancedAI ? "IA avançada ligada" : "Modo local (offline)"}</span></>} />
+      <PageTitle kicker="(10) Vestiário" title="Vestiário" meta={<><span>{unreadCount(g)} não lidas</span><span>{g.groups.filter((x) => x.active).length} duplas e trios ativos</span><span>{aiOn ? `IA: ${aiInfo}` : "Modo local (offline)"}</span></>} />
       <Tabs value={tab} onChange={setTab} items={[{ id: "conversas", label: "Conversas", badge: unreadCount(g) }, { id: "amigos", label: "Amigos" }, { id: "grupos", label: "Duplas e trios" }]} />
       {tab === "conversas" && <Conversations />}
       {tab === "amigos" && <Friends />}

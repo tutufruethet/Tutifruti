@@ -45,7 +45,7 @@ Progresso por fase. Marcado = funciona no jogo e tem teste ou foi verificado no 
 - [x] Conversas em grupo: mais de um responde, o cauteloso contradiz o confiante com dado real, ninguém repete o colega.
 - [x] Mensagens espontâneas: véspera de jogo grande, gols, derrota, banco, proposta, amigo pedindo conselho (e o conselho decide a transferência), saída do usuário, título, final perdida, aniversário, vendas, lesão, convocação.
 - [x] Indicador de digitação e não lidas, com opção de desligar a animação.
-- [x] Modo IA avançada opcional via rota de servidor (chave nunca no navegador), com limite diário e por minuto.
+- [x] Modo IA avançada opcional: Ollama no computador do jogador (direto do navegador), Ollama no servidor ou Claude no servidor (chave nunca no navegador), com limite diário e por minuto e volta automática ao modo local.
 
 ## Fase 5 — Experiência
 - [x] Interface escura (grafite + verde), 2 famílias tipográficas, linhas finas, um easing.
@@ -55,7 +55,7 @@ Progresso por fase. Marcado = funciona no jogo e tem teste ou foi verificado no 
 - [x] Service worker para jogar offline depois do primeiro acesso.
 
 ## Fase 6 — Validação
-- [x] 32 testes (Vitest): partidas, tabelas, campeões, artilharia, virada de temporada, acesso/rebaixamento, save/load, mercado, contratos, evolução, conversas.
+- [x] 37 testes (Vitest): partidas, tabelas, campeões, artilharia, virada de temporada, acesso/rebaixamento, save/load, mercado, contratos, evolução, conversas, integração com Ollama (servidor falso).
 - [x] Carreira de jogador de 3 temporadas e de treinador de 3 temporadas simuladas nos testes.
 - [x] Fluxos testados no navegador com Playwright (criação, partida interativa, Vestiário, todas as telas, modo treinador, celular).
 

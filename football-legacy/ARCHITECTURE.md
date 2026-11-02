@@ -32,7 +32,11 @@ src/
 7. **Química sem clique.** Relações só são acompanhadas no clube do usuário (as antigas ficam para reencontros). Duplas e trios são detectados toda segunda-feira. O bônus em campo é pequeno e limitado (≤ 3,5% no ataque).
 8. **Conversas em duas camadas.**
    - **Local (offline):** `intents.ts` normaliza o texto (gírias, abreviações, letras repetidas, erros com distância de edição) e pontua ~40 intenções; `context.ts` reúne **apenas fatos reais** do estado (próximo jogo, último resultado, propostas existentes, banco, lesão, memórias); `responder.ts` escolhe a reação pela personalidade e pela relação; `style.ts` aplica o jeito de escrever. Anti-repetição por personagem e por turno.
-   - **IA avançada (opcional):** a interface manda à rota `/api/chat` os fatos, perfis, memórias e o rascunho local. O servidor chama o modelo com a chave do ambiente (`ANTHROPIC_API_KEY`), saída em JSON estruturado, e o modelo só reescreve as falas. Relações, memórias e ações continuam decididas pelo motor local, então a IA não muda regras nem inventa fatos. Limites: diário no jogo (configurável) e por minuto no servidor.
+   - **IA avançada (opcional):** o motor monta fatos, perfis, memórias e o rascunho local (`chat/aiPrompt.ts`, compartilhado). O modelo só reescreve as falas, em JSON com schema; relações, memórias e ações continuam decididas pelo motor local, então a IA não muda regras nem inventa fatos. Três origens possíveis:
+     - **Ollama no computador do jogador** (`lib/ollama.ts`): o navegador chama `http://localhost:11434/api/chat` direto. Grátis, privado, funciona mesmo com o jogo publicado num site (basta liberar a origem com `OLLAMA_ORIGINS`).
+     - **Ollama no servidor**: a rota `/api/chat` usa `OLLAMA_URL` + `OLLAMA_MODEL`.
+     - **Claude no servidor**: a rota usa `ANTHROPIC_API_KEY` (a chave nunca vai ao navegador).
+     Se a IA falhar ou demorar, a resposta local é usada. Limites: diário no jogo (configurável) e por minuto no servidor.
 9. **Memória.** Cada personagem guarda até 24 fatos com peso e data; a relevância decai com o tempo. O resumo (6 fatos mais relevantes) vai para o contexto da IA e para respostas locais (ex.: lembrar uma promessa de ficar).
 10. **Preparado para nuvem.** `SaveBackend` (persist.ts) isola o armazenamento; uma implementação remota pode entrar sem mudar o motor. Nada de conta/login agora.
 
@@ -43,7 +47,11 @@ npm run dev          # desenvolvimento
 npm test             # testes do motor (Vitest)
 npm run build && npm start
 ```
-IA avançada (opcional): defina `ANTHROPIC_API_KEY` no ambiente do servidor. Variáveis extras: `FL_AI_MODEL` (padrão `claude-opus-5-5`), `FL_AI_RATE_PER_MIN` (padrão 20), `FL_AI_DISABLED=1`. A rota usa fallback do servidor em caso de recusa do modelo.
+IA avançada (opcional):
+- **Ollama local (recomendado, grátis):** `ollama pull llama3.2`, depois no jogo: Configurações → IA avançada → “Ollama no meu computador” → Conectar. Com o jogo publicado num site, inicie com `OLLAMA_ORIGINS="https://seu-site" ollama serve`.
+- **Ollama no servidor:** `OLLAMA_URL=http://host:11434` e `OLLAMA_MODEL=llama3.2` (opcional `FL_AI_PROVIDER=ollama`).
+- **Claude no servidor:** `ANTHROPIC_API_KEY`; `FL_AI_MODEL` (padrão `claude-opus-5-5`).
+- Outras: `FL_AI_RATE_PER_MIN` (padrão 20), `FL_AI_DISABLED=1`.
 
 ## Desempenho
 - Avançar uma semana: ~80 ms num notebook comum (8 ligas, ~70 jogos, evolução de ~3.400 jogadores).

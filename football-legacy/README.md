@@ -6,4 +6,4 @@ Simulador de carreira de futebol no navegador, em português. Comece como promes
 - Testes: `npm test`
 - [ROADMAP.md](ROADMAP.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [Pesquisa](docs/PESQUISA.md)
 
-Tudo é fictício: clubes, escudos (gerados em SVG), cidades e jogadores. Funciona offline; o modo de IA avançada no Vestiário é opcional e exige uma chave de API no servidor.
+Tudo é fictício: clubes, escudos (gerados em SVG), cidades e jogadores. Funciona offline. O modo de IA avançada no Vestiário é opcional: use o **Ollama** no seu computador (grátis, Configurações → IA avançada) ou configure um modelo no servidor. Detalhes em [ARCHITECTURE.md](ARCHITECTURE.md).
